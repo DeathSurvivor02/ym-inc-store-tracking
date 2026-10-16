@@ -1,0 +1,26 @@
+{
+  "name": "yminc---software",
+  "version": "1.0.0",
+  "description": "[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16+-336791?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org/) [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/) [![License](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DeathSurvivor02/ym-inc-store-tracking.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/DeathSurvivor02/ym-inc-store-tracking/issues"
+  },
+  "homepage": "https://github.com/DeathSurvivor02/ym-inc-store-tracking#readme",
+  "dependencies": {
+    "dotenv": "^18.0.8",
+    "pg": "^8.23.1",
+    "xlsx": "^0.18.5"
+  }
+}

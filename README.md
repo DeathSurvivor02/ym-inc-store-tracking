@@ -128,12 +128,13 @@ The schema provides purpose-built database views powering executive reporting an
   - [x] Retail Analytics Fact Tables & 4-5-4 Fiscal Calendar
   - [x] High-performance indexes & executive reporting views
   - [x] Docker Compose environment & master seed fixtures
-- [ ] **Phase 2: Backend API & Automation Engine**
-  - [ ] REST / GraphQL API for store queries and milestone transitions
-  - [ ] POS & Traffic Ingestion workers
+  - [x] Cross-platform Node.js DB migration runner (`db/migrate.js`)
+  - [x] Automated Excel Store Roster Importer (`importer/import_store_roster.js`)
+- [x] **Phase 2: Applications & Client Tools**
+  - [x] **Windows Desktop App (`desktop-app/`)**: C# / .NET 10 WPF store deployment management application with PostgreSQL direct connect, RBAC authentication, donut visualization charts, and interactive mall compliance rules.
+  - [x] **Executive Web Dashboard (`frontend/`)**: Modern React + TypeScript + Vite web app featuring live store lifecycle status, circuit readiness tracker, interactive mall compliance inspector, roster bulk importer modal, and executive donut charts.
+- [ ] **Phase 3: Production Integrations & Ingestion Pipelines**
   - [ ] Scheduled Monday 06:00 AM EST WSPR aggregation engine
   - [ ] Automated Anomaly Detection (Traffic hardware outages, labour leakage > 16.5%)
-- [ ] **Phase 3: Executive Frontend Dashboard**
-  - [ ] Interactive Canvas & Real-time KPI Scorecards
-  - [ ] Donut & Pie Chart visual analytics (Chart.js / Recharts)
-  - [ ] Store Lifecycle Kanban & Interactive Gantt slippage viewer
+  - [ ] Real-time carrier API webhook integration for telecom WAN circuits
+

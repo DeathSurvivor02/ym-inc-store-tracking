@@ -22,6 +22,9 @@ An enterprise-grade relational database and analytics platform engineered for **
 | **`W49`** | **West 49** | Action Sports | Skateboarders & Streetwear Enthusiasts |
 | **`STN`** | **Stitches** | Value Apparel | Budget-Friendly Youth Essentials |
 | **`UB`** | **Urban Behavior** | Fast Fashion | Affordable Urban Street Trends |
+| **`CR`** | **Charlotte Russe** | Junior Fashion | Young Trend-Forward Women (Ages 15–28) |
+| **`R21`** | **rue21** | Fast Fashion | Teens & Young Adults Graphic Apparel & Denim (Ages 14–25) |
+| **`M`** | **Mandee** | Value Apparel | Contemporary Value Womenswear & Everyday Essentials (Ages 18–40) |
 
 ---
 

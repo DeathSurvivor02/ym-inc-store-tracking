@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS banners (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT chk_banner_tier CHECK (brand_tier IN (
         'Fast Fashion', 'Denim & Casual', 'Contemporary Women', 
-        'Action Sports', 'Value Apparel', 'Youth', 'Core Fashion'
+        'Action Sports', 'Value Apparel', 'Youth', 'Core Fashion', 'Junior Fashion'
     ))
 );
 

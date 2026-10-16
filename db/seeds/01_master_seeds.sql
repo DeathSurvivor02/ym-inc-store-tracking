@@ -170,36 +170,37 @@ FROM mall_properties m
 ON CONFLICT (mall_id) DO NOTHING;
 
 -- ----------------------------------------------------------------------------
--- 9. Sample Retail Stores (Canadian Fleet + Charlotte Russe, rue21, Mandee)
+-- 9. Sample Retail Stores (Canadian Fleet 6xxx + US Chains 6000s)
 -- ----------------------------------------------------------------------------
 INSERT INTO stores (store_number, banner_id, district_id, mall_id, store_name, project_type, operational_status, overall_health, store_status, address_line1, city, state_province, postal_code, country_code, gross_sqft, sales_sqft, opening_date, target_open_date) VALUES
--- Canadian Fleet:
-('UP-101', 1, 1, 1, 'Urban Planet Yorkdale',        'Active Fleet',        'Grand Open',            'On Track', 'Active', '3401 Dufferin St CRU-102', 'Toronto',     'ON', 'M6A 2T9', 'CA', 18500, 15000, '2015-08-15', NULL),
-('BN-8142',2, 1, 1, 'Bluenotes Yorkdale Flagship',   'Major Remodel',       'Low-Voltage & Power Poles','At Risk','Active', '3401 Dufferin St CRU-218B','Toronto',     'ON', 'M6A 2T9', 'CA', 8500,  7200,  '2002-11-20', '2026-11-27'),
-('SS-302', 3, 2, 3, 'Suzy Shier Square One',        'Active Fleet',        'Grand Open',            'On Track', 'Active', '100 City Centre Dr #2-104','Mississauga', 'ON', 'L5B 2C9', 'CA', 5200,  4400,  '2010-04-12', NULL),
-('LC-405', 4, 1, 2, 'Le Château CF Eaton Centre',   'Active Fleet',        'Grand Open',            'On Track', 'Active', '220 Yonge St Unit 140',   'Toronto',     'ON', 'M5B 2H1', 'CA', 7800,  6500,  '2021-09-01', NULL),
-('F21-501',6, 1, 2, 'Forever 21 Eaton Centre',      'Active Fleet',        'Grand Open',            'On Track', 'Active', '220 Yonge St Unit 300',   'Toronto',     'ON', 'M5B 2H1', 'CA', 24000, 20500, '2022-03-15', NULL),
-('W49-601',8, 1, 6, 'West 49 Vaughan Mills',        'Active Fleet',        'Grand Open',            'On Track', 'Active', '1 Bass Pro Mills Dr',     'Vaughan',     'ON', 'L4K 5W4', 'CA', 6000,  5000,  '2018-05-10', NULL),
-('UP-102', 1, 2, 7, 'Urban Planet Heartland Big Box','Active Fleet',        'Grand Open',            'On Track', 'Active', '6045 Mavis Rd Unit 12',   'Mississauga', 'ON', 'L5R 4G6', 'CA', 22000, 19000, '2016-10-01', NULL),
-('BN-8201',2, 8, 4, 'Bluenotes West Edmonton Mall', 'Active Fleet',        'Grand Open',            'On Track', 'Active', '8882 170 St NW #1204',    'Edmonton',    'AB', 'T5T 4J2', 'CA', 9000,  7600,  '2012-07-22', NULL),
-('SRN-701',5, 3, 1, 'Sirens Scarborough Town Centre','Active Fleet',       'Grand Open',            'On Track', 'Active', '300 Borough Dr CRU-41',   'Scarborough', 'ON', 'M1P 4P5', 'CA', 4800,  4000,  '2014-06-18', NULL),
-('UK-801', 7, 1, 1, 'Urban Kids Yorkdale',          'Active Fleet',        'Grand Open',            'On Track', 'Active', '3401 Dufferin St CRU-105', 'Toronto',     'ON', 'M6A 2T9', 'CA', 6500,  5500,  '2019-11-05', NULL),
-('UP-105', 1, 10,5, 'Urban Planet Metrotown',       'New Store Opening',   'Site Survey',           'On Track', 'Active', '4700 Kingsway Unit M12',  'Burnaby',     'BC', 'V5H 4M5', 'CA', 19500, 16500, '2026-12-15', '2026-12-15'),
+-- Canadian Fleet (6xxx Series):
+('6101', 1, 1, 1, 'Urban Planet Yorkdale',        'Active Fleet',        'Grand Open',            'On Track', 'Active', '3401 Dufferin St CRU-102', 'Toronto',     'ON', 'M6A 2T9', 'CA', 18500, 15000, '2015-08-15', NULL),
+('6142', 2, 1, 1, 'Bluenotes Yorkdale Flagship',   'Major Remodel',       'Low-Voltage & Power Poles','At Risk','Active', '3401 Dufferin St CRU-218B','Toronto',     'ON', 'M6A 2T9', 'CA', 8500,  7200,  '2002-11-20', '2026-11-27'),
+('6302', 3, 2, 3, 'Suzy Shier Square One',        'Active Fleet',        'Grand Open',            'On Track', 'Active', '100 City Centre Dr #2-104','Mississauga', 'ON', 'L5B 2C9', 'CA', 5200,  4400,  '2010-04-12', NULL),
+('6405', 4, 1, 2, 'Le Château CF Eaton Centre',   'Active Fleet',        'Grand Open',            'On Track', 'Active', '220 Yonge St Unit 140',   'Toronto',     'ON', 'M5B 2H1', 'CA', 7800,  6500,  '2021-09-01', NULL),
+('6501', 6, 1, 2, 'Forever 21 Eaton Centre',      'Active Fleet',        'Grand Open',            'On Track', 'Active', '220 Yonge St Unit 300',   'Toronto',     'ON', 'M5B 2H1', 'CA', 24000, 20500, '2022-03-15', NULL),
+('6601', 8, 1, 6, 'West 49 Vaughan Mills',        'Active Fleet',        'Grand Open',            'On Track', 'Active', '1 Bass Pro Mills Dr',     'Vaughan',     'ON', 'L4K 5W4', 'CA', 6000,  5000,  '2018-05-10', NULL),
+('6102', 1, 2, 7, 'Urban Planet Heartland Big Box','Active Fleet',        'Grand Open',            'On Track', 'Active', '6045 Mavis Rd Unit 12',   'Mississauga', 'ON', 'L5R 4G6', 'CA', 22000, 19000, '2016-10-01', NULL),
+('6201', 2, 8, 4, 'Bluenotes West Edmonton Mall', 'Active Fleet',        'Grand Open',            'On Track', 'Active', '8882 170 St NW #1204',    'Edmonton',    'AB', 'T5T 4J2', 'CA', 9000,  7600,  '2012-07-22', NULL),
+('6701', 5, 3, 1, 'Sirens Scarborough Town Centre','Active Fleet',       'Grand Open',            'On Track', 'Active', '300 Borough Dr CRU-41',   'Scarborough', 'ON', 'M1P 4P5', 'CA', 4800,  4000,  '2014-06-18', NULL),
+('6801', 7, 1, 1, 'Urban Kids Yorkdale',          'Active Fleet',        'Grand Open',            'On Track', 'Active', '3401 Dufferin St CRU-105', 'Toronto',     'ON', 'M6A 2T9', 'CA', 6500,  5500,  '2019-11-05', NULL),
+('6105', 1, 10,5, 'Urban Planet Metrotown',       'New Store Opening',   'Site Survey',           'On Track', 'Active', '4700 Kingsway Unit M12',  'Burnaby',     'BC', 'V5H 4M5', 'CA', 19500, 16500, '2026-12-15', '2026-12-15'),
 
--- US Banners: Charlotte Russe (CR)
-('CR-3001', 11, 12, 8, 'Charlotte Russe Garden State Plaza', 'Active Fleet', 'Grand Open',          'On Track', 'Active', 'One Garden State Plaza Spc 2104','Paramus','NJ','07652','US', 7500, 6200, '2020-03-01', NULL),
-('CR-3002', 11, 12, 9, 'Charlotte Russe Roosevelt Field',    'Active Fleet', 'Grand Open',          'On Track', 'Active', '630 Old Country Rd Spc 1140',   'Garden City','NY','11530','US', 8200, 6900, '2021-08-14', NULL),
-('CR-3003', 11, 13, 10,'Charlotte Russe King of Prussia',    'Active Fleet', 'Grand Open',          'On Track', 'Active', '160 N Gulph Rd Spc 2410',       'King of Prussia','PA','19406','US', 9100, 7800, '2019-10-22', NULL),
-('CR-3004', 11, 15, 12,'Charlotte Russe Sawgrass Mills',     'Major Remodel','Low-Voltage & Power Poles','At Risk','Active', '12801 W Sunrise Blvd Spc 408', 'Sunrise', 'FL', '33323', 'US', 8800, 7400, '2018-04-19', '2026-11-30'),
+-- US Stores (Strictly 6000s Series):
+-- Charlotte Russe (CR):
+('6001', 11, 12, 8, 'Charlotte Russe Garden State Plaza', 'Active Fleet', 'Grand Open',          'On Track', 'Active', 'One Garden State Plaza Spc 2104','Paramus','NJ','07652','US', 7500, 6200, '2020-03-01', NULL),
+('6002', 11, 12, 9, 'Charlotte Russe Roosevelt Field',    'Active Fleet', 'Grand Open',          'On Track', 'Active', '630 Old Country Rd Spc 1140',   'Garden City','NY','11530','US', 8200, 6900, '2021-08-14', NULL),
+('6003', 11, 13, 10,'Charlotte Russe King of Prussia',    'Active Fleet', 'Grand Open',          'On Track', 'Active', '160 N Gulph Rd Spc 2410',       'King of Prussia','PA','19406','US', 9100, 7800, '2019-10-22', NULL),
+('6004', 11, 15, 12,'Charlotte Russe Sawgrass Mills',     'Major Remodel','Low-Voltage & Power Poles','At Risk','Active', '12801 W Sunrise Blvd Spc 408', 'Sunrise', 'FL', '33323', 'US', 8800, 7400, '2018-04-19', '2026-11-30'),
 
--- US Banners: rue21 (R21)
-('R21-4001', 12, 16, 13,'rue21 Galleria Houston',            'Active Fleet', 'Grand Open',          'On Track', 'Active', '5085 Westheimer Rd Spc 3600',  'Houston',  'TX', '77056', 'US', 7200, 6000, '2024-09-10', NULL),
-('R21-4002', 12, 14, 11,'rue21 Woodfield Mall',              'Active Fleet', 'Grand Open',          'On Track', 'Active', '5 Woodfield Mall Spc H102',     'Schaumburg','IL', '60173', 'US', 7600, 6400, '2024-10-01', NULL),
-('R21-4003', 12, 12, 15,'rue21 Woodbridge Center',           'New Store Opening','IT Staging & Telecom','On Track','Active','250 Woodbridge Ctr Spc 120',   'Woodbridge','NJ','07095', 'US', 6800, 5600, '2026-11-15', '2026-11-15'),
+-- rue21 (R21):
+('6010', 12, 16, 13,'rue21 Galleria Houston',            'Active Fleet', 'Grand Open',          'On Track', 'Active', '5085 Westheimer Rd Spc 3600',  'Houston',  'TX', '77056', 'US', 7200, 6000, '2024-09-10', NULL),
+('6011', 12, 14, 11,'rue21 Woodfield Mall',              'Active Fleet', 'Grand Open',          'On Track', 'Active', '5 Woodfield Mall Spc H102',     'Schaumburg','IL', '60173', 'US', 7600, 6400, '2024-10-01', NULL),
+('6012', 12, 12, 15,'rue21 Woodbridge Center',           'New Store Opening','IT Staging & Telecom','On Track','Active','250 Woodbridge Ctr Spc 120',   'Woodbridge','NJ','07095', 'US', 6800, 5600, '2026-11-15', '2026-11-15'),
 
--- US Banners: Mandee (M)
-('M-5001',  13, 12, 14,'Mandee Queens Center',              'Active Fleet', 'Grand Open',          'On Track', 'Active', '90-15 Queens Blvd Spc 115',     'Elmhurst',  'NY', '11373', 'US', 6500, 5400, '2017-06-05', NULL),
-('M-5002',  13, 12, 15,'Mandee Woodbridge Center',           'Active Fleet', 'Grand Open',          'On Track', 'Active', '250 Woodbridge Ctr Spc 240',   'Woodbridge','NJ','07095', 'US', 6200, 5100, '2016-11-18', NULL)
+-- Mandee (M):
+('6020', 13, 12, 14,'Mandee Queens Center',              'Active Fleet', 'Grand Open',          'On Track', 'Active', '90-15 Queens Blvd Spc 115',     'Elmhurst',  'NY', '11373', 'US', 6500, 5400, '2017-06-05', NULL),
+('6021', 13, 12, 15,'Mandee Woodbridge Center',           'Active Fleet', 'Grand Open',          'On Track', 'Active', '250 Woodbridge Ctr Spc 240',   'Woodbridge','NJ','07095', 'US', 6200, 5100, '2016-11-18', NULL)
 ON CONFLICT (store_number) DO UPDATE SET 
     banner_id = EXCLUDED.banner_id,
     district_id = EXCLUDED.district_id,
@@ -231,14 +232,14 @@ FROM stores s
 ON CONFLICT (store_id) DO NOTHING;
 
 -- ----------------------------------------------------------------------------
--- 11. Infrastructure Tracking for Sample Remodel Stores (BN-8142 & CR-3004)
+-- 11. Infrastructure Tracking for Sample Remodel Stores (6142 & 6004)
 -- ----------------------------------------------------------------------------
 DO $$
 DECLARE
     v_bn_id INT;
     v_cr_id INT;
 BEGIN
-    SELECT store_id INTO v_bn_id FROM stores WHERE store_number = 'BN-8142';
+    SELECT store_id INTO v_bn_id FROM stores WHERE store_number = '6142';
     IF v_bn_id IS NOT NULL THEN
         -- Site Survey
         INSERT INTO site_surveys (store_id, survey_vendor, surveyor_name, surveyor_phone, scheduled_date, actual_survey_date, survey_status, ceiling_type, ceiling_height_feet, demarc_location, demarc_conduit_available, mdf_rack_location, mdf_rack_space_adequate)
@@ -263,8 +264,8 @@ BEGIN
         ON CONFLICT DO NOTHING;
     END IF;
 
-    -- Charlotte Russe Sawgrass Mills (CR-3004) US Infrastructure Tracking
-    SELECT store_id INTO v_cr_id FROM stores WHERE store_number = 'CR-3004';
+    -- Charlotte Russe Sawgrass Mills (6004) US Infrastructure Tracking
+    SELECT store_id INTO v_cr_id FROM stores WHERE store_number = '6004';
     IF v_cr_id IS NOT NULL THEN
         INSERT INTO site_surveys (store_id, survey_vendor, surveyor_name, surveyor_phone, scheduled_date, actual_survey_date, survey_status, ceiling_type, ceiling_height_feet, demarc_location, demarc_conduit_available, mdf_rack_location, mdf_rack_space_adequate)
         VALUES (v_cr_id, 'National Retail Services US', 'Marcus Brody', '954-555-8812', '2026-10-01', '2026-10-02', 'Completed & Approved', 'Drop Ceiling (2x2 Acoustic Tiles)', 15.00, 'Sawgrass Mall Demarc Riser C', TRUE, 'MDF Back Room', TRUE)

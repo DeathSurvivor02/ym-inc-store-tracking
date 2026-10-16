@@ -1,0 +1,21 @@
+store_number,banner_code,store_name,mall_code,address_line1,city,state_province,postal_code,country_code,gross_sqft,sales_sqft,operational_status,overall_health,target_open_date
+6001,CR,Charlotte Russe Garden State Plaza,MALL-GSP,One Garden State Plaza Spc 2104,Paramus,NJ,07652,US,7500,6200,Grand Open,On Track,2020-03-01
+6002,CR,Charlotte Russe Roosevelt Field,MALL-ROOS,630 Old Country Rd Spc 1140,Garden City,NY,11530,US,8200,6900,Grand Open,On Track,2021-08-14
+6003,CR,Charlotte Russe King of Prussia,MALL-KOP,160 N Gulph Rd Spc 2410,King of Prussia,PA,19406,US,9100,7800,Grand Open,On Track,2019-10-22
+6004,CR,Charlotte Russe Sawgrass Mills,MALL-SAW,12801 W Sunrise Blvd Spc 408,Sunrise,FL,33323,US,8800,7400,Low-Voltage & Power Poles,At Risk,2026-11-30
+6010,R21,rue21 Galleria Houston,MALL-GALL,5085 Westheimer Rd Spc 3600,Houston,TX,77056,US,7200,6000,Grand Open,On Track,2024-09-10
+6011,R21,rue21 Woodfield Mall,MALL-WOOD,5 Woodfield Mall Spc H102,Schaumburg,IL,60173,US,7600,6400,Grand Open,On Track,2024-10-01
+6012,R21,rue21 Woodbridge Center,MALL-WBGE,250 Woodbridge Ctr Spc 120,Woodbridge,NJ,07095,US,6800,5600,IT Staging & Telecom,On Track,2026-11-15
+6020,M,Mandee Queens Center,MALL-QUEE,90-15 Queens Blvd Spc 115,Elmhurst,NY,11373,US,6500,5400,Grand Open,On Track,2017-06-05
+6021,M,Mandee Woodbridge Center,MALL-WBGE,250 Woodbridge Ctr Spc 240,Woodbridge,NJ,07095,US,6200,5100,Grand Open,On Track,2016-11-18
+6101,UP,Urban Planet Yorkdale,MALL-YORK,3401 Dufferin St CRU-102,Toronto,ON,M6A 2T9,CA,18500,15000,Grand Open,On Track,2015-08-15
+6142,BN,Bluenotes Yorkdale Flagship,MALL-YORK,3401 Dufferin St CRU-218B,Toronto,ON,M6A 2T9,CA,8500,7200,Low-Voltage & Power Poles,At Risk,2026-11-27
+6302,SS,Suzy Shier Square One,MALL-SQONE,100 City Centre Dr #2-104,Mississauga,ON,L5B 2C9,CA,5200,4400,Grand Open,On Track,2010-04-12
+6405,LC,Le Château CF Eaton Centre,MALL-EATN,220 Yonge St Unit 140,Toronto,ON,M5B 2H1,CA,7800,6500,Grand Open,On Track,2021-09-01
+6501,F21,Forever 21 Eaton Centre,MALL-EATN,220 Yonge St Unit 300,Toronto,ON,M5B 2H1,CA,24000,20500,Grand Open,On Track,2022-03-15
+6601,W49,West 49 Vaughan Mills,MALL-VGH,1 Bass Pro Mills Dr,Vaughan,ON,L4K 5W4,CA,6000,5000,Grand Open,On Track,2018-05-10
+6102,UP,Urban Planet Heartland Big Box,MALL-HRT,6045 Mavis Rd Unit 12,Mississauga,ON,L5R 4G6,CA,22000,19000,Grand Open,On Track,2016-10-01
+6201,BN,Bluenotes West Edmonton Mall,MALL-WEM,8882 170 St NW #1204,Edmonton,AB,T5T 4J2,CA,9000,7600,Grand Open,On Track,2012-07-22
+6701,SRN,Sirens Scarborough Town Centre,MALL-YORK,300 Borough Dr CRU-41,Scarborough,ON,M1P 4P5,CA,4800,4000,Grand Open,On Track,2014-06-18
+6801,UK,Urban Kids Yorkdale,MALL-YORK,3401 Dufferin St CRU-105,Toronto,ON,M6A 2T9,CA,6500,5500,Grand Open,On Track,2019-11-05
+6105,UP,Urban Planet Metrotown,MALL-METRO,4700 Kingsway Unit M12,Burnaby,BC,V5H 4M5,CA,19500,16500,Site Survey,On Track,2026-12-15

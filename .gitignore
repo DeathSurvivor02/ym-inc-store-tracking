@@ -74,3 +74,4 @@ obj/
 *.userosscache
 *.sln.docstates
 
+.neon

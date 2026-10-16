@@ -2,8 +2,8 @@ namespace YMInc.StoreDeploymentApp.Models
 {
     public enum UserRole
     {
-        PM,     // Project Manager (Lead Deployment)
-        PA,     // Project Administrator (Compliance, Badging, Ingestion)
+        PM,     // Project Manager
+        PA,     // Project Administrator
         PS1,    // Project Specialist 1
         PS2,    // Project Specialist 2
         PS3,    // Project Specialist 3
@@ -37,11 +37,12 @@ namespace YMInc.StoreDeploymentApp.Models
             _ => "#10B981"             // Emerald for PS 1..4
         };
 
-        // Internal team permissions
-        public bool CanApproveMilestones => Role is UserRole.PM;
-        public bool CanImportRoster => Role is UserRole.PM or UserRole.PA;
-        public bool CanManageCompliance => Role is UserRole.PM or UserRole.PA;
-        public bool CanUpdateInfrastructure => Role is UserRole.PM or UserRole.PS1 or UserRole.PS2 or UserRole.PS3 or UserRole.PS4;
-        public bool CanUpdateCircuits => Role is UserRole.PM or UserRole.PS1 or UserRole.PS2 or UserRole.PS3 or UserRole.PS4;
+        // All internal team members can view, edit, and update information
+        public bool CanEditAllInformation => true;
+        public bool CanApproveMilestones => true;
+        public bool CanImportRoster => true;
+        public bool CanManageCompliance => true;
+        public bool CanUpdateInfrastructure => true;
+        public bool CanUpdateCircuits => true;
     }
 }

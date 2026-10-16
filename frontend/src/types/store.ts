@@ -21,6 +21,8 @@ export type OperationalStatus =
   | 'IT Staging & Telecom'
   | 'Merchandising'
   | 'Pre-Opening QA'
+  | 'Open'
+  | 'Closed'
   | 'Grand Open'
   | 'Temporary Closed'
   | 'Renovating'

@@ -19,6 +19,7 @@ namespace YMInc.StoreDeploymentApp.Views
         private string? _selectedSliceFilter;
         private string _countryFilter = "ALL";
         private string _bannerFilter = "ALL";
+        private string _searchFieldFilter = "ALL";
         private string _searchQuery = string.Empty;
 
         public MainWindow(User user)
@@ -116,11 +117,29 @@ namespace YMInc.StoreDeploymentApp.Views
             {
                 string q = _searchQuery.ToLowerInvariant().Trim();
                 filtered = filtered.Where(s =>
-                    s.StoreNumber.ToLowerInvariant().Contains(q) ||
-                    s.StoreName.ToLowerInvariant().Contains(q) ||
-                    s.BannerName.ToLowerInvariant().Contains(q) ||
-                    s.City.ToLowerInvariant().Contains(q) ||
-                    (s.Mall != null && s.Mall.PropertyName.ToLowerInvariant().Contains(q)));
+                {
+                    return _searchFieldFilter switch
+                    {
+                        "MALL" => s.MallName.ToLowerInvariant().Contains(q),
+                        "ADDRESS" => s.Address.ToLowerInvariant().Contains(q) || s.FullAddress.ToLowerInvariant().Contains(q),
+                        "CITY" => s.City.ToLowerInvariant().Contains(q) || s.StateProvince.ToLowerInvariant().Contains(q),
+                        "STORE_NO" => s.StoreNumber.ToLowerInvariant().Contains(q),
+                        "PHONE" => (s.PhoneNumber != null && s.PhoneNumber.ToLowerInvariant().Contains(q)) ||
+                                   (s.PrimaryContactName != null && s.PrimaryContactName.ToLowerInvariant().Contains(q)) ||
+                                   (s.PrimaryContactPhone != null && s.PrimaryContactPhone.ToLowerInvariant().Contains(q)),
+                        _ => s.StoreNumber.ToLowerInvariant().Contains(q) ||
+                             s.StoreName.ToLowerInvariant().Contains(q) ||
+                             s.MallName.ToLowerInvariant().Contains(q) ||
+                             s.Address.ToLowerInvariant().Contains(q) ||
+                             s.City.ToLowerInvariant().Contains(q) ||
+                             s.StateProvince.ToLowerInvariant().Contains(q) ||
+                             (s.PhoneNumber != null && s.PhoneNumber.ToLowerInvariant().Contains(q)) ||
+                             (s.PrimaryContactName != null && s.PrimaryContactName.ToLowerInvariant().Contains(q)) ||
+                             s.BannerName.ToLowerInvariant().Contains(q) ||
+                             s.BannerCode.ToLowerInvariant().Contains(q) ||
+                             s.OperationalStatus.ToLowerInvariant().Contains(q)
+                    };
+                });
             }
 
             StoresDataGrid.ItemsSource = filtered.ToList();
@@ -132,36 +151,24 @@ namespace YMInc.StoreDeploymentApp.Views
             ApplyFilters();
         }
 
-        private void AllStoresBtn_Click(object sender, RoutedEventArgs e)
+        private void SearchFieldCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _countryFilter = "ALL";
-            UpdateButtonStyles(AllStoresBtn, CanadaStoresBtn, UsStoresBtn);
-            ApplyFilters();
+            if (SearchFieldCombo.SelectedItem is ComboBoxItem item && item.Tag is string tag)
+            {
+                _searchFieldFilter = tag;
+                ApplyFilters();
+            }
         }
 
-        private void CanadaStoresBtn_Click(object sender, RoutedEventArgs e)
+        private void CountryFilterCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _countryFilter = "CA";
-            UpdateButtonStyles(CanadaStoresBtn, AllStoresBtn, UsStoresBtn);
-            ApplyFilters();
+            if (CountryFilterCombo.SelectedItem is ComboBoxItem item && item.Tag is string tag)
+            {
+                _countryFilter = tag;
+                ApplyFilters();
+            }
         }
 
-        private void UsStoresBtn_Click(object sender, RoutedEventArgs e)
-        {
-            _countryFilter = "US";
-            UpdateButtonStyles(UsStoresBtn, AllStoresBtn, CanadaStoresBtn);
-            ApplyFilters();
-        }
-
-        private static void UpdateButtonStyles(Button active, Button inactive1, Button inactive2)
-        {
-            active.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2563EB"));
-            active.Foreground = Brushes.White;
-            inactive1.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#1E293B"));
-            inactive1.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E2E8F0"));
-            inactive2.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#1E293B"));
-            inactive2.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E2E8F0"));
-        }
 
         private void BannerFilterCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -208,6 +215,7 @@ namespace YMInc.StoreDeploymentApp.Views
             {
                 var detailWindow = new StoreDetailWindow(selectedStore) { Owner = this };
                 detailWindow.ShowDialog();
+                ApplyFilters();
             }
             else
             {
@@ -220,6 +228,14 @@ namespace YMInc.StoreDeploymentApp.Views
         {
             var mallWindow = new MallRulesWindow { Owner = this };
             mallWindow.ShowDialog();
+            foreach (var s in _allStores)
+            {
+                if (s.Mall != null && SeedDataService.Malls.TryGetValue(s.Mall.MallCode, out var updatedMall))
+                {
+                    s.Mall = updatedMall;
+                }
+            }
+            ApplyFilters();
         }
 
         private async void ImportRosterButton_Click(object sender, RoutedEventArgs e)

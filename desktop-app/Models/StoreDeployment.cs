@@ -13,13 +13,23 @@ namespace YMInc.StoreDeploymentApp.Models
         public string City { get; set; } = string.Empty;
         public string StateProvince { get; set; } = string.Empty;
         public string CountryCode { get; set; } = "CA";
-        public bool UnionLaborRequired { get; set; }
-        public string? UnionLocalDesignation { get; set; }
         public bool CoiRequired { get; set; } = true;
         public decimal MinGeneralLiabilityCad { get; set; } = 5000000m;
         public string DeliveryWindow { get; set; } = "06:00 - 09:30";
-        public bool NightWorkOnly { get; set; }
+        public bool NightWorkOnly { get; set; } = false; // After Hours Required
         public decimal BadgingFeePerTech { get; set; } = 25m;
+        public string SpecialRules { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string ManagementContactName { get; set; } = string.Empty;
+        public string ManagementEmail { get; set; } = string.Empty;
+        public string ManagementPhone { get; set; } = string.Empty;
+        public string SecurityPhone { get; set; } = string.Empty;
+
+        public string AfterHoursDisplay => NightWorkOnly ? "Yes" : "No";
+        public string CoiDisplay => CoiRequired ? "Yes" : "No";
+        public string ContactSummary => !string.IsNullOrEmpty(ManagementContactName) 
+            ? $"{ManagementContactName} ({ManagementPhone})" 
+            : (!string.IsNullOrEmpty(ManagementPhone) ? ManagementPhone : "N/A");
     }
 
     public class SiteSurvey
@@ -97,7 +107,7 @@ namespace YMInc.StoreDeploymentApp.Models
     public class StoreDeployment
     {
         public int StoreId { get; set; }
-        public string StoreNumber { get; set; } = string.Empty; // 6xxx for CA, 6000s for US
+        public string StoreNumber { get; set; } = string.Empty;
         public string BannerCode { get; set; } = string.Empty;
         public string BannerName { get; set; } = string.Empty;
         public string StoreName { get; set; } = string.Empty;
@@ -130,6 +140,16 @@ namespace YMInc.StoreDeploymentApp.Models
 
         // Quick UI helpers
         public string CountryFlag => CountryCode == "CA" ? "🇨🇦" : "🇺🇸";
+        public string MallName => Mall?.PropertyName ?? "Standalone / Street Front";
+        public string CityState => $"{City}, {StateProvince}";
+        public string FullAddress => $"{Address}, {City}, {StateProvince} {PostalCode}";
+        public string? PhoneNumber { get; set; }
+        public string? PrimaryContactName { get; set; }
+        public string? PrimaryContactEmail { get; set; }
+        public string? PrimaryContactPhone { get; set; }
+        public string StoreContactSummary => !string.IsNullOrEmpty(PrimaryContactName)
+            ? $"{PrimaryContactName} ({PrimaryContactPhone ?? PhoneNumber ?? "Direct"})"
+            : (!string.IsNullOrEmpty(PhoneNumber) ? PhoneNumber : "None Listed");
         public string PowerPoleSummary => PowerPoles != null ? $"{PowerPoles.InstalledCount}/{PowerPoles.TotalRequired} Installed" : "N/A";
         public string CablingSummary => Cabling != null ? $"{Cabling.TotalDataDrops} Drops ({(Cabling.FlukeCertified ? "Fluke Pass" : "Pending")})" : "N/A";
         public string CircuitSummary => Circuits.Count > 0 ? $"{Circuits.Count} WAN Circuits" : "None";

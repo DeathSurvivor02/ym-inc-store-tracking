@@ -58,6 +58,10 @@
 
                 <!-- Action Buttons -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="FiscalCalendarButton" Content="📅 Retail Fiscal Calendar" Click="FiscalCalendarButton_Click" 
+                            Height="32" Padding="12,0" Background="#1E293B" Foreground="#E2E8F0" FontSize="11" FontWeight="SemiBold" 
+                            BorderBrush="#334155" Margin="0,0,8,0" Cursor="Hand" ToolTip="View NRF 4-5-4 Retail Fiscal Calendar (FY2025–FY2027)"/>
+
                     <Button x:Name="MallRulesButton" Content="🏢 Mall Landlord Rules" Click="MallRulesButton_Click" 
                             Height="32" Padding="12,0" Background="#1E293B" Foreground="#E2E8F0" FontSize="11" FontWeight="SemiBold" 
                             BorderBrush="#334155" Margin="0,0,8,0" Cursor="Hand"/>
@@ -86,9 +90,9 @@
                 <StackPanel Grid.Column="0" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,4">
                         <TextBlock Text="Weekly Progress Donut" FontSize="13" FontWeight="Bold" Foreground="White"/>
-                        <Border Background="#064E3B" CornerRadius="4" Padding="4,1" Margin="6,0,0,0">
-                            <TextBlock Text="+12% velocity" FontSize="9" FontWeight="Bold" Foreground="#34D399"/>
-                        </Border>
+                        <Button Content="📅 4-5-4 Calendar" Click="FiscalCalendarButton_Click"
+                                Height="20" Padding="6,0" Background="#1E3A8A" Foreground="#93C5FD" FontSize="9" FontWeight="Bold"
+                                BorderThickness="0" Margin="8,0,0,0" Cursor="Hand" ToolTip="View live NRF 4-5-4 Retail Fiscal Calendar"/>
                     </StackPanel>
 
                     <!-- Interactive Donut Custom Control -->
@@ -113,7 +117,7 @@
                                 <Ellipse Width="8" Height="8" Fill="#10B981" Margin="0,0,6,0"/>
                                 <TextBlock Text="Completed &amp; Certified" FontSize="11" Foreground="#E2E8F0"/>
                             </StackPanel>
-                            <TextBlock x:Name="CompletedCountText" Text="13 (54%)" FontSize="11" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right"/>
+                            <TextBlock x:Name="CompletedCountText" Text="0 (0%)" FontSize="11" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right"/>
                         </Grid>
                     </Border>
 
@@ -123,7 +127,7 @@
                                 <Ellipse Width="8" Height="8" Fill="#0EA5E9" Margin="0,0,6,0"/>
                                 <TextBlock Text="In Progress / On Track" FontSize="11" Foreground="#E2E8F0"/>
                             </StackPanel>
-                            <TextBlock x:Name="InProgressCountText" Text="7 (29%)" FontSize="11" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right"/>
+                            <TextBlock x:Name="InProgressCountText" Text="0 (0%)" FontSize="11" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right"/>
                         </Grid>
                     </Border>
 
@@ -133,7 +137,7 @@
                                 <Ellipse Width="8" Height="8" Fill="#F59E0B" Margin="0,0,6,0"/>
                                 <TextBlock Text="Scheduled / Pending" FontSize="11" Foreground="#E2E8F0"/>
                             </StackPanel>
-                            <TextBlock x:Name="PendingCountText" Text="3 (13%)" FontSize="11" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right"/>
+                            <TextBlock x:Name="PendingCountText" Text="0 (0%)" FontSize="11" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right"/>
                         </Grid>
                     </Border>
 
@@ -143,7 +147,7 @@
                                 <Ellipse Width="8" Height="8" Fill="#F43F5E" Margin="0,0,6,0"/>
                                 <TextBlock Text="Blocked / In Jeopardy" FontSize="11" Foreground="#E2E8F0"/>
                             </StackPanel>
-                            <TextBlock x:Name="BlockedCountText" Text="1 (4%)" FontSize="11" FontWeight="Bold" Foreground="#F87171" HorizontalAlignment="Right"/>
+                            <TextBlock x:Name="BlockedCountText" Text="0 (0%)" FontSize="11" FontWeight="Bold" Foreground="#F87171" HorizontalAlignment="Right"/>
                         </Grid>
                     </Border>
 
@@ -159,30 +163,30 @@
                         <!-- Milestone 1 -->
                         <Grid Margin="0,0,0,6">
                             <TextBlock Text="Site Surveys Approved" FontSize="11" Foreground="#CBD5E1"/>
-                            <TextBlock Text="23 / 24 (96%)" FontSize="10" FontWeight="Bold" Foreground="#34D399" HorizontalAlignment="Right"/>
+                            <TextBlock x:Name="Milestone1Text" Text="0 / 0 (0%)" FontSize="10" FontWeight="Bold" Foreground="#34D399" HorizontalAlignment="Right"/>
                         </Grid>
-                        <ProgressBar Value="96" Height="6" Background="#1F2937" Foreground="#10B981" BorderThickness="0" Margin="0,0,0,8"/>
+                        <ProgressBar x:Name="Milestone1Bar" Value="0" Height="6" Background="#1F2937" Foreground="#10B981" BorderThickness="0" Margin="0,0,0,8"/>
 
                         <!-- Milestone 2 -->
                         <Grid Margin="0,0,0,6">
                             <TextBlock Text="Wiremold 25DTP-4 Power Poles Installed" FontSize="11" Foreground="#CBD5E1"/>
-                            <TextBlock Text="18 / 24 (75%)" FontSize="10" FontWeight="Bold" Foreground="#38BDF8" HorizontalAlignment="Right"/>
+                            <TextBlock x:Name="Milestone2Text" Text="0 / 0 (0%)" FontSize="10" FontWeight="Bold" Foreground="#38BDF8" HorizontalAlignment="Right"/>
                         </Grid>
-                        <ProgressBar Value="75" Height="6" Background="#1F2937" Foreground="#0EA5E9" BorderThickness="0" Margin="0,0,0,8"/>
+                        <ProgressBar x:Name="Milestone2Bar" Value="0" Height="6" Background="#1F2937" Foreground="#0EA5E9" BorderThickness="0" Margin="0,0,0,8"/>
 
                         <!-- Milestone 3 -->
                         <Grid Margin="0,0,0,6">
                             <TextBlock Text="Cat6 Plenum Cabling Certified (Fluke)" FontSize="11" Foreground="#CBD5E1"/>
-                            <TextBlock Text="16 / 24 (67%)" FontSize="10" FontWeight="Bold" Foreground="#38BDF8" HorizontalAlignment="Right"/>
+                            <TextBlock x:Name="Milestone3Text" Text="0 / 0 (0%)" FontSize="10" FontWeight="Bold" Foreground="#38BDF8" HorizontalAlignment="Right"/>
                         </Grid>
-                        <ProgressBar Value="67" Height="6" Background="#1F2937" Foreground="#0EA5E9" BorderThickness="0" Margin="0,0,0,8"/>
+                        <ProgressBar x:Name="Milestone3Bar" Value="0" Height="6" Background="#1F2937" Foreground="#0EA5E9" BorderThickness="0" Margin="0,0,0,8"/>
 
                         <!-- Milestone 4 -->
                         <Grid Margin="0,0,0,6">
                             <TextBlock Text="Dual-WAN Circuits Turned Up (Fiber DIA + LTE)" FontSize="11" Foreground="#CBD5E1"/>
-                            <TextBlock Text="14 / 24 (58%)" FontSize="10" FontWeight="Bold" Foreground="#F59E0B" HorizontalAlignment="Right"/>
+                            <TextBlock x:Name="Milestone4Text" Text="0 / 0 (0%)" FontSize="10" FontWeight="Bold" Foreground="#F59E0B" HorizontalAlignment="Right"/>
                         </Grid>
-                        <ProgressBar Value="58" Height="6" Background="#1F2937" Foreground="#F59E0B" BorderThickness="0"/>
+                        <ProgressBar x:Name="Milestone4Bar" Value="0" Height="6" Background="#1F2937" Foreground="#F59E0B" BorderThickness="0"/>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -342,6 +346,7 @@
                     <DataGridTextColumn Header="Health" Binding="{Binding OverallHealth}" Width="85"/>
                     <DataGridTextColumn Header="Wiremold Power Poles" Binding="{Binding PowerPoleSummary}" Width="140"/>
                     <DataGridTextColumn Header="Cat6 Cabling Drops" Binding="{Binding CablingSummary}" Width="140"/>
+                    <DataGridTextColumn Header="Cabling Company" Binding="{Binding CablingVendorDisplay}" Width="120"/>
                     <DataGridTextColumn Header="Dual-WAN Circuits" Binding="{Binding CircuitSummary}" Width="120"/>
                     <DataGridTextColumn Header="Target Open" Binding="{Binding TargetOpenDate}" Width="95"/>
                 </DataGrid.Columns>

@@ -28,6 +28,7 @@ namespace YMInc.StoreDeploymentApp.Views
             _currentUser = user;
             ApplyUserContext();
             SetupDonutEvents();
+            LoadWeeklyProgressReport();
             Loaded += MainWindow_Loaded;
         }
 
@@ -63,7 +64,6 @@ namespace YMInc.StoreDeploymentApp.Views
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            LoadWeeklyProgressReport();
             await LoadStoresDataAsync();
         }
 
@@ -76,18 +76,41 @@ namespace YMInc.StoreDeploymentApp.Views
                 new SolidColorBrush((Color)ColorConverter.ConvertFromString("#10B981")) : 
                 new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F59E0B"));
 
+            LoadWeeklyProgressReport();
             ApplyFilters();
         }
 
         private void LoadWeeklyProgressReport()
         {
-            var report = SeedDataService.GetWeeklyReport(_currentWeek);
+            var report = DatabaseService.GetWeeklyReportFromFleet(_currentWeek, _allStores);
             DonutChart.Report = report;
 
-            CompletedCountText.Text = $"{report.CompletedThisWeek} ({(int)((double)report.CompletedThisWeek / report.TotalActiveProjects * 100)}%)";
-            InProgressCountText.Text = $"{report.InProgress} ({(int)((double)report.InProgress / report.TotalActiveProjects * 100)}%)";
-            PendingCountText.Text = $"{report.ScheduledPending} ({(int)((double)report.ScheduledPending / report.TotalActiveProjects * 100)}%)";
-            BlockedCountText.Text = $"{report.BlockedInJeopardy} ({(int)((double)report.BlockedInJeopardy / report.TotalActiveProjects * 100)}%)";
+            if (report.Slices.Count >= 4)
+            {
+                CompletedCountText.Text = $"{report.CompletedThisWeek} ({(int)report.Slices[0].Percentage}%)";
+                InProgressCountText.Text = $"{report.InProgress} ({(int)report.Slices[1].Percentage}%)";
+                PendingCountText.Text = $"{report.ScheduledPending} ({(int)report.Slices[2].Percentage}%)";
+                BlockedCountText.Text = $"{report.BlockedInJeopardy} ({(int)report.Slices[3].Percentage}%)";
+            }
+
+            if (report.Milestones.Count >= 4)
+            {
+                var m1 = report.Milestones[0];
+                Milestone1Text.Text = $"{m1.Completed} / {m1.Total} ({m1.Pct}%)";
+                Milestone1Bar.Value = m1.Pct;
+
+                var m2 = report.Milestones[1];
+                Milestone2Text.Text = $"{m2.Completed} / {m2.Total} ({m2.Pct}%)";
+                Milestone2Bar.Value = m2.Pct;
+
+                var m3 = report.Milestones[2];
+                Milestone3Text.Text = $"{m3.Completed} / {m3.Total} ({m3.Pct}%)";
+                Milestone3Bar.Value = m3.Pct;
+
+                var m4 = report.Milestones[3];
+                Milestone4Text.Text = $"{m4.Completed} / {m4.Total} ({m4.Pct}%)";
+                Milestone4Bar.Value = m4.Pct;
+            }
         }
 
         private void ApplyFilters()
@@ -224,18 +247,38 @@ namespace YMInc.StoreDeploymentApp.Views
             }
         }
 
+        private void FiscalCalendarButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var calWindow = new FiscalCalendarWindow { Owner = this };
+                calWindow.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to open Fiscal Calendar: {ex.Message}", "Calendar Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void MallRulesButton_Click(object sender, RoutedEventArgs e)
         {
-            var mallWindow = new MallRulesWindow { Owner = this };
-            mallWindow.ShowDialog();
-            foreach (var s in _allStores)
+            try
             {
-                if (s.Mall != null && SeedDataService.Malls.TryGetValue(s.Mall.MallCode, out var updatedMall))
+                var mallWindow = new MallRulesWindow { Owner = this };
+                mallWindow.ShowDialog();
+                foreach (var s in _allStores)
                 {
-                    s.Mall = updatedMall;
+                    if (s.Mall != null && SeedDataService.Malls.TryGetValue(s.Mall.MallCode, out var updatedMall))
+                    {
+                        s.Mall = updatedMall;
+                    }
                 }
+                ApplyFilters();
             }
-            ApplyFilters();
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to open Mall Landlord Rules: {ex.Message}", "Mall Rules Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private async void ImportRosterButton_Click(object sender, RoutedEventArgs e)

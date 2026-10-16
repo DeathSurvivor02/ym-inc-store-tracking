@@ -36,6 +36,8 @@ namespace YMInc.StoreDeploymentApp.Views
 
         private void ApplyFilters()
         {
+            if (!IsLoaded || MallsGrid == null || CountSummaryText == null) return;
+
             var filtered = _allMalls.AsEnumerable();
 
             if (_countryFilter != "ALL")
@@ -62,13 +64,15 @@ namespace YMInc.StoreDeploymentApp.Views
 
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+            if (!IsLoaded || SearchBox == null) return;
             _searchQuery = SearchBox.Text;
             ApplyFilters();
         }
 
         private void CountryFilterCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (CountryFilterCombo?.SelectedItem is ComboBoxItem item && item.Tag is string tag)
+            if (!IsLoaded || CountryFilterCombo == null) return;
+            if (CountryFilterCombo.SelectedItem is ComboBoxItem item && item.Tag is string tag)
             {
                 _countryFilter = tag;
                 ApplyFilters();
@@ -77,6 +81,7 @@ namespace YMInc.StoreDeploymentApp.Views
 
         private void MallsGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (!IsLoaded || MallsGrid == null) return;
             if (MallsGrid.SelectedItem is MallProperty mall)
             {
                 _selectedMall = mall;
@@ -91,12 +96,14 @@ namespace YMInc.StoreDeploymentApp.Views
 
             FormMallCodeText.Text = mall.MallCode;
             FormPropertyNameText.Text = mall.PropertyName;
+            FormAddressText.Text = mall.Address;
             FormLandlordText.Text = mall.LandlordCompany;
             FormCityText.Text = mall.City;
             FormStateProvinceText.Text = mall.StateProvince;
             FormDeliveryWindowText.Text = mall.DeliveryWindow;
             FormLiabilityText.Text = mall.MinGeneralLiabilityCad.ToString("F0");
-            FormBadgingFeeText.Text = mall.BadgingFeePerTech.ToString("F2");
+            FormCablingVendorText.Text = mall.CablingVendor;
+            FormLeadTechText.Text = mall.LeadTechnicianName ?? "";
             FormSpecialRulesText.Text = mall.SpecialRules;
             FormContactNameText.Text = mall.ManagementContactName;
             FormContactPhoneText.Text = mall.ManagementPhone;
@@ -162,12 +169,14 @@ namespace YMInc.StoreDeploymentApp.Views
 
             FormMallCodeText.Text = "MALL-NEW";
             FormPropertyNameText.Text = "";
+            FormAddressText.Text = "";
             FormLandlordText.Text = "";
             FormCityText.Text = "";
             FormStateProvinceText.Text = "";
-            FormDeliveryWindowText.Text = "06:00 - 09:30";
+            FormDeliveryWindowText.Text = "07:00 - 10:00";
             FormLiabilityText.Text = "5000000";
-            FormBadgingFeeText.Text = "25.00";
+            FormCablingVendorText.Text = "";
+            FormLeadTechText.Text = "";
             FormSpecialRulesText.Text = "";
             FormContactNameText.Text = "";
             FormContactPhoneText.Text = "";
@@ -200,11 +209,14 @@ namespace YMInc.StoreDeploymentApp.Views
 
             // Extract form values
             string country = (FormCountryCombo.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "CA";
+            string address = FormAddressText.Text.Trim();
             string landlord = FormLandlordText.Text.Trim();
             string propType = (FormPropertyTypeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Enclosed Regional Mall";
             string city = FormCityText.Text.Trim();
             string state = FormStateProvinceText.Text.Trim();
             string delivery = FormDeliveryWindowText.Text.Trim();
+            string cablingVendor = FormCablingVendorText.Text.Trim();
+            string leadTech = FormLeadTechText.Text.Trim();
             string contactName = FormContactNameText.Text.Trim();
             string contactPhone = FormContactPhoneText.Text.Trim();
             string contactEmail = FormContactEmailText.Text.Trim();
@@ -225,8 +237,6 @@ namespace YMInc.StoreDeploymentApp.Views
             decimal.TryParse(FormLiabilityText.Text.Replace("$", "").Replace(",", "").Trim(), out decimal liability);
             if (liability <= 0) liability = 5000000m;
 
-            decimal.TryParse(FormBadgingFeeText.Text.Replace("$", "").Replace(",", "").Trim(), out decimal badging);
-
             string rules = FormSpecialRulesText.Text.Trim();
 
             if (_selectedMall == null)
@@ -237,6 +247,7 @@ namespace YMInc.StoreDeploymentApp.Views
                     MallId = _allMalls.Count + 1,
                     MallCode = code,
                     PropertyName = name,
+                    Address = address,
                     LandlordCompany = landlord,
                     PropertyType = propType,
                     CountryCode = country,
@@ -246,7 +257,8 @@ namespace YMInc.StoreDeploymentApp.Views
                     NightWorkOnly = afterHours,
                     DeliveryWindow = delivery,
                     MinGeneralLiabilityCad = liability,
-                    BadgingFeePerTech = badging,
+                    CablingVendor = cablingVendor,
+                    LeadTechnicianName = leadTech,
                     SpecialRules = rules,
                     ManagementContactName = contactName,
                     ManagementPhone = contactPhone,
@@ -263,6 +275,7 @@ namespace YMInc.StoreDeploymentApp.Views
                 // Updating existing
                 _selectedMall.MallCode = code;
                 _selectedMall.PropertyName = name;
+                _selectedMall.Address = address;
                 _selectedMall.LandlordCompany = landlord;
                 _selectedMall.PropertyType = propType;
                 _selectedMall.CountryCode = country;
@@ -272,7 +285,8 @@ namespace YMInc.StoreDeploymentApp.Views
                 _selectedMall.NightWorkOnly = afterHours;
                 _selectedMall.DeliveryWindow = delivery;
                 _selectedMall.MinGeneralLiabilityCad = liability;
-                _selectedMall.BadgingFeePerTech = badging;
+                _selectedMall.CablingVendor = cablingVendor;
+                _selectedMall.LeadTechnicianName = leadTech;
                 _selectedMall.SpecialRules = rules;
                 _selectedMall.ManagementContactName = contactName;
                 _selectedMall.ManagementPhone = contactPhone;
@@ -282,11 +296,13 @@ namespace YMInc.StoreDeploymentApp.Views
                 SeedDataService.Malls[code] = _selectedMall;
             }
 
-            await _databaseService.SaveMallAsync(_selectedMall);
+            bool saved = await _databaseService.SaveMallAsync(_selectedMall);
 
             ApplyFilters();
             MallsGrid.SelectedItem = _selectedMall;
-            FormStatusText.Text = $"✓ Requirements and contacts for '{name}' saved successfully!";
+            FormStatusText.Text = saved
+                ? $"✓ Requirements and contacts for '{name}' saved successfully!"
+                : $"⚠ '{name}' was NOT saved to the database: {_databaseService.LastError ?? "unknown error"}";
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -13,11 +14,19 @@ namespace YMInc.StoreDeploymentApp.Controls
     {
         public static readonly DependencyProperty ReportProperty =
             DependencyProperty.Register(nameof(Report), typeof(WeeklyProgressReport), typeof(DonutChartControl),
-                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnReportChanged));
 
         public static readonly DependencyProperty SelectedSliceProperty =
             DependencyProperty.Register(nameof(SelectedSlice), typeof(string), typeof(DonutChartControl),
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+
+        private static void OnReportChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is DonutChartControl chart)
+            {
+                chart.InvalidateVisual();
+            }
+        }
 
         public WeeklyProgressReport? Report
         {
@@ -70,11 +79,23 @@ namespace YMInc.StoreDeploymentApp.Controls
 
             double width = ActualWidth;
             double height = ActualHeight;
-            if (width <= 0 || height <= 0 || Report == null || Report.Slices.Count == 0) return;
+            if (width <= 0 || height <= 0) return;
 
             Point center = new(width / 2, height / 2);
             double outerRadius = Math.Min(width, height) / 2 - 12;
             double innerRadius = outerRadius * 0.72;
+
+            if (Report == null || Report.Slices.Count == 0 || !Report.Slices.Any(s => s.Percentage > 0))
+            {
+                var outer = new EllipseGeometry(center, outerRadius, outerRadius);
+                var inner = new EllipseGeometry(center, innerRadius, innerRadius);
+                var emptyRing = new CombinedGeometry(GeometryCombineMode.Exclude, outer, inner);
+                emptyRing.Freeze();
+                var placeholderBrush = new SolidColorBrush(Color.FromArgb(40, 148, 163, 184));
+                placeholderBrush.Freeze();
+                dc.DrawGeometry(placeholderBrush, null, emptyRing);
+                return;
+            }
 
             double startAngle = -90; // Start at top
 
@@ -124,8 +145,19 @@ namespace YMInc.StoreDeploymentApp.Controls
             dc.DrawText(subText, new Point(center.X - subText.Width / 2, center.Y + 12));
         }
 
-        private static PathGeometry CreateDonutSliceGeometry(Point center, double innerRadius, double outerRadius, double startAngleDeg, double sweepAngleDeg)
+        private static Geometry CreateDonutSliceGeometry(Point center, double innerRadius, double outerRadius, double startAngleDeg, double sweepAngleDeg)
         {
+            if (sweepAngleDeg >= 359.5)
+            {
+                var outer = new EllipseGeometry(center, outerRadius, outerRadius);
+                var inner = new EllipseGeometry(center, innerRadius, innerRadius);
+                var ring = new CombinedGeometry(GeometryCombineMode.Exclude, outer, inner);
+                ring.Freeze();
+                return ring;
+            }
+
+            if (sweepAngleDeg > 359.0) sweepAngleDeg = 359.0;
+
             double endAngleDeg = startAngleDeg + sweepAngleDeg;
             double startRad = startAngleDeg * Math.PI / 180.0;
             double endRad = endAngleDeg * Math.PI / 180.0;

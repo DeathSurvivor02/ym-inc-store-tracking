@@ -75,3 +75,4 @@ obj/
 *.sln.docstates
 
 .neon
+scratch/

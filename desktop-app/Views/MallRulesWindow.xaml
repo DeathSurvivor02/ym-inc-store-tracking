@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Mall Landlord Compliance &amp; Requirements Directory"
-        Height="720" Width="1160"
+        Height="820" Width="1380"
         WindowStartupLocation="CenterOwner"
         Background="#0B0F17"
         Foreground="#F8FAFC">
@@ -132,9 +132,11 @@
                             </Style>
                         </DataGrid.ColumnHeaderStyle>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Mall Code" Binding="{Binding MallCode}" Width="85"/>
-                            <DataGridTextColumn Header="Property Name" Binding="{Binding PropertyName}" Width="1.5*"/>
-                            <DataGridTextColumn Header="Landlord" Binding="{Binding LandlordCompany}" Width="1.1*"/>
+                            <DataGridTextColumn Header="Mall Code" Binding="{Binding MallCode}" Width="105"/>
+                            <DataGridTextColumn Header="Property Name" Binding="{Binding PropertyName}" Width="1.7*" MinWidth="130"/>
+                            <DataGridTextColumn Header="Landlord" Binding="{Binding LandlordCompany}" Width="1.2*" MinWidth="95"/>
+                            <DataGridTextColumn Header="City" Binding="{Binding City}" Width="1.0*" MinWidth="85"/>
+                            <DataGridTextColumn Header="State" Binding="{Binding StateProvince}" Width="50"/>
                             <DataGridTextColumn Header="Country" Binding="{Binding CountryCode}" Width="55"/>
                             
                             <!-- COI Required Column -->
@@ -201,8 +203,8 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
 
-                            <DataGridTextColumn Header="Delivery Window" Binding="{Binding DeliveryWindow}" Width="95"/>
-                            <DataGridTextColumn Header="Badging" Binding="{Binding BadgingFeePerTech, StringFormat={}${0:F0}}" Width="65"/>
+                            <DataGridTextColumn Header="Cabling Company" Binding="{Binding CablingVendor}" Width="120"/>
+                            <DataGridTextColumn Header="Delivery Window" Binding="{Binding DeliveryWindow}" Width="160"/>
                         </DataGrid.Columns>
                     </DataGrid>
 
@@ -251,6 +253,12 @@
                         <StackPanel Margin="0,0,0,10">
                             <TextBlock Text="Property Name:" FontSize="11" FontWeight="SemiBold" Foreground="#94A3B8" Margin="0,0,0,4"/>
                             <TextBox x:Name="FormPropertyNameText"/>
+                        </StackPanel>
+
+                        <!-- Row 2b: Property Address -->
+                        <StackPanel Margin="0,0,0,10">
+                            <TextBlock Text="Property Address:" FontSize="11" FontWeight="SemiBold" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                            <TextBox x:Name="FormAddressText"/>
                         </StackPanel>
 
                         <!-- Row 3: Landlord Company & Property Type -->
@@ -378,11 +386,22 @@
                                     </StackPanel>
                                 </Grid>
 
-                                <!-- Badging Fee -->
-                                <StackPanel>
-                                    <TextBlock Text="Security Badging Fee per Tech ($):" FontSize="11" FontWeight="SemiBold" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                    <TextBox x:Name="FormBadgingFeeText" Text="25.00"/>
-                                </StackPanel>
+                                <!-- Cabling Contractor & Lead Tech -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Assigned Cabling Contractor:" FontSize="11" FontWeight="SemiBold" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="FormCablingVendorText"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Lead Field Technician:" FontSize="11" FontWeight="SemiBold" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="FormLeadTechText"/>
+                                    </StackPanel>
+                                </Grid>
                             </StackPanel>
                         </Border>
 

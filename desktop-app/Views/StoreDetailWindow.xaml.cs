@@ -10,6 +10,7 @@ namespace YMInc.StoreDeploymentApp.Views
     public partial class StoreDetailWindow : Window
     {
         private readonly StoreDeployment _store;
+        private readonly DatabaseService _databaseService = new();
 
         public StoreDetailWindow(StoreDeployment store)
         {
@@ -37,12 +38,15 @@ namespace YMInc.StoreDeploymentApp.Views
             if (store.Survey != null)
             {
                 SurveyCeilingTypeTextBox.Text = store.Survey.CeilingType;
-                SurveyCeilingHeightTextBox.Text = store.Survey.CeilingHeightFeet.ToString("F1");
+                SurveyCeilingHeightTextBox.Text = store.Survey.CeilingHeightFeet > 0 ? store.Survey.CeilingHeightFeet.ToString("F1") : "Unverified / Pending";
                 SelectComboItem(SurveyStatusCombo, store.Survey.Status);
                 SurveyDemarcLocationTextBox.Text = store.Survey.DemarcLocation;
                 SelectComboItemByTag(SurveyConduitCombo, store.Survey.DemarcConduitAvailable.ToString());
                 SurveyorTextBox.Text = string.IsNullOrEmpty(store.Survey.SurveyorName) ? 
                     store.Survey.SurveyVendor : $"{store.Survey.SurveyorName} ({store.Survey.SurveyVendor})";
+                SurveyRackLocationTextBox.Text = store.Survey.MdfRackLocation;
+                SurveyDateTextBox.Text = !string.IsNullOrEmpty(store.Survey.ActualDate) ? store.Survey.ActualDate : store.Survey.ScheduledDate;
+                SurveyNotesTextBox.Text = store.Survey.StructureNotes;
             }
 
             // Power Poles
@@ -73,48 +77,36 @@ namespace YMInc.StoreDeploymentApp.Views
             // Telecom WAN Circuits
             CircuitsItemsControl.ItemsSource = store.Circuits;
 
-            // Mall Rules (No Union Labor)
+            // Mall Landlord Rules & Contacts (Directly Editable)
             if (store.Mall != null)
             {
                 MallNameHeading.Text = $"{store.Mall.PropertyName} Compliance & Delivery Matrix";
-                MallLandlordCompanyText.Text = store.Mall.LandlordCompany;
-                
-                MallCoiRequiredText.Text = store.Mall.CoiRequired ? "Mandatory (COI Required)" : "Not Required / Exempt";
-                MallCoiRequiredText.Foreground = store.Mall.CoiRequired ? 
-                    new SolidColorBrush((Color)ColorConverter.ConvertFromString("#34D399")) : 
-                    new SolidColorBrush((Color)ColorConverter.ConvertFromString("#94A3B8"));
-
-                MallAfterHoursText.Text = store.Mall.NightWorkOnly ? "Mandatory Night Shift Only" : "Daytime Work Permitted";
-                MallAfterHoursText.Foreground = store.Mall.NightWorkOnly ? 
-                    new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FBBF24")) : 
-                    new SolidColorBrush((Color)ColorConverter.ConvertFromString("#94A3B8"));
-
-                MallDeliveryText.Text = store.Mall.DeliveryWindow;
-                MallLiabilityText.Text = $"${store.Mall.MinGeneralLiabilityCad / 1000000:F0}M CAD General Liability";
-                MallBadgingText.Text = $"${store.Mall.BadgingFeePerTech:F0} CAD / tech";
-                MallSpecialRulesText.Text = string.IsNullOrEmpty(store.Mall.SpecialRules) ? 
-                    "No additional landlord restrictions noted. Standard PPE and loading dock sign-in required." : 
-                    store.Mall.SpecialRules;
-
-                MallContactNameText.Text = string.IsNullOrEmpty(store.Mall.ManagementContactName) ? "Mall Operations Office" : store.Mall.ManagementContactName;
-                MallContactPhoneText.Text = string.IsNullOrEmpty(store.Mall.ManagementPhone) ? (store.PhoneNumber ?? "N/A") : store.Mall.ManagementPhone;
-                MallContactEmailText.Text = string.IsNullOrEmpty(store.Mall.ManagementEmail) ? "operations@mall.com" : store.Mall.ManagementEmail;
-                MallSecurityPhoneText.Text = string.IsNullOrEmpty(store.Mall.SecurityPhone) ? "N/A" : store.Mall.SecurityPhone;
+                MallLandlordCompanyTextBox.Text = store.Mall.LandlordCompany;
+                SelectComboItemByTag(MallCoiCombo, store.Mall.CoiRequired.ToString());
+                SelectComboItemByTag(MallAfterHoursCombo, store.Mall.NightWorkOnly.ToString());
+                MallDeliveryTextBox.Text = store.Mall.DeliveryWindow;
+                MallLiabilityTextBox.Text = store.Mall.MinGeneralLiabilityCad.ToString("F0");
+                MallCablingCompanyTextBox.Text = store.CablingVendorDisplay;
+                MallContactNameTextBox.Text = store.Mall.ManagementContactName;
+                MallContactPhoneTextBox.Text = store.Mall.ManagementPhone;
+                MallContactEmailTextBox.Text = store.Mall.ManagementEmail;
+                MallSecurityPhoneTextBox.Text = store.Mall.SecurityPhone;
+                MallSpecialRulesTextBox.Text = store.Mall.SpecialRules;
             }
             else
             {
                 MallNameHeading.Text = "Street Front / Non-Mall Location";
-                MallLandlordCompanyText.Text = "Direct Commercial Lease";
-                MallCoiRequiredText.Text = "Standard Commercial Policy";
-                MallAfterHoursText.Text = "Daytime Permitted";
-                MallDeliveryText.Text = "Standard Business Hours";
-                MallLiabilityText.Text = "$5M CAD";
-                MallBadgingText.Text = "$0 (No Mall Security)";
-                MallSpecialRulesText.Text = "Direct street-front retail delivery.";
-                MallContactNameText.Text = "Direct Lease Admin";
-                MallContactPhoneText.Text = store.PhoneNumber ?? "N/A";
-                MallContactEmailText.Text = "operations@yminc.ca";
-                MallSecurityPhoneText.Text = "N/A";
+                MallLandlordCompanyTextBox.Text = "Direct Commercial Lease";
+                SelectComboItemByTag(MallCoiCombo, "True");
+                SelectComboItemByTag(MallAfterHoursCombo, "False");
+                MallDeliveryTextBox.Text = "Standard Business Hours";
+                MallLiabilityTextBox.Text = "5000000";
+                MallCablingCompanyTextBox.Text = store.CablingVendorDisplay;
+                MallContactNameTextBox.Text = "Direct Lease Admin";
+                MallContactPhoneTextBox.Text = store.PhoneNumber ?? "N/A";
+                MallContactEmailTextBox.Text = "operations@yminc.ca";
+                MallSecurityPhoneTextBox.Text = "N/A";
+                MallSpecialRulesTextBox.Text = "Direct street-front retail delivery.";
             }
         }
 
@@ -156,7 +148,7 @@ namespace YMInc.StoreDeploymentApp.Views
             // Dynamically react if needed
         }
 
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             // Save Header & General Store details
             _store.StoreName = StoreNameTextBox.Text.Trim();
@@ -181,6 +173,8 @@ namespace YMInc.StoreDeploymentApp.Views
             if (SurveyConduitCombo.SelectedItem is ComboBoxItem conduitItem && conduitItem.Tag is string conduitTag)
                 _store.Survey.DemarcConduitAvailable = conduitTag == "True";
             _store.Survey.SurveyorName = SurveyorTextBox.Text.Trim();
+            _store.Survey.MdfRackLocation = SurveyRackLocationTextBox.Text.Trim();
+            _store.Survey.StructureNotes = SurveyNotesTextBox.Text.Trim();
 
             // Save Power Poles
             if (_store.PowerPoles == null) _store.PowerPoles = new PowerPole { StoreId = _store.StoreId };
@@ -212,18 +206,62 @@ namespace YMInc.StoreDeploymentApp.Views
             _store.Cabling.Vendor = CablingVendorTextBox.Text.Trim();
             _store.Cabling.LeadTechName = CablingTechTextBox.Text.Trim();
 
-            SaveNotificationText.Text = $"✓ Store #{_store.StoreNumber} specifications successfully saved!";
+            // Save Mall Landlord Rules & Contacts directly!
+            bool mallSaved = true;
+            string? mallError = null;
+            if (_store.Mall != null)
+            {
+                if (MallCoiCombo.SelectedItem is ComboBoxItem coiItem && coiItem.Tag is string coiTag)
+                    _store.Mall.CoiRequired = coiTag.Equals("True", StringComparison.OrdinalIgnoreCase);
+
+                if (MallAfterHoursCombo.SelectedItem is ComboBoxItem ahItem && ahItem.Tag is string ahTag)
+                    _store.Mall.NightWorkOnly = ahTag.Equals("True", StringComparison.OrdinalIgnoreCase);
+
+                _store.Mall.DeliveryWindow = MallDeliveryTextBox.Text.Trim();
+                _store.Mall.LandlordCompany = MallLandlordCompanyTextBox.Text.Trim();
+
+                if (decimal.TryParse(MallLiabilityTextBox.Text.Replace("$", "").Replace(",", "").Trim(), out decimal liab))
+                    _store.Mall.MinGeneralLiabilityCad = liab;
+
+                _store.Mall.ManagementContactName = MallContactNameTextBox.Text.Trim();
+                _store.Mall.ManagementPhone = MallContactPhoneTextBox.Text.Trim();
+                _store.Mall.ManagementEmail = MallContactEmailTextBox.Text.Trim();
+                _store.Mall.SecurityPhone = MallSecurityPhoneTextBox.Text.Trim();
+                _store.Mall.SpecialRules = MallSpecialRulesTextBox.Text.Trim();
+
+                mallSaved = await _databaseService.SaveMallAsync(_store.Mall);
+                if (!mallSaved) mallError = _databaseService.LastError;
+            }
+
+            bool storeSaved = await _databaseService.SaveStoreAsync(_store);
+
+            if (storeSaved && mallSaved)
+            {
+                SaveNotificationText.Text = $"✓ Store #{_store.StoreNumber} & mall specifications successfully saved!";
+            }
+            else
+            {
+                string detail = !storeSaved ? _databaseService.LastError : mallError;
+                SaveNotificationText.Text = $"⚠ Save failed: {detail ?? "unknown error"}";
+            }
         }
 
         private void OpenMallDirectoryButton_Click(object sender, RoutedEventArgs e)
         {
-            var mallWindow = new MallRulesWindow { Owner = this };
-            mallWindow.ShowDialog();
-            // Refresh mall specs if updated
-            if (_store.Mall != null && SeedDataService.Malls.TryGetValue(_store.Mall.MallCode, out var updatedMall))
+            try
             {
-                _store.Mall = updatedMall;
-                PopulateStore(_store);
+                var mallWindow = new MallRulesWindow { Owner = this };
+                mallWindow.ShowDialog();
+                // Refresh mall specs if updated
+                if (_store.Mall != null && SeedDataService.Malls.TryGetValue(_store.Mall.MallCode, out var updatedMall))
+                {
+                    _store.Mall = updatedMall;
+                    PopulateStore(_store);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to open Mall Directory: {ex.Message}", "Mall Directory Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

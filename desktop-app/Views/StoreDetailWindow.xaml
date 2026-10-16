@@ -8,43 +8,6 @@
         Foreground="#F8FAFC">
     
     <Window.Resources>
-        <Style TargetType="TextBox">
-            <Setter Property="Background" Value="#1E293B"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#334155"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="7,5"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
-
-        <Style TargetType="ComboBox">
-            <Setter Property="Background" Value="#1E293B"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#334155"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="7,5"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="ItemContainerStyle">
-                <Setter.Value>
-                    <Style TargetType="ComboBoxItem">
-                        <Setter Property="Background" Value="#0F172A"/>
-                        <Setter Property="Foreground" Value="#F8FAFC"/>
-                        <Setter Property="Padding" Value="8,6"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#2563EB"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#1D4ED8"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </Setter.Value>
-            </Setter>
-        </Style>
     </Window.Resources>
 
     <Grid Margin="16">
@@ -137,9 +100,10 @@
                                 <TextBlock Text="Survey Status:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
                                 <ComboBox x:Name="SurveyStatusCombo" Margin="0,0,0,10">
                                     <ComboBoxItem Content="Completed &amp; Approved"/>
+                                    <ComboBoxItem Content="Submitted (Review Pending)"/>
                                     <ComboBoxItem Content="Scheduled"/>
                                     <ComboBoxItem Content="In Progress"/>
-                                    <ComboBoxItem Content="Pending Vendor"/>
+                                    <ComboBoxItem Content="Pending Field Survey"/>
                                 </ComboBox>
                             </StackPanel>
 
@@ -152,12 +116,37 @@
                                 <ComboBox x:Name="SurveyConduitCombo" Margin="0,0,0,10">
                                     <ComboBoxItem Content="Clear &amp; Available (Ready)" Tag="True"/>
                                     <ComboBoxItem Content="Blocked / Missing (Requires Riser Work)" Tag="False"/>
+                                    <ComboBoxItem Content="Demarc in Backroom (Direct)" Tag="True"/>
                                 </ComboBox>
 
-                                <TextBlock Text="Surveyor Name &amp; Vendor:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                <TextBlock Text="Surveyor / Field Dispatch:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
                                 <TextBox x:Name="SurveyorTextBox" Margin="0,0,0,10"/>
                             </StackPanel>
                         </Grid>
+
+                        <!-- Verified Field Survey Observations & Physical Conditions -->
+                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,10">
+                            <StackPanel>
+                                <TextBlock Text="Verified Field Survey Observations &amp; Physical Infrastructure" FontSize="12" FontWeight="Bold" Foreground="#38BDF8" Margin="0,0,0,8"/>
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Network Rack Location:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="SurveyRackLocationTextBox"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Survey Submission / Actual Date:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="SurveyDateTextBox"/>
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Text="Facility Observations (Drop Pole, Music/Stingray, Ladder, Washrooms):" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                <TextBox x:Name="SurveyNotesTextBox" Height="50" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
@@ -177,10 +166,13 @@
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="Installation Status:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
                                 <ComboBox x:Name="PowerPoleStatusCombo" Margin="0,0,0,10">
+                                    <ComboBoxItem Content="Existing Pole Verified Present"/>
+                                    <ComboBoxItem Content="New Drop Pole Installation Required"/>
                                     <ComboBoxItem Content="Fully Installed &amp; Certified"/>
                                     <ComboBoxItem Content="Delivered On Site"/>
                                     <ComboBoxItem Content="In Progress"/>
                                     <ComboBoxItem Content="Survey Required"/>
+                                    <ComboBoxItem Content="Pending Site Survey Verification"/>
                                     <ComboBoxItem Content="Blocked / On Hold"/>
                                 </ComboBox>
 
@@ -324,12 +316,18 @@
                 </ScrollViewer>
             </TabItem>
 
-            <!-- TAB 5: MALL RULES -->
+            <!-- TAB 5: MALL RULES (DIRECTLY EDITABLE) -->
             <TabItem Header="🏢 Mall Landlord Rules" FontSize="12">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="16">
-                        <TextBlock x:Name="MallNameHeading" Text="Mall Landlord Compliance Rules" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,0,0,12"/>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,12">
+                            <TextBlock x:Name="MallNameHeading" Text="Mall Landlord Compliance &amp; Requirements" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,0,10,0"/>
+                            <Border Background="#1E3A8A" CornerRadius="4" Padding="6,2">
+                                <TextBlock Text="Editable Specifications" FontSize="10" FontWeight="Bold" Foreground="#93C5FD"/>
+                            </Border>
+                        </StackPanel>
                         
+                        <!-- Primary Compliance Matrix Card -->
                         <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="6" Padding="14" Margin="0,0,0,14">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -338,28 +336,34 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- Left column: COI & After Hours -->
+                                <!-- Left column: COI, After Hours, Delivery -->
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Certificate of Insurance (COI):" FontSize="11" Foreground="#94A3B8"/>
-                                    <TextBlock x:Name="MallCoiRequiredText" Text="Required (Yes)" FontSize="13" FontWeight="Bold" Foreground="#34D399" Margin="0,2,0,12"/>
+                                    <TextBlock Text="Certificate of Insurance (COI):" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                    <ComboBox x:Name="MallCoiCombo" Height="28" Margin="0,0,0,12">
+                                        <ComboBoxItem Content="Mandatory (COI Required)" Tag="True"/>
+                                        <ComboBoxItem Content="Not Required / Exempt" Tag="False"/>
+                                    </ComboBox>
 
-                                    <TextBlock Text="After Hours Work Requirement:" FontSize="11" Foreground="#94A3B8"/>
-                                    <TextBlock x:Name="MallAfterHoursText" Text="Daytime Permitted (No)" FontSize="13" FontWeight="Bold" Foreground="#94A3B8" Margin="0,2,0,12"/>
+                                    <TextBlock Text="After Hours Work Requirement:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                    <ComboBox x:Name="MallAfterHoursCombo" Height="28" Margin="0,0,0,12">
+                                        <ComboBoxItem Content="Mandatory Night Shift Only" Tag="True"/>
+                                        <ComboBoxItem Content="Daytime Work Permitted" Tag="False"/>
+                                    </ComboBox>
 
-                                    <TextBlock Text="Delivery Window:" FontSize="11" Foreground="#94A3B8"/>
-                                    <TextBlock x:Name="MallDeliveryText" Text="06:00 - 09:00" FontSize="12" FontWeight="SemiBold" Foreground="White" Margin="0,2,0,12"/>
+                                    <TextBlock Text="Delivery Window:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="MallDeliveryTextBox" Height="28" Text="06:00 - 09:30"/>
                                 </StackPanel>
 
-                                <!-- Right column: Liability, Badging, Landlord -->
+                                <!-- Right column: Landlord, Liability, Badging -->
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Landlord Management Company:" FontSize="11" Foreground="#94A3B8"/>
-                                    <TextBlock x:Name="MallLandlordCompanyText" Text="Oxford Properties" FontSize="12" FontWeight="SemiBold" Foreground="White" Margin="0,2,0,12"/>
+                                    <TextBlock Text="Landlord Management Company:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="MallLandlordCompanyTextBox" Height="28" Margin="0,0,0,12"/>
 
-                                    <TextBlock Text="Minimum General Liability Amount:" FontSize="11" Foreground="#94A3B8"/>
-                                    <TextBlock x:Name="MallLiabilityText" Text="$10,000,000 CAD" FontSize="13" FontWeight="Bold" Foreground="#38BDF8" Margin="0,2,0,12"/>
+                                    <TextBlock Text="Minimum General Liability Amount ($):" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="MallLiabilityTextBox" Height="28" Margin="0,0,0,12" Text="5000000"/>
 
-                                    <TextBlock Text="Security Badging Fee per Tech:" FontSize="11" Foreground="#94A3B8"/>
-                                    <TextBlock x:Name="MallBadgingText" Text="$25 CAD" FontSize="12" FontWeight="SemiBold" Foreground="White" Margin="0,2,0,12"/>
+                                    <TextBlock Text="Assigned Cabling Contractor:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="MallCablingCompanyTextBox" Height="28" IsReadOnly="True" Background="#1E293B"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
@@ -375,29 +379,31 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Operations Contact Name:" FontSize="11" Foreground="#94A3B8"/>
-                                        <TextBlock x:Name="MallContactNameText" Text="Mall Operations Office" FontSize="12" FontWeight="SemiBold" Foreground="White" Margin="0,2,0,10"/>
-                                        <TextBlock Text="Operations Phone:" FontSize="11" Foreground="#94A3B8"/>
-                                        <TextBlock x:Name="MallContactPhoneText" Text="N/A" FontSize="12" FontWeight="SemiBold" Foreground="#34D399" Margin="0,2,0,0"/>
+                                        <TextBlock Text="Operations Contact Name:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="MallContactNameTextBox" Height="28" Margin="0,0,0,10"/>
+
+                                        <TextBlock Text="Operations Phone:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="MallContactPhoneTextBox" Height="28"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="Operations Email:" FontSize="11" Foreground="#94A3B8"/>
-                                        <TextBlock x:Name="MallContactEmailText" Text="operations@mall.com" FontSize="12" FontWeight="SemiBold" Foreground="#38BDF8" Margin="0,2,0,10"/>
-                                        <TextBlock Text="Security Dispatch Phone:" FontSize="11" Foreground="#94A3B8"/>
-                                        <TextBlock x:Name="MallSecurityPhoneText" Text="N/A" FontSize="12" FontWeight="SemiBold" Foreground="White" Margin="0,2,0,0"/>
+                                        <TextBlock Text="Operations Email:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="MallContactEmailTextBox" Height="28" Margin="0,0,0,10"/>
+
+                                        <TextBlock Text="Security Dispatch Phone:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="MallSecurityPhoneTextBox" Height="28"/>
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>
                         </Border>
 
-                        <StackPanel Margin="0,0,0,12">
+                        <!-- Special Mall Rules & Access Notes -->
+                        <StackPanel Margin="0,0,0,14">
                             <TextBlock Text="Special Mall Rules &amp; Access Notes:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                            <TextBlock x:Name="MallSpecialRulesText" Text="Security office check-in 30 mins prior to delivery window." 
-                                       FontSize="11" Foreground="#CBD5E1" TextWrapping="Wrap"/>
+                            <TextBox x:Name="MallSpecialRulesTextBox" Height="70" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
                         </StackPanel>
 
-                        <Button Content="⚙️ Open Full Mall Directory &amp; Edit Form" Click="OpenMallDirectoryButton_Click"
-                                Background="#1E293B" Foreground="#38BDF8" FontWeight="SemiBold" Width="260" Height="32" 
+                        <Button Content="⚙️ Open Full Mall Directory" Click="OpenMallDirectoryButton_Click"
+                                Background="#1E293B" Foreground="#38BDF8" FontWeight="SemiBold" Width="200" Height="30" 
                                 HorizontalAlignment="Left" BorderBrush="#334155" BorderThickness="1" Cursor="Hand"/>
                     </StackPanel>
                 </ScrollViewer>

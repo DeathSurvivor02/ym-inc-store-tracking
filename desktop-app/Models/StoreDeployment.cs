@@ -24,6 +24,8 @@ namespace YMInc.StoreDeploymentApp.Models
         public string ManagementEmail { get; set; } = string.Empty;
         public string ManagementPhone { get; set; } = string.Empty;
         public string SecurityPhone { get; set; } = string.Empty;
+        public string CablingVendor { get; set; } = string.Empty;
+        public string? LeadTechnicianName { get; set; }
 
         public string AfterHoursDisplay => NightWorkOnly ? "Yes" : "No";
         public string CoiDisplay => CoiRequired ? "Yes" : "No";
@@ -49,6 +51,7 @@ namespace YMInc.StoreDeploymentApp.Models
         public string MdfRackLocation { get; set; } = "Back Office / Cash Wrap";
         public bool MdfRackSpaceAdequate { get; set; } = true;
         public int DedicatedCircuitsCount { get; set; } = 2;
+        public string StructureNotes { get; set; } = string.Empty;
     }
 
     public class PowerPole
@@ -152,6 +155,7 @@ namespace YMInc.StoreDeploymentApp.Models
             : (!string.IsNullOrEmpty(PhoneNumber) ? PhoneNumber : "None Listed");
         public string PowerPoleSummary => PowerPoles != null ? $"{PowerPoles.InstalledCount}/{PowerPoles.TotalRequired} Installed" : "N/A";
         public string CablingSummary => Cabling != null ? $"{Cabling.TotalDataDrops} Drops ({(Cabling.FlukeCertified ? "Fluke Pass" : "Pending")})" : "N/A";
+        public string CablingVendorDisplay => Cabling != null && !string.IsNullOrEmpty(Cabling.Vendor) ? Cabling.Vendor : (!string.IsNullOrEmpty(Mall?.CablingVendor) ? Mall.CablingVendor : "Not Assigned");
         public string CircuitSummary => Circuits.Count > 0 ? $"{Circuits.Count} WAN Circuits" : "None";
     }
 }

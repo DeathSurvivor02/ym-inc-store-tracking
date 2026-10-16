@@ -213,8 +213,8 @@ async function main() {
 
       const mall = findValue(row, ['mall', 'mall_name', 'shopping_center', 'property']) || '';
       let storeName = findValue(row, ['store_name', 'name', 'location_name', 'store_location']);
-      if (!storeName || storeName === `Store #${storeNum}`) {
-        storeName = mall ? `${bannerName} - ${mall}` : `${bannerName} #${storeNum}`;
+      if (!storeName || storeName === `Store #${storeNum}` || storeName.includes(' - ')) {
+        storeName = bannerName;
       }
 
       const address = findValue(row, ['address', 'address_line1', 'street_address']) || 'Address Pending';

@@ -229,7 +229,9 @@ namespace YMInc.StoreDeploymentApp.Services
             int deltaVsPrior = Math.Max(0, overallPct - prevWeekFactorPct);
 
             var trend = new List<WeekProgressionPoint>();
-            for (int w = 36; w <= 43; w++)
+            int startW = Math.Clamp(fiscalWeek - 3, 1, 45);
+            int endW = startW + 7;
+            for (int w = startW; w <= endW; w++)
             {
                 var (ws, we) = DummyProjectService.GetDateRangeForFiscalWeek(w);
                 var wTasks = allWorkItems.Where(item => item.FiscalWeek == w || (item.ActivityDate.Date >= ws.Date && item.ActivityDate.Date <= we.Date)).ToList();
@@ -304,6 +306,7 @@ namespace YMInc.StoreDeploymentApp.Services
         {
             return fiscalWeek switch
             {
+                <= 30 => 0.15,
                 <= 35 => 0.28,
                 36 => 0.36,
                 37 => 0.46,
@@ -313,7 +316,11 @@ namespace YMInc.StoreDeploymentApp.Services
                 41 => 0.91,
                 42 => 1.00,
                 43 => 1.04,
-                _ => 1.08
+                44 => 1.07,
+                45 => 1.10,
+                46 => 1.12,
+                47 => 1.14,
+                _ => 1.15
             };
         }
     }

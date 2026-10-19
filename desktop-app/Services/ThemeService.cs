@@ -128,12 +128,12 @@ namespace YMInc.StoreDeploymentApp.Services
                 SetBrushResource(res, "TextSecondaryBrush", "#4B5563");
                 SetBrushResource(res, "TextMutedBrush", "#6B7280");
                 SetBrushResource(res, "ControlBgBrush", "#FFFFFF");
-                SetBrushResource(res, "ControlHoverBrush", "#F3F4F6");
+                SetBrushResource(res, "ControlHoverBrush", "#EBF3FC");
                 SetBrushResource(res, "ControlPressedBrush", "#E5E7EB");
                 SetBrushResource(res, "InputBgBrush", "#FFFFFF");
                 SetBrushResource(res, "InputReadOnlyBgBrush", "#F3F4F6");
                 SetBrushResource(res, "GridRowAltBrush", "#F9FAFB");
-                SetBrushResource(res, "GridRowHoverBrush", "#EFF6FF");
+                SetBrushResource(res, "GridRowHoverBrush", "#DCEEFE");
                 SetBrushResource(res, "GridRowSelectedBrush", "#DBEAFE");
                 SetBrushResource(res, "GridRowSelectedTextBrush", "#1E3A8A");
                 SetBrushResource(res, SystemColors.WindowBrushKey, "#FFFFFF");
@@ -172,10 +172,17 @@ namespace YMInc.StoreDeploymentApp.Services
 
             if (!isAppChromeBar)
             {
-                // TabItem template has an internal border whose triggers shouldn't be overwritten.
-                // However, elements inside DataTemplates (where TemplatedParent is ContentPresenter) MUST be themed.
-                bool isTabItemTemplatePart = obj is FrameworkElement fe && fe.TemplatedParent is TabItem;
-                if (!isTabItemTemplatePart)
+                // Controls (Buttons, TabItems, DataGridRows, DataGridCells, ScrollBars) have internal templates
+                // whose visual triggers (hover, pressed, selection) rely on TemplateBindings and dynamic resources.
+                // Overwriting their internal template parts with hardcoded local values breaks mouseover triggers.
+                bool isControlTemplatePart = obj is FrameworkElement fe &&
+                    (fe.TemplatedParent is ButtonBase ||
+                     fe.TemplatedParent is TabItem ||
+                     fe.TemplatedParent is DataGridRow ||
+                     fe.TemplatedParent is DataGridCell ||
+                     fe.TemplatedParent is ScrollBar);
+
+                if (!isControlTemplatePart)
                 {
                     TransformElementBrushes(obj);
                 }

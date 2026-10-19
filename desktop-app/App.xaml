@@ -17,12 +17,12 @@
         <SolidColorBrush x:Key="TextSecondaryBrush" Color="#4B5563"/>
         <SolidColorBrush x:Key="TextMutedBrush" Color="#6B7280"/>
         <SolidColorBrush x:Key="ControlBgBrush" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="ControlHoverBrush" Color="#F3F4F6"/>
+        <SolidColorBrush x:Key="ControlHoverBrush" Color="#EBF3FC"/>
         <SolidColorBrush x:Key="ControlPressedBrush" Color="#E5E7EB"/>
         <SolidColorBrush x:Key="InputBgBrush" Color="#FFFFFF"/>
         <SolidColorBrush x:Key="InputReadOnlyBgBrush" Color="#F3F4F6"/>
         <SolidColorBrush x:Key="GridRowAltBrush" Color="#F9FAFB"/>
-        <SolidColorBrush x:Key="GridRowHoverBrush" Color="#EFF6FF"/>
+        <SolidColorBrush x:Key="GridRowHoverBrush" Color="#DCEEFE"/>
         <SolidColorBrush x:Key="GridRowSelectedBrush" Color="#DBEAFE"/>
         <SolidColorBrush x:Key="GridRowSelectedTextBrush" Color="#1E3A8A"/>
 
@@ -421,9 +421,39 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
 
+        <!-- ==================== GLOBAL MODERN ENTERPRISE TOOLTIP ==================== -->
+        <Style TargetType="ToolTip">
+            <Setter Property="Background" Value="{DynamicResource BgPanelBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderLineBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,7"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="HasDropShadow" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToolTip">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="8" ShadowDepth="2" Direction="270" Color="#000000" Opacity="0.16"/>
+                            </Border.Effect>
+                            <ContentPresenter/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style TargetType="DataGridRow">
             <Setter Property="Background" Value="{DynamicResource BgPanelBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Style.Triggers>
                 <Trigger Property="ItemsControl.AlternationIndex" Value="1">
@@ -431,10 +461,12 @@
                 </Trigger>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="{DynamicResource GridRowHoverBrush}"/>
+                    <Setter Property="BorderBrush" Value="#93C5FD"/>
                 </Trigger>
                 <Trigger Property="IsSelected" Value="True">
                     <Setter Property="Background" Value="{DynamicResource GridRowSelectedBrush}"/>
                     <Setter Property="Foreground" Value="{DynamicResource GridRowSelectedTextBrush}"/>
+                    <Setter Property="BorderBrush" Value="#3B82F6"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -442,6 +474,9 @@
         <!-- ==================== INTERACTIVE STORE ROW STYLE WITH ON-HOVER SUMMARY ==================== -->
         <Style x:Key="StoreDataGridRowStyle" TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="ToolTipService.InitialShowDelay" Value="100"/>
+            <Setter Property="ToolTipService.BetweenShowDelay" Value="50"/>
+            <Setter Property="ToolTipService.ShowDuration" Value="30000"/>
             <Setter Property="ToolTip">
                 <Setter.Value>
                     <ToolTip Background="{DynamicResource BgPanelBrush}" BorderBrush="{DynamicResource AccentBlueBrush}" BorderThickness="1.5" Padding="12,10" HasDropShadow="True">

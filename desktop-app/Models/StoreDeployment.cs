@@ -26,9 +26,36 @@ namespace YMInc.StoreDeploymentApp.Models
         public string SecurityPhone { get; set; } = string.Empty;
         public string CablingVendor { get; set; } = string.Empty;
         public string? LeadTechnicianName { get; set; }
+        public bool MallContacted { get; set; } = true;
+        public string AssignedTeamMember { get; set; } = string.Empty;
+        public string RequirementsCircuits { get; set; } = string.Empty;
+        public string IntermediateSteps { get; set; } = string.Empty;
 
-        public string AfterHoursDisplay => NightWorkOnly ? "Yes" : "No";
-        public string CoiDisplay => CoiRequired ? "Yes" : "No";
+        public bool HasRequirements => !string.IsNullOrWhiteSpace(SpecialRules) || !string.IsNullOrWhiteSpace(RequirementsCircuits);
+        public string ContactedDisplay
+        {
+            get => MallContacted ? "Contacted" : "Not Contacted";
+            set => MallContacted = value != null && !value.Contains("Not", StringComparison.OrdinalIgnoreCase) && !value.Equals("No", StringComparison.OrdinalIgnoreCase);
+        }
+        public string RequirementsStatusDisplay
+        {
+            get => HasRequirements ? "Has Req." : (MallContacted ? "No Req. (Contacted)" : "Not Contacted");
+            set
+            {
+                if (value != null && value.Contains("Has", StringComparison.OrdinalIgnoreCase) && string.IsNullOrWhiteSpace(SpecialRules))
+                    SpecialRules = "Requirements verified";
+            }
+        }
+        public string AfterHoursDisplay
+        {
+            get => NightWorkOnly ? "Yes" : "No";
+            set => NightWorkOnly = value != null && (value.StartsWith("Y", StringComparison.OrdinalIgnoreCase) || value.Equals("True", StringComparison.OrdinalIgnoreCase));
+        }
+        public string CoiDisplay
+        {
+            get => CoiRequired ? "Yes" : "No";
+            set => CoiRequired = value != null && (value.StartsWith("Y", StringComparison.OrdinalIgnoreCase) || value.Equals("True", StringComparison.OrdinalIgnoreCase));
+        }
         public string ContactSummary => !string.IsNullOrEmpty(ManagementContactName) 
             ? $"{ManagementContactName} ({ManagementPhone})" 
             : (!string.IsNullOrEmpty(ManagementPhone) ? ManagementPhone : "N/A");
@@ -141,10 +168,32 @@ namespace YMInc.StoreDeploymentApp.Models
         public string WeeklyStatus { get; set; } = "In Progress / On Schedule";
         public string WeeklySummaryNote { get; set; } = string.Empty;
 
-        // Quick UI helpers
-        public string CountryFlag => CountryCode == "CA" ? "🇨🇦" : "🇺🇸";
-        public string MallName => Mall?.PropertyName ?? "Standalone / Street Front";
-        public string CityState => $"{City}, {StateProvince}";
+        // Quick UI helpers (with setters for direct DataGrid cell editing)
+        public string CountryFlag
+        {
+            get => CountryCode;
+            set => CountryCode = (value ?? "CA").Trim().ToUpperInvariant();
+        }
+        public string MallName
+        {
+            get => Mall?.PropertyName ?? "Standalone / Street Front";
+            set
+            {
+                Mall ??= new MallProperty { MallCode = $"M-{StoreNumber}", City = City, StateProvince = StateProvince, CountryCode = CountryCode };
+                Mall.PropertyName = (value ?? "").Trim();
+            }
+        }
+        public string CityState
+        {
+            get => $"{City}, {StateProvince}";
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value)) return;
+                var parts = value.Split(',');
+                City = parts[0].Trim();
+                if (parts.Length > 1) StateProvince = parts[1].Trim();
+            }
+        }
         public string FullAddress => $"{Address}, {City}, {StateProvince} {PostalCode}";
         public string? PhoneNumber { get; set; }
         public string? PrimaryContactName { get; set; }
@@ -153,9 +202,60 @@ namespace YMInc.StoreDeploymentApp.Models
         public string StoreContactSummary => !string.IsNullOrEmpty(PrimaryContactName)
             ? $"{PrimaryContactName} ({PrimaryContactPhone ?? PhoneNumber ?? "Direct"})"
             : (!string.IsNullOrEmpty(PhoneNumber) ? PhoneNumber : "None Listed");
-        public string PowerPoleSummary => PowerPoles != null ? $"{PowerPoles.InstalledCount}/{PowerPoles.TotalRequired} Installed" : "N/A";
-        public string CablingSummary => Cabling != null ? $"{Cabling.TotalDataDrops} Drops ({(Cabling.FlukeCertified ? "Fluke Pass" : "Pending")})" : "N/A";
-        public string CablingVendorDisplay => Cabling != null && !string.IsNullOrEmpty(Cabling.Vendor) ? Cabling.Vendor : (!string.IsNullOrEmpty(Mall?.CablingVendor) ? Mall.CablingVendor : "Not Assigned");
-        public string CircuitSummary => Circuits.Count > 0 ? $"{Circuits.Count} WAN Circuits" : "None";
+        private string? _powerPoleSummaryOverride;
+        public string PowerPoleSummary
+        {
+            get => _powerPoleSummaryOverride ?? (PowerPoles != null ? $"{PowerPoles.InstalledCount}/{PowerPoles.TotalRequired} Installed" : "N/A");
+            set
+            {
+                _powerPoleSummaryOverride = value;
+                if (PowerPoles != null && !string.IsNullOrWhiteSpace(value))
+                {
+                    var slash = value.Split('/', ' ');
+                    if (slash.Length >= 2 && int.TryParse(slash[0], out int inst) && int.TryParse(slash[1], out int tot))
+                    {
+                        PowerPoles.InstalledCount = inst;
+                        PowerPoles.TotalRequired = tot;
+                        _powerPoleSummaryOverride = null;
+                    }
+                }
+            }
+        }
+        private string? _cablingSummaryOverride;
+        public string CablingSummary
+        {
+            get => _cablingSummaryOverride ?? (Cabling != null ? $"{Cabling.TotalDataDrops} Drops ({(Cabling.FlukeCertified ? "Certified" : "Pending")})" : "N/A");
+            set
+            {
+                _cablingSummaryOverride = value;
+                if (Cabling != null && !string.IsNullOrWhiteSpace(value))
+                {
+                    var parts = value.Split(' ');
+                    if (int.TryParse(parts[0], out int drops))
+                    {
+                        Cabling.TotalDataDrops = drops;
+                    }
+                    Cabling.FlukeCertified = value.Contains("Cert", StringComparison.OrdinalIgnoreCase);
+                }
+            }
+        }
+        public string CablingVendorDisplay => Cabling != null && !string.IsNullOrEmpty(Cabling.Vendor) ? Cabling.Vendor : (!string.IsNullOrEmpty(Mall?.CablingVendor) ? Mall.CablingVendor : "Unassigned");
+        private string? _circuitSummaryOverride;
+        public string CircuitSummary
+        {
+            get => _circuitSummaryOverride ?? (Circuits.Count > 0 ? $"{Circuits.Count} Active" : "None");
+            set => _circuitSummaryOverride = value;
+        }
+
+        // Quick-Inspector properties
+        public string DeliveryOptionDisplay => Mall?.DeliveryWindow ?? "Standard Dock (08:00 - 17:00)";
+        public string SiteSurveyStatus => Survey?.Status ?? "Scheduled";
+        public string PowerPoleCondition => PowerPoles?.Status ?? "Survey Required";
+        public int PowerPolesCount => PowerPoles?.TotalRequired ?? 1;
+        public int CablingCat6Drops => Cabling?.TotalDataDrops ?? 16;
+        public string PatchPanelType => Cabling?.CableGrade ?? "Cat6 Plenum";
+        public string PrimaryCircuitVendor => Circuits.Count > 0 ? Circuits[0].CarrierName : "Pending Carrier";
+        public string PrimaryCircuitStatus => Circuits.Count > 0 ? Circuits[0].OrderStatus : "Pending Order";
+        public string TechnicalSummaryNote => WeeklySummaryNote;
     }
 }

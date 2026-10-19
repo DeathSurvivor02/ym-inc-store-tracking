@@ -1,5 +1,5 @@
+using System;
 using System.Windows;
-using System.Windows.Controls;
 using YMInc.StoreDeploymentApp.Services;
 
 namespace YMInc.StoreDeploymentApp.Views
@@ -9,40 +9,69 @@ namespace YMInc.StoreDeploymentApp.Views
         public LoginWindow()
         {
             InitializeComponent();
+            UpdateThemeButtonLabel();
         }
 
-        private void DemoProfileCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ThemeToggleButton_Click(object sender, RoutedEventArgs e)
         {
-            if (DemoProfileCombo.SelectedItem is ComboBoxItem item && item.Tag is string tag)
+            ThemeService.ToggleTheme();
+            UpdateThemeButtonLabel();
+        }
+
+        private void UpdateThemeButtonLabel()
+        {
+            if (ThemeToggleButton != null)
             {
-                var parts = tag.Split(':');
-                if (parts.Length == 2)
+                ThemeToggleButton.Content = ThemeService.ToggleButtonText;
+            }
+        }
+
+        private void SignInButton_Click(object sender, RoutedEventArgs e)
+        {
+            AttemptLogin(UsernameTextBox.Text, PasswordBox.Password);
+        }
+
+        private void QuickLoginPM_Click(object sender, RoutedEventArgs e)
+        {
+            UsernameTextBox.Text = "pm";
+            PasswordBox.Password = "pm123";
+        }
+
+        private void QuickLoginPA_Click(object sender, RoutedEventArgs e)
+        {
+            UsernameTextBox.Text = "pa";
+            PasswordBox.Password = "pa123";
+        }
+
+        private void QuickLoginTech_Click(object sender, RoutedEventArgs e)
+        {
+            UsernameTextBox.Text = "ps1";
+            PasswordBox.Password = "ps123";
+        }
+
+        private void AttemptLogin(string username, string password)
+        {
+            try
+            {
+                var (success, message, user) = AuthService.Login(username, password);
+                if (success && user != null)
                 {
-                    UsernameBox.Text = parts[0];
-                    PasswordBox.Password = parts[1];
-                    ErrorTextBlock.Visibility = Visibility.Collapsed;
+                    var mainWindow = new MainWindow(user);
+                    Application.Current.MainWindow = mainWindow;
+                    mainWindow.Show();
+                    Close();
+                }
+                else
+                {
+                    ErrorText.Text = message;
+                    ErrorBanner.Visibility = Visibility.Visible;
                 }
             }
-        }
-
-        private void LoginButton_Click(object sender, RoutedEventArgs e)
-        {
-            string username = UsernameBox.Text;
-            string password = PasswordBox.Password;
-
-            var (success, message, user) = AuthService.Login(username, password);
-
-            if (!success || user == null)
+            catch (Exception ex)
             {
-                ErrorTextBlock.Text = message;
-                ErrorTextBlock.Visibility = Visibility.Visible;
-                return;
+                ErrorText.Text = $"Error opening workspace: {ex.Message}";
+                ErrorBanner.Visibility = Visibility.Visible;
             }
-
-            // Launch Main Application Window
-            var mainWindow = new MainWindow(user);
-            mainWindow.Show();
-            Close();
         }
     }
 }

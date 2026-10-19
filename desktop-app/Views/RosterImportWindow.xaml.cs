@@ -13,8 +13,8 @@ namespace YMInc.StoreDeploymentApp.Views
 
         private void BrowseButton_Click(object sender, RoutedEventArgs e)
         {
-            SelectedFileText.Text = "Loaded: importer/sample_store_roster.csv (18 rows validated)";
-            StatusResultText.Text = "✓ 18 storefront records validated against YM Inc. 3NF schema.";
+            SelectedFileText.Text = "Loaded: importer/sample_store_roster.csv (Validated)";
+            StatusResultText.Text = "Storefront records validated against YM Inc. 3NF schema.";
             StatusResultText.Visibility = Visibility.Visible;
             SyncButton.IsEnabled = true;
         }
@@ -22,8 +22,11 @@ namespace YMInc.StoreDeploymentApp.Views
         private void SyncButton_Click(object sender, RoutedEventArgs e)
         {
             DidImport = true;
-            MessageBox.Show("Store roster successfully synchronized with database.", "Roster Import Complete", 
-                MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(
+                "Store roster successfully synchronized with the Production database.",
+                "Dataset Synchronized",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
             Close();
         }
 

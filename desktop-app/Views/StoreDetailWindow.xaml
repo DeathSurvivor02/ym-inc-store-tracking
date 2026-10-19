@@ -1,24 +1,35 @@
 <Window x:Class="YMInc.StoreDeploymentApp.Views.StoreDetailWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Store Deployment &amp; Engineering Specification (Editable)"
-        Height="730" Width="920"
+        Title="Store Engineering &amp; Deployment Record — YM Inc."
+        Height="820" Width="1060"
+        MinHeight="720" MinWidth="920"
         WindowStartupLocation="CenterOwner"
-        Background="#0B0F17"
-        Foreground="#F8FAFC">
-    
-    <Window.Resources>
-    </Window.Resources>
+        Background="#FAF9F8"
+        Foreground="#201F1E">
 
-    <Grid Margin="16">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="40"/>   <!-- Microsoft App Bar -->
+            <RowDefinition Height="Auto"/> <!-- Store Identity Ribbon -->
+            <RowDefinition Height="*"/>    <!-- Specification Tabs -->
+            <RowDefinition Height="Auto"/> <!-- Footer Action Bar -->
         </Grid.RowDefinitions>
 
-        <!-- Store Header Banner (Editable Status & Health) -->
-        <Border Grid.Row="0" Background="#0F172A" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,0,12">
+        <!-- ROW 0: MICROSOFT 365 APP BAR -->
+        <Border Grid.Row="0" Background="#0F6CBD" Padding="14,0">
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="YM Inc. Deployment Manager" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" Margin="0,0,10,0"/>
+                    <TextBlock Text="|" Foreground="#7FBEF2" Margin="0,0,10,0"/>
+                    <TextBlock Text="Store Engineering Specification" FontSize="12.5" Foreground="#EBF3FC"/>
+                </StackPanel>
+                <TextBlock Text="Record Editor" FontSize="11.5" Foreground="#EBF3FC" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            </DockPanel>
+        </Border>
+
+        <!-- ROW 1: STORE HEADER RIBBON -->
+        <Border Grid.Row="1" Background="#FFFFFF" BorderBrush="#E1DFDD" BorderThickness="0,0,0,1" Padding="18,12">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -26,42 +37,41 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Banner Badge -->
-                <Border Grid.Column="0" Width="52" Height="52" Background="#1E3A8A" CornerRadius="8" Margin="0,0,16,0" VerticalAlignment="Center">
-                    <TextBlock x:Name="BannerCodeBadge" Text="BN" Foreground="#93C5FD" FontSize="18" FontWeight="Black" 
+                <Border Grid.Column="0" Width="44" Height="44" Background="#EFF6FC" BorderBrush="#0F6CBD" BorderThickness="1" CornerRadius="2" Margin="0,0,14,0" VerticalAlignment="Center">
+                    <TextBlock x:Name="BannerCodeBadge" Text="CR" Foreground="#0F6CBD" FontFamily="{StaticResource MonoFont}" FontSize="15" FontWeight="Bold"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
 
-                <!-- Store Names & Location -->
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                        <TextBlock x:Name="StoreNumberText" Text="Store #6142" FontSize="18" FontWeight="Bold" Foreground="White" Margin="0,0,10,0"/>
-                        <TextBlock x:Name="CountryFlagText" Text="🇨🇦" FontSize="16" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                        <TextBlock Text="Health:" FontSize="11" Foreground="#94A3B8" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                        <ComboBox x:Name="HealthCombo" Width="130" Height="26" SelectionChanged="HealthCombo_SelectionChanged">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock x:Name="StoreNumberText" Text="Store #6142" FontSize="16" FontWeight="SemiBold" Foreground="#201F1E" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <Border Background="#F3F2F1" BorderBrush="#D2D0CE" BorderThickness="1" CornerRadius="2" Padding="6,1" VerticalAlignment="Center" Margin="0,0,14,0">
+                            <TextBlock x:Name="CountryFlagText" Text="US" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#323130"/>
+                        </Border>
+                        <TextBlock Text="Health:" FontSize="12" Foreground="#605E5C" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <ComboBox x:Name="HealthCombo" Width="150" MinHeight="32" SelectionChanged="HealthCombo_SelectionChanged">
                             <ComboBoxItem Content="On Track" Tag="On Track"/>
                             <ComboBoxItem Content="At Risk" Tag="At Risk"/>
                             <ComboBoxItem Content="Critical Blocker" Tag="Critical Blocker"/>
                             <ComboBoxItem Content="Complete" Tag="Complete"/>
                         </ComboBox>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                        <TextBlock Text="Store Name: " FontSize="11" Foreground="#64748B" VerticalAlignment="Center"/>
-                        <TextBox x:Name="StoreNameTextBox" Width="260" Height="25" Margin="0,0,12,0"/>
-                        <TextBlock Text="Mall: " FontSize="11" Foreground="#64748B" VerticalAlignment="Center"/>
-                        <TextBlock x:Name="StoreMallText" Text="Yorkdale Shopping Centre" FontSize="11" FontWeight="SemiBold" Foreground="#38BDF8" VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Store Name:" FontSize="12" Foreground="#605E5C" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBox x:Name="StoreNameTextBox" Width="260" MinHeight="32" Margin="0,0,14,0"/>
+                        <TextBlock Text="Property:" FontSize="12" Foreground="#605E5C" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock x:Name="StoreMallText" Text="Yorkdale Shopping Centre" FontSize="12.5" FontWeight="SemiBold" Foreground="#201F1E" VerticalAlignment="Center"/>
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Target Date & Stage -->
                 <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,4">
-                        <TextBlock Text="Target Open: " FontSize="11" Foreground="#94A3B8" VerticalAlignment="Center"/>
-                        <TextBox x:Name="TargetDateTextBox" Width="110" Height="25" FontWeight="Bold" Foreground="#38BDF8"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
+                        <TextBlock Text="Target Open:" FontSize="12" Foreground="#605E5C" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBox x:Name="TargetDateTextBox" Width="130" MinHeight="32" FontFamily="{StaticResource MonoFont}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <TextBlock Text="Status: " FontSize="11" Foreground="#94A3B8" VerticalAlignment="Center"/>
-                        <ComboBox x:Name="OperationalStatusCombo" Width="150" Height="26">
+                        <TextBlock Text="Stage:" FontSize="12" Foreground="#605E5C" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <ComboBox x:Name="OperationalStatusCombo" Width="165" MinHeight="32">
                             <ComboBoxItem Content="Grand Open"/>
                             <ComboBoxItem Content="Fixturing"/>
                             <ComboBoxItem Content="Low-Voltage Cabling"/>
@@ -74,31 +84,29 @@
             </Grid>
         </Border>
 
-        <!-- Technical Specification Tabs (All Editable) -->
-        <TabControl Grid.Row="1" Background="#0F172A" BorderBrush="#1E293B">
-            
+        <!-- ROW 2: TECHNICAL SPECIFICATION TABS -->
+        <TabControl Grid.Row="2" Margin="14,10,14,0">
             <!-- TAB 1: SITE SURVEY -->
-            <TabItem Header="📋 Site Survey Specs" FontSize="12">
+            <TabItem Header="1. Site Survey">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="16">
-                        <TextBlock Text="Structural &amp; Demarcation Specifications" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,0,0,12"/>
-                        <Grid Margin="0,0,0,16">
+                    <StackPanel Margin="20,16">
+                        <TextBlock Text="STRUCTURAL &amp; DEMARCATION SPECIFICATIONS" FontSize="11.5" FontWeight="Bold" Foreground="#0F6CBD" Margin="0,0,0,12"/>
+                        <Grid Margin="0,0,0,14">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="18"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            
-                            <!-- Left Column -->
+
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Ceiling Type:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                <TextBox x:Name="SurveyCeilingTypeTextBox" Margin="0,0,0,10"/>
+                                <TextBlock Text="Ceiling Type:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBox x:Name="SurveyCeilingTypeTextBox" MinHeight="34" Margin="0,0,0,12"/>
 
-                                <TextBlock Text="Clear Deck Height (Feet):" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                <TextBox x:Name="SurveyCeilingHeightTextBox" Margin="0,0,0,10"/>
+                                <TextBlock Text="Clear Deck Height (Feet):" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBox x:Name="SurveyCeilingHeightTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}" Margin="0,0,0,12"/>
 
-                                <TextBlock Text="Survey Status:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                <ComboBox x:Name="SurveyStatusCombo" Margin="0,0,0,10">
+                                <TextBlock Text="Survey Status:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="SurveyStatusCombo" MinHeight="34" Margin="0,0,0,12">
                                     <ComboBoxItem Content="Completed &amp; Approved"/>
                                     <ComboBoxItem Content="Submitted (Review Pending)"/>
                                     <ComboBoxItem Content="Scheduled"/>
@@ -107,44 +115,42 @@
                                 </ComboBox>
                             </StackPanel>
 
-                            <!-- Right Column -->
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Demarc Location:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                <TextBox x:Name="SurveyDemarcLocationTextBox" Margin="0,0,0,10"/>
+                                <TextBlock Text="Demarc Location:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBox x:Name="SurveyDemarcLocationTextBox" MinHeight="34" Margin="0,0,0,12"/>
 
-                                <TextBlock Text="Demarc Conduit Status:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                <ComboBox x:Name="SurveyConduitCombo" Margin="0,0,0,10">
+                                <TextBlock Text="Demarc Conduit Status:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="SurveyConduitCombo" MinHeight="34" Margin="0,0,0,12">
                                     <ComboBoxItem Content="Clear &amp; Available (Ready)" Tag="True"/>
                                     <ComboBoxItem Content="Blocked / Missing (Requires Riser Work)" Tag="False"/>
                                     <ComboBoxItem Content="Demarc in Backroom (Direct)" Tag="True"/>
                                 </ComboBox>
 
-                                <TextBlock Text="Surveyor / Field Dispatch:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                <TextBox x:Name="SurveyorTextBox" Margin="0,0,0,10"/>
+                                <TextBlock Text="Surveyor / Field Dispatch:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBox x:Name="SurveyorTextBox" MinHeight="34" Margin="0,0,0,12"/>
                             </StackPanel>
                         </Grid>
 
-                        <!-- Verified Field Survey Observations & Physical Conditions -->
-                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,10">
+                        <Border Background="#FAF9F8" BorderBrush="#E1DFDD" BorderThickness="1" CornerRadius="2" Padding="14">
                             <StackPanel>
-                                <TextBlock Text="Verified Field Survey Observations &amp; Physical Infrastructure" FontSize="12" FontWeight="Bold" Foreground="#38BDF8" Margin="0,0,0,8"/>
-                                <Grid Margin="0,0,0,8">
+                                <TextBlock Text="FIELD OBSERVATIONS &amp; INFRASTRUCTURE NOTES" FontSize="11" FontWeight="Bold" Foreground="#323130" Margin="0,0,0,10"/>
+                                <Grid Margin="0,0,0,12">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="18"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Network Rack Location:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                        <TextBox x:Name="SurveyRackLocationTextBox"/>
+                                        <TextBlock Text="Network Rack Location:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="SurveyRackLocationTextBox" MinHeight="34"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="Survey Submission / Actual Date:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                        <TextBox x:Name="SurveyDateTextBox"/>
+                                        <TextBlock Text="Survey Submission Date:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="SurveyDateTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}"/>
                                     </StackPanel>
                                 </Grid>
-                                <TextBlock Text="Facility Observations (Drop Pole, Music/Stingray, Ladder, Washrooms):" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                <TextBox x:Name="SurveyNotesTextBox" Height="50" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                                <TextBlock Text="Facility Observations (Drop Pole, Audio, Ladder, Washrooms):" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBox x:Name="SurveyNotesTextBox" MinHeight="72" VerticalContentAlignment="Top" Padding="8,6" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
@@ -152,20 +158,20 @@
             </TabItem>
 
             <!-- TAB 2: POWER POLES -->
-            <TabItem Header="⚡ Wiremold Power Poles" FontSize="12">
+            <TabItem Header="2. Power Poles">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="16">
-                        <TextBlock Text="Wiremold 25DTP-4 Cash Wrap Dual-Channel Feeds" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,0,0,12"/>
-                        <Grid Margin="0,0,0,16">
+                    <StackPanel Margin="20,16">
+                        <TextBlock Text="WIREMOLD 25DTP-4 CASH WRAP DUAL-CHANNEL FEEDS" FontSize="11.5" FontWeight="Bold" Foreground="#0F6CBD" Margin="0,0,0,12"/>
+                        <Grid Margin="0,0,0,14">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="18"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Installation Status:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                <ComboBox x:Name="PowerPoleStatusCombo" Margin="0,0,0,10">
+                                <TextBlock Text="Installation Status:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="PowerPoleStatusCombo" MinHeight="34" Margin="0,0,0,12">
                                     <ComboBoxItem Content="Existing Pole Verified Present"/>
                                     <ComboBoxItem Content="New Drop Pole Installation Required"/>
                                     <ComboBoxItem Content="Fully Installed &amp; Certified"/>
@@ -176,61 +182,61 @@
                                     <ComboBoxItem Content="Blocked / On Hold"/>
                                 </ComboBox>
 
-                                <Grid Margin="0,0,0,10">
+                                <Grid Margin="0,0,0,12">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="12"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Poles Installed:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                        <TextBox x:Name="PowerPoleInstalledTextBox"/>
+                                        <TextBlock Text="Poles Installed:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="PowerPoleInstalledTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="Total Required:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                        <TextBox x:Name="PowerPoleTotalTextBox"/>
+                                        <TextBlock Text="Total Required:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="PowerPoleTotalTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}"/>
                                     </StackPanel>
                                 </Grid>
 
-                                <TextBlock Text="Finish Color:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                <TextBox x:Name="PowerPoleColorTextBox" Margin="0,0,0,10"/>
+                                <TextBlock Text="Finish Color:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBox x:Name="PowerPoleColorTextBox" MinHeight="34" Margin="0,0,0,12"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Ceiling Mount Type:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                <TextBox x:Name="PowerPoleMountTextBox" Margin="0,0,0,10"/>
+                                <TextBlock Text="Ceiling Mount Type:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBox x:Name="PowerPoleMountTextBox" MinHeight="34" Margin="0,0,0,12"/>
 
-                                <TextBlock Text="Cash Wrap Drops:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                <TextBox x:Name="PowerPoleDropsTextBox" Margin="0,0,0,10"/>
+                                <TextBlock Text="Cash Wrap Drops:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBox x:Name="PowerPoleDropsTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}" Margin="0,0,0,12"/>
 
-                                <TextBlock Text="Electrical Contractor:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                <TextBox x:Name="PowerPoleContractorTextBox" Margin="0,0,0,10"/>
+                                <TextBlock Text="Electrical Contractor:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBox x:Name="PowerPoleContractorTextBox" MinHeight="34" Margin="0,0,0,12"/>
                             </StackPanel>
                         </Grid>
 
-                        <StackPanel Margin="0,0,0,10">
-                            <TextBlock Text="Blocker Alert / Notes:" FontSize="11" Foreground="#F87171" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                            <TextBox x:Name="PowerPoleBlockerTextBox" Height="45" TextWrapping="Wrap" AcceptsReturn="True"/>
+                        <StackPanel>
+                            <TextBlock Text="Blocker / Exception Notes:" FontSize="12" FontWeight="SemiBold" Foreground="#B91C1C" Margin="0,0,0,4"/>
+                            <TextBox x:Name="PowerPoleBlockerTextBox" MinHeight="68" VerticalContentAlignment="Top" Padding="8,6" TextWrapping="Wrap" AcceptsReturn="True"/>
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
 
             <!-- TAB 3: CABLING -->
-            <TabItem Header="🔌 Low-Voltage Cabling" FontSize="12">
+            <TabItem Header="3. Structured Cabling">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="16">
-                        <TextBlock Text="Cat6 Plenum Structured Cabling Matrix" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,0,0,12"/>
-                        <Grid Margin="0,0,0,16">
+                    <StackPanel Margin="20,16">
+                        <TextBlock Text="CAT6 PLENUM STRUCTURED CABLING MATRIX" FontSize="11.5" FontWeight="Bold" Foreground="#0F6CBD" Margin="0,0,0,12"/>
+                        <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="18"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Cabling Status:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                <ComboBox x:Name="CablingStatusCombo" Margin="0,0,0,10">
+                                <TextBlock Text="Cabling Status:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="CablingStatusCombo" MinHeight="34" Margin="0,0,0,12">
                                     <ComboBoxItem Content="Fluke Certified &amp; Closed"/>
                                     <ComboBoxItem Content="Pathway &amp; J-Hooks Installed"/>
                                     <ComboBoxItem Content="Rough-In In Progress"/>
@@ -238,38 +244,38 @@
                                     <ComboBoxItem Content="Blocked"/>
                                 </ComboBox>
 
-                                <TextBlock Text="Total Data Drops:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                <TextBox x:Name="CablingTotalDropsTextBox" Margin="0,0,0,10"/>
+                                <TextBlock Text="Total Data Drops:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBox x:Name="CablingTotalDropsTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}" Margin="0,0,0,12"/>
 
-                                <Grid Margin="0,0,0,10">
+                                <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="12"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="POS Drops:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                        <TextBox x:Name="CablingPosDropsTextBox"/>
+                                        <TextBlock Text="POS Drops:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="CablingPosDropsTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="AP Wireless Drops:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                        <TextBox x:Name="CablingApDropsTextBox"/>
+                                        <TextBlock Text="AP Wireless Drops:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="CablingApDropsTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}"/>
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>
 
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Fluke Test Certification:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                <ComboBox x:Name="CablingFlukeCombo" Margin="0,0,0,10">
-                                    <ComboBoxItem Content="✓ Certified &amp; Passed" Tag="True"/>
-                                    <ComboBoxItem Content="Pending Fluke Certification" Tag="False"/>
+                                <TextBlock Text="Fluke Test Certification:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <ComboBox x:Name="CablingFlukeCombo" MinHeight="34" Margin="0,0,0,12">
+                                    <ComboBoxItem Content="Certified &amp; Passed" Tag="True"/>
+                                    <ComboBoxItem Content="Pending Certification" Tag="False"/>
                                 </ComboBox>
 
-                                <TextBlock Text="Cabling Contractor / Vendor:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                <TextBox x:Name="CablingVendorTextBox" Margin="0,0,0,10"/>
+                                <TextBlock Text="Assigned Cabling Contractor:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBox x:Name="CablingVendorTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}" Margin="0,0,0,12"/>
 
-                                <TextBlock Text="Lead Field Technician:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                <TextBox x:Name="CablingTechTextBox" Margin="0,0,0,10"/>
+                                <TextBlock Text="Lead Field Technician:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBox x:Name="CablingTechTextBox" MinHeight="34" Margin="0,0,0,12"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
@@ -277,35 +283,48 @@
             </TabItem>
 
             <!-- TAB 4: TELECOM WAN -->
-            <TabItem Header="📡 Telecom WAN Circuits" FontSize="12">
+            <TabItem Header="4. WAN Circuits">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="16">
-                        <TextBlock Text="Dual-WAN Carrier Circuit Details" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,0,0,12"/>
+                    <StackPanel Margin="20,16">
+                        <TextBlock Text="DUAL-WAN CARRIER CIRCUIT INVENTORY (DIRECTLY EDITABLE)" FontSize="11.5" FontWeight="Bold" Foreground="#0F6CBD" Margin="0,0,0,12"/>
                         <ItemsControl x:Name="CircuitsItemsControl">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,10">
+                                    <Border Background="#FAF9F8" BorderBrush="#D2D0CE" BorderThickness="1" CornerRadius="2" Padding="14,12" Margin="0,0,0,10">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="180"/>
+                                                <ColumnDefinition Width="12"/>
+                                                <ColumnDefinition Width="1.2*"/>
+                                                <ColumnDefinition Width="12"/>
+                                                <ColumnDefinition Width="150"/>
+                                                <ColumnDefinition Width="12"/>
+                                                <ColumnDefinition Width="160"/>
                                             </Grid.ColumnDefinitions>
-                                            <StackPanel Grid.Column="0" Margin="0,0,16,0">
-                                                <TextBlock Text="{Binding Role}" FontSize="12" FontWeight="Bold" Foreground="#38BDF8"/>
-                                                <TextBlock Text="{Binding CarrierName}" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="{Binding Role}" FontSize="11" FontWeight="Bold" Foreground="#0F6CBD" Margin="0,0,0,4"/>
+                                                <TextBlock Text="Carrier:" FontSize="11" Foreground="#605E5C" Margin="0,0,0,2"/>
+                                                <TextBox Text="{Binding CarrierName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinHeight="32"/>
                                             </StackPanel>
-                                            <StackPanel Grid.Column="1">
-                                                <TextBlock Text="{Binding ServiceType}" FontSize="11" Foreground="#CBD5E1"/>
-                                                <TextBlock FontSize="10" Foreground="#94A3B8">
-                                                    <Run Text="Speed: "/><Run Text="{Binding BandwidthDownMbps}" FontWeight="Bold" Foreground="#34D399"/><Run Text=" ↓ / "/><Run Text="{Binding BandwidthUpMbps}" FontWeight="Bold" Foreground="#60A5FA"/><Run Text=" ↑ Mbps"/>
-                                                </TextBlock>
-                                                <TextBlock Text="{Binding JeopardyReason}" FontSize="10" Foreground="#F87171" Margin="0,2,0,0"/>
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Text="Service Type &amp; Notes:" FontSize="11" Foreground="#605E5C" Margin="0,18,0,2"/>
+                                                <TextBox Text="{Binding ServiceType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinHeight="32"/>
                                             </StackPanel>
-                                            <StackPanel Grid.Column="2" HorizontalAlignment="Right">
-                                                <Border Background="#0F172A" Padding="8,4" CornerRadius="4">
-                                                    <TextBlock Text="{Binding OrderStatus}" FontSize="11" FontWeight="Bold" Foreground="#38BDF8"/>
-                                                </Border>
+                                            <StackPanel Grid.Column="4">
+                                                <TextBlock Text="Down / Up (Mbps):" FontSize="11" Foreground="#605E5C" Margin="0,18,0,2"/>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="6"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBox Grid.Column="0" Text="{Binding BandwidthDownMbps, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinHeight="32" FontFamily="{StaticResource MonoFont}"/>
+                                                    <TextBox Grid.Column="2" Text="{Binding BandwidthUpMbps, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinHeight="32" FontFamily="{StaticResource MonoFont}"/>
+                                                </Grid>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="6">
+                                                <TextBlock Text="Order Status:" FontSize="11" Foreground="#605E5C" Margin="0,18,0,2"/>
+                                                <TextBox Text="{Binding OrderStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinHeight="32" FontWeight="SemiBold"/>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -316,115 +335,152 @@
                 </ScrollViewer>
             </TabItem>
 
-            <!-- TAB 5: MALL RULES (DIRECTLY EDITABLE) -->
-            <TabItem Header="🏢 Mall Landlord Rules" FontSize="12">
+            <!-- TAB 5: MALL RULES -->
+            <TabItem Header="5. Landlord Compliance">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="16">
+                    <StackPanel Margin="20,16">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,12">
-                            <TextBlock x:Name="MallNameHeading" Text="Mall Landlord Compliance &amp; Requirements" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,0,10,0"/>
-                            <Border Background="#1E3A8A" CornerRadius="4" Padding="6,2">
-                                <TextBlock Text="Editable Specifications" FontSize="10" FontWeight="Bold" Foreground="#93C5FD"/>
+                            <TextBlock x:Name="MallNameHeading" Text="LANDLORD COMPLIANCE &amp; DELIVERY REQUIREMENTS" FontSize="11.5" FontWeight="Bold" Foreground="#0F6CBD" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <Border x:Name="MallReqStatusBadgeBorder" Background="#F3F2F1" BorderBrush="#D2D0CE" BorderThickness="1" CornerRadius="2" Padding="8,2">
+                                <TextBlock x:Name="MallReqStatusBadgeText" Text="Has Req." FontSize="10.5" FontWeight="SemiBold" Foreground="#323130"/>
                             </Border>
                         </StackPanel>
-                        
-                        <!-- Primary Compliance Matrix Card -->
-                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="6" Padding="14" Margin="0,0,0,14">
+
+                        <Border Background="#FAF9F8" BorderBrush="#E1DFDD" BorderThickness="1" CornerRadius="2" Padding="14" Margin="0,0,0,12">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="18"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- Left column: COI, After Hours, Delivery -->
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Certificate of Insurance (COI):" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                    <ComboBox x:Name="MallCoiCombo" Height="28" Margin="0,0,0,12">
+                                    <TextBlock Text="Landlord Contacted:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                    <ComboBox x:Name="MallContactedCombo" MinHeight="34" Margin="0,0,0,10">
+                                        <ComboBoxItem Content="Yes — Contacted" Tag="True"/>
+                                        <ComboBoxItem Content="No — Not Contacted" Tag="False"/>
+                                    </ComboBox>
+
+                                    <TextBlock Text="Certificate of Insurance (COI):" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                    <ComboBox x:Name="MallCoiCombo" MinHeight="34" Margin="0,0,0,10">
                                         <ComboBoxItem Content="Mandatory (COI Required)" Tag="True"/>
                                         <ComboBoxItem Content="Not Required / Exempt" Tag="False"/>
                                     </ComboBox>
 
-                                    <TextBlock Text="After Hours Work Requirement:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                    <ComboBox x:Name="MallAfterHoursCombo" Height="28" Margin="0,0,0,12">
+                                    <TextBlock Text="After Hours Work Mandate:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                    <ComboBox x:Name="MallAfterHoursCombo" MinHeight="34" Margin="0,0,0,10">
                                         <ComboBoxItem Content="Mandatory Night Shift Only" Tag="True"/>
                                         <ComboBoxItem Content="Daytime Work Permitted" Tag="False"/>
                                     </ComboBox>
 
-                                    <TextBlock Text="Delivery Window:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                    <TextBox x:Name="MallDeliveryTextBox" Height="28" Text="06:00 - 09:30"/>
+                                    <TextBlock Text="Delivery Window:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="MallDeliveryTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}" Text="06:00 - 09:30"/>
                                 </StackPanel>
 
-                                <!-- Right column: Landlord, Liability, Badging -->
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Landlord Management Company:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                    <TextBox x:Name="MallLandlordCompanyTextBox" Height="28" Margin="0,0,0,12"/>
+                                    <TextBlock Text="Landlord Management Company:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="MallLandlordCompanyTextBox" MinHeight="34" Margin="0,0,0,10"/>
 
-                                    <TextBlock Text="Minimum General Liability Amount ($):" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                    <TextBox x:Name="MallLiabilityTextBox" Height="28" Margin="0,0,0,12" Text="5000000"/>
+                                    <TextBlock Text="Assigned Outreach Member:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="MallTeamMemberTextBox" MinHeight="34" Margin="0,0,0,10"/>
 
-                                    <TextBlock Text="Assigned Cabling Contractor:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                    <TextBox x:Name="MallCablingCompanyTextBox" Height="28" IsReadOnly="True" Background="#1E293B"/>
+                                    <TextBlock Text="Minimum General Liability ($):" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="MallLiabilityTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}" Margin="0,0,0,10" Text="5000000"/>
+
+                                    <TextBlock Text="Assigned Cabling Contractor:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="MallCablingCompanyTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
 
-                        <!-- Mall Management & Operations Contact Details -->
-                        <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="1" CornerRadius="6" Padding="14" Margin="0,0,0,14">
+                        <Border Background="#FAF9F8" BorderBrush="#E1DFDD" BorderThickness="1" CornerRadius="2" Padding="14" Margin="0,0,0,12">
                             <StackPanel>
-                                <TextBlock Text="Mall Management &amp; Operational Contacts" FontSize="12" FontWeight="Bold" Foreground="#38BDF8" Margin="0,0,0,10"/>
+                                <TextBlock Text="PROPERTY MANAGEMENT CONTACTS" FontSize="11" FontWeight="Bold" Foreground="#323130" Margin="0,0,0,8"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="18"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Operations Contact Name:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                        <TextBox x:Name="MallContactNameTextBox" Height="28" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Operations Contact Name:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="MallContactNameTextBox" MinHeight="34" Margin="0,0,0,10"/>
 
-                                        <TextBlock Text="Operations Phone:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                        <TextBox x:Name="MallContactPhoneTextBox" Height="28"/>
+                                        <TextBlock Text="Operations Phone:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="MallContactPhoneTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="Operations Email:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                        <TextBox x:Name="MallContactEmailTextBox" Height="28" Margin="0,0,0,10"/>
+                                        <TextBlock Text="Operations Email:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="MallContactEmailTextBox" MinHeight="34" Margin="0,0,0,10"/>
 
-                                        <TextBlock Text="Security Dispatch Phone:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                                        <TextBox x:Name="MallSecurityPhoneTextBox" Height="28"/>
+                                        <TextBlock Text="Security Dispatch Phone:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBox x:Name="MallSecurityPhoneTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}"/>
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>
                         </Border>
 
-                        <!-- Special Mall Rules & Access Notes -->
-                        <StackPanel Margin="0,0,0,14">
-                            <TextBlock Text="Special Mall Rules &amp; Access Notes:" FontSize="11" Foreground="#94A3B8" Margin="0,0,0,4"/>
-                            <TextBox x:Name="MallSpecialRulesTextBox" Height="70" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                        <StackPanel Margin="0,0,0,10">
+                            <TextBlock Text="Requirements for TTU &amp; Cabling:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                            <TextBox x:Name="MallSpecialRulesTextBox" MinHeight="64" VerticalContentAlignment="Top" Padding="8,6" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
                         </StackPanel>
 
-                        <Button Content="⚙️ Open Full Mall Directory" Click="OpenMallDirectoryButton_Click"
-                                Background="#1E293B" Foreground="#38BDF8" FontWeight="SemiBold" Width="200" Height="30" 
-                                HorizontalAlignment="Left" BorderBrush="#334155" BorderThickness="1" Cursor="Hand"/>
+                        <StackPanel Margin="0,0,0,12">
+                            <TextBlock Text="Intermediate Steps &amp; Outreach Log:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                            <TextBox x:Name="MallIntermediateStepsTextBox" MinHeight="60" VerticalContentAlignment="Top" Padding="8,6" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
+                        </StackPanel>
+
+                        <Button Content="Open Full Landlord Directory..." Click="OpenMallDirectoryButton_Click"
+                                Width="220" MinHeight="32" HorizontalAlignment="Left"/>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
+
+            <!-- TAB 6: STORE CHANGE HISTORY -->
+            <TabItem Header="6. Change History">
+                <Grid Margin="14,12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <DockPanel Grid.Row="0" Margin="0,0,0,8">
+                        <TextBlock Text="CHRONOLOGICAL STORE &amp; PROPERTY AUDIT TRAIL" FontFamily="{StaticResource MonoFont}" FontSize="11" FontWeight="Bold" Foreground="#0F6CBD" VerticalAlignment="Center"/>
+                        <Button Content="🕒 Open Global History Window..." Click="ViewHistoryButton_Click" MinHeight="28" Padding="10,0" HorizontalAlignment="Right"/>
+                    </DockPanel>
+
+                    <DataGrid x:Name="StoreHistoryGrid" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="TIMESTAMP" Binding="{Binding TimestampDisplay}" Width="140" FontFamily="{StaticResource MonoFont}"/>
+                            <DataGridTextColumn Header="OPERATOR" Binding="{Binding OperatorDisplay}" Width="130" FontWeight="SemiBold"/>
+                            <DataGridTextColumn Header="CATEGORY" Binding="{Binding Category}" Width="135" FontFamily="{StaticResource MonoFont}"/>
+                            <DataGridTextColumn Header="FIELD / ACTION" Binding="{Binding FieldName}" Width="165" FontWeight="SemiBold"/>
+                            <DataGridTextColumn Header="PREVIOUS VALUE" Binding="{Binding PreviousValue}" Width="135"/>
+                            <DataGridTextColumn Header="NEW VALUE" Binding="{Binding NewValue}" Width="135" FontWeight="SemiBold"/>
+                            <DataGridTextColumn Header="SUMMARY" Binding="{Binding Summary}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
         </TabControl>
 
-        <!-- Footer with Save & Close -->
-        <Border Grid.Row="2" Background="#0F172A" Padding="14,10" Margin="0,12,0,0" CornerRadius="6">
+        <!-- ROW 3: FOOTER ACTION BAR -->
+        <Border Grid.Row="3" Background="#F3F2F1" BorderBrush="#E1DFDD" BorderThickness="0,1,0,0" Padding="18,10" Margin="0,10,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock x:Name="SaveNotificationText" Grid.Column="0" Text="" FontSize="11" FontWeight="SemiBold" Foreground="#34D399" VerticalAlignment="Center"/>
+                <TextBlock x:Name="SaveNotificationText" Grid.Column="0" Text="" FontSize="12" FontWeight="SemiBold" Foreground="#107C10" VerticalAlignment="Center"/>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button Content="💾 Save Store Updates" Click="SaveButton_Click"
-                            Width="160" Height="32" Background="#10B981" Foreground="White" FontWeight="Bold" BorderThickness="0" Cursor="Hand" Margin="0,0,10,0"/>
-                    <Button Content="Close" Click="CloseButton_Click" 
-                            Width="90" Height="32" Background="#334155" Foreground="White" FontWeight="SemiBold" BorderThickness="0" Cursor="Hand"/>
+                    <Button Content="💾 Save Store &amp; Property Changes" Click="SaveButton_Click"
+                            Style="{StaticResource PrimaryButton}" Padding="14,0" MinHeight="32" Margin="0,0,8,0"/>
+                    <Button Content="🕒 Change History..." Click="ViewHistoryButton_Click"
+                            Padding="12,0" MinHeight="32" Margin="0,0,8,0"/>
+                    <Button Content="Close" Click="CloseButton_Click"
+                            Width="90" MinHeight="32"/>
                 </StackPanel>
             </Grid>
         </Border>

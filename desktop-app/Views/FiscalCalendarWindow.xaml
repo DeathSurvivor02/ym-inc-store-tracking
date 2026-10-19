@@ -1,27 +1,28 @@
 <Window x:Class="YMInc.StoreDeploymentApp.Views.FiscalCalendarWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="NRF 4-5-4 Retail Fiscal Calendar — YM Inc."
-        Height="720" Width="1050"
-        MinHeight="550" MinWidth="800"
+        Title="Schedule &amp; Fiscal Calendar — YM Inc. Store Deployment Manager"
+        Height="860" Width="1460"
+        MinHeight="720" MinWidth="1180"
         WindowStartupLocation="CenterOwner"
-        Background="#0B0F17"
-        Foreground="#F8FAFC">
+        Background="#FAF9F8"
+        Foreground="#201F1E">
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </Window.Resources>
 
-    <Grid Margin="16">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/> <!-- Header -->
-            <RowDefinition Height="Auto"/> <!-- Filters & Search -->
-            <RowDefinition Height="*"/>    <!-- DataGrid -->
-            <RowDefinition Height="Auto"/> <!-- Status & Close -->
+            <RowDefinition Height="42"/>   <!-- Row 0: Microsoft 365 Blue App Header Bar -->
+            <RowDefinition Height="Auto"/> <!-- Row 1: Microsoft Command Bar & Week Selector -->
+            <RowDefinition Height="Auto"/> <!-- Row 2: Selected Week Specific Progression Strip -->
+            <RowDefinition Height="*"/>    <!-- Row 3: Split Workspace (Calendar Board/Grid + Right Work Order Pane) -->
+            <RowDefinition Height="24"/>   <!-- Row 4: Microsoft Status Bar -->
         </Grid.RowDefinitions>
 
-        <!-- HEADER -->
-        <Border Grid.Row="0" Background="#0F172A" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="8" Padding="16,12" Margin="0,0,0,12">
+        <!-- ==================== ROW 0: MICROSOFT 365 APP HEADER BAR ==================== -->
+        <Border Grid.Row="0" Background="#0F6CBD" Padding="14,0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -30,147 +31,440 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Width="40" Height="40" Background="#2563EB" CornerRadius="8" Margin="0,0,12,0">
-                        <TextBlock Text="📅" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <StackPanel VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="NRF 4-5-4 Retail Fiscal Calendar" FontSize="16" FontWeight="Bold" Foreground="White"/>
-                            <Border Background="#1E3A8A" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="FY2025 – FY2027" FontSize="9" FontWeight="Bold" Foreground="#93C5FD"/>
-                            </Border>
-                        </StackPanel>
-                        <TextBlock Text="Retail accounting 4-5-4 periods, weeks, commercial holidays &amp; peak deployment freeze dates" 
-                                   FontSize="11" Foreground="#94A3B8"/>
-                    </StackPanel>
+                    <TextBlock Text="YM Inc. Deployment Manager" FontSize="13.5" FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Text="|" Foreground="#7FBEF2" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Text="Field Schedule &amp; NRF 4-5-4 Calendar" FontSize="13" Foreground="#EBF3FC" VerticalAlignment="Center"/>
                 </StackPanel>
 
-                <!-- Current Active Context -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Background="#1E293B" CornerRadius="6" Padding="10,6" Margin="0,0,8,0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Current Period: " FontSize="11" Foreground="#94A3B8"/>
-                            <TextBlock Text="FY2026 Wk 41 / Wk 42 (Q3)" FontSize="11" FontWeight="Bold" Foreground="#38BDF8"/>
-                        </StackPanel>
+                    <Border x:Name="CalWorkspaceBadge" Background="#0C5596" BorderBrush="#62ABF5" BorderThickness="1" CornerRadius="2" Padding="8,2" Margin="0,0,10,0">
+                        <TextBlock x:Name="CalWorkspaceBadgeText" Text="PRODUCTION DB" FontSize="10.5" FontWeight="SemiBold" Foreground="#FFFFFF"/>
                     </Border>
+                    <Button x:Name="ThemeToggleButton" Content="🌙 Dark Theme" Click="ThemeToggleButton_Click" Padding="9,2" FontSize="11" Height="24"
+                            ToolTip="Switch between Microsoft Light and Dark Theme"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- FILTERS & CONTROLS -->
-        <Border Grid.Row="1" Background="#0F172A" BorderBrush="#1E293B" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="0,0,0,12">
+        <!-- ==================== ROW 1: MICROSOFT COMMAND BAR & WEEK SELECTOR ==================== -->
+        <Border Grid.Row="1" Background="#F3F2F1" BorderBrush="#E1DFDD" BorderThickness="0,0,0,1" Padding="14,6">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/> <!-- Year -->
-                    <ColumnDefinition Width="Auto"/> <!-- Quarter -->
-                    <ColumnDefinition Width="Auto"/> <!-- Holiday Only Check -->
-                    <ColumnDefinition Width="*"/>    <!-- Search -->
-                    <ColumnDefinition Width="Auto"/> <!-- Count Badge -->
-                </Grid.ColumnDefinitions>
-
-                <!-- Fiscal Year Combo -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,14,0">
-                    <TextBlock Text="Fiscal Year:" FontSize="11" Foreground="#94A3B8" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <ComboBox x:Name="YearFilterCombo" SelectionChanged="Filter_Changed"
-                              Height="28" Width="135" Background="#1E293B" Foreground="White" BorderBrush="#334155" FontSize="11">
-                        <ComboBoxItem Content="All Years (2025–2027)" Tag="ALL"/>
-                        <ComboBoxItem Content="Fiscal 2025" Tag="2025"/>
-                        <ComboBoxItem Content="Fiscal 2026 (Active)" Tag="2026" IsSelected="True"/>
-                        <ComboBoxItem Content="Fiscal 2027" Tag="2027"/>
-                    </ComboBox>
-                </StackPanel>
-
-                <!-- Quarter Combo -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,14,0">
-                    <TextBlock Text="Quarter:" FontSize="11" Foreground="#94A3B8" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <ComboBox x:Name="QuarterFilterCombo" SelectionChanged="Filter_Changed"
-                              Height="28" Width="105" Background="#1E293B" Foreground="White" BorderBrush="#334155" FontSize="11">
-                        <ComboBoxItem Content="All (Q1–Q4)" Tag="ALL" IsSelected="True"/>
-                        <ComboBoxItem Content="Quarter 1 (Q1)" Tag="1"/>
-                        <ComboBoxItem Content="Quarter 2 (Q2)" Tag="2"/>
-                        <ComboBoxItem Content="Quarter 3 (Q3)" Tag="3"/>
-                        <ComboBoxItem Content="Quarter 4 (Q4)" Tag="4"/>
-                    </ComboBox>
-                </StackPanel>
-
-                <!-- Retail Holidays Toggle -->
-                <CheckBox x:Name="HolidaysOnlyCheckBox" Grid.Column="2" Content="⭐ Retail Holidays Only" 
-                          Checked="Filter_Changed" Unchecked="Filter_Changed"
-                          Foreground="#F59E0B" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,16,0" Cursor="Hand"/>
-
-                <!-- Search Input -->
-                <TextBox x:Name="SearchBox" Grid.Column="3" TextChanged="SearchBox_TextChanged"
-                         Height="28" Background="#1E293B" Foreground="White" BorderBrush="#334155"
-                         Padding="8,4" FontSize="11" VerticalContentAlignment="Center"
-                         ToolTip="Search by holiday (e.g. Black Friday, Boxing Day), month, week number, or calendar date..."/>
-
-                <!-- Record Count Badge -->
-                <Border Grid.Column="4" Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="4" Padding="10,4" Margin="10,0,0,0">
-                    <TextBlock x:Name="RecordCountText" Text="Loading dates..." FontSize="11" FontWeight="Bold" Foreground="#34D399"/>
-                </Border>
-            </Grid>
-        </Border>
-
-        <!-- DATAGRID -->
-        <DataGrid x:Name="CalendarDataGrid" Grid.Row="2" AutoGenerateColumns="False" IsReadOnly="True"
-                  Background="#0F172A" RowBackground="#0F172A" AlternatingRowBackground="#1E293B"
-                  BorderBrush="#1E293B" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#1E293B"
-                  Foreground="#E2E8F0" FontSize="11" SelectionMode="Single"
-                  HeadersVisibility="Column" CanUserResizeRows="False">
-            <DataGrid.ColumnHeaderStyle>
-                <Style TargetType="DataGridColumnHeader">
-                    <Setter Property="Background" Value="#1E293B"/>
-                    <Setter Property="Foreground" Value="#94A3B8"/>
-                    <Setter Property="FontWeight" Value="SemiBold"/>
-                    <Setter Property="FontSize" Value="11"/>
-                    <Setter Property="Padding" Value="10,8"/>
-                    <Setter Property="BorderThickness" Value="0,0,1,1"/>
-                    <Setter Property="BorderBrush" Value="#334155"/>
-                </Style>
-            </DataGrid.ColumnHeaderStyle>
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Calendar Date" Binding="{Binding DateDisplay}" Width="110"/>
-                <DataGridTextColumn Header="Day of Week" Binding="{Binding DayOfWeekName}" Width="100"/>
-                <DataGridTextColumn Header="Fiscal Year" Binding="{Binding FiscalYear}" Width="85"/>
-                <DataGridTextColumn Header="Quarter" Binding="{Binding QuarterDisplay}" Width="75"/>
-                <DataGridTextColumn Header="4-5-4 Retail Period" Binding="{Binding PeriodDisplay}" Width="130"/>
-                <DataGridTextColumn Header="Fiscal Week" Binding="{Binding WeekDisplay}" Width="90"/>
-                <DataGridTextColumn Header="Day #" Binding="{Binding DayOfFiscalWeek}" Width="65"/>
-                
-                <!-- Retail Holiday Highlight Column -->
-                <DataGridTemplateColumn Header="Retail Holiday / Key Event" Width="*">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="6,2">
-                                <Border Background="#78350F" CornerRadius="4" Padding="6,2" Margin="0,0,6,0"
-                                        Visibility="{Binding IsHoliday, Converter={StaticResource BoolToVis}}">
-                                    <TextBlock Text="⭐ HOLIDAY" FontSize="9" FontWeight="Black" Foreground="#FDE047"/>
-                                </Border>
-                                <TextBlock Text="{Binding HolidayDisplay}" FontSize="11" FontWeight="SemiBold" 
-                                           Foreground="{Binding HolidayStatusColor}"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
-
-        <!-- FOOTER & CLOSE BUTTON -->
-        <Border Grid.Row="3" Background="#0F172A" BorderBrush="#1E293B" BorderThickness="0,1,0,0" Padding="12,10" Margin="0,10,0,0">
-            <Grid>
-                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Text="● Live NRF 4-5-4 Retail Fiscal Calendar synchronized with Neon PostgreSQL." 
-                           FontSize="11" Foreground="#10B981" VerticalAlignment="Center"/>
+                <!-- Left: Multi-Week Progression Bar -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Fiscal Week:" FontSize="12" FontWeight="SemiBold" Foreground="#323130" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <Button Content="◄" Click="PrevWeekButton_Click" Width="26" Height="26" Padding="0" Margin="0,0,2,0" ToolTip="Previous Fiscal Week"/>
+                    <Button x:Name="CalWk37Btn" Content="WK 37" Tag="37" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
+                    <Button x:Name="CalWk38Btn" Content="WK 38" Tag="38" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
+                    <Button x:Name="CalWk39Btn" Content="WK 39" Tag="39" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
+                    <Button x:Name="CalWk40Btn" Content="WK 40" Tag="40" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
+                    <Button x:Name="CalWk41Btn" Content="WK 41" Tag="41" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
+                    <Button x:Name="CalWk42Btn" Content="WK 42" Tag="42" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
+                    <Button x:Name="CalWk43Btn" Content="WK 43" Tag="43" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
+                    <Button Content="►" Click="NextWeekButton_Click" Width="26" Height="26" Padding="0" ToolTip="Next Fiscal Week"/>
+                </StackPanel>
 
-                <Button Grid.Column="1" Content="Close Calendar" Click="CloseButton_Click"
-                        Height="28" Padding="18,0" Background="#334155" Foreground="White" FontSize="11" FontWeight="Bold"
-                        BorderThickness="0" Cursor="Hand"/>
+                <!-- Right: View Filters & Save/History Controls -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <CheckBox x:Name="FocusSelectedWeekCheckBox" Content="Selected Week Only (7 Days)" IsChecked="False"
+                              Checked="Filter_Changed" Unchecked="Filter_Changed"
+                              Foreground="#323130" FontSize="12" VerticalAlignment="Center" Margin="0,0,14,0" Cursor="Hand"/>
+                    <CheckBox x:Name="OnlyActiveDaysCheckBox" Content="Only Days With Work" IsChecked="False"
+                              Checked="Filter_Changed" Unchecked="Filter_Changed"
+                              Foreground="#323130" FontSize="12" VerticalAlignment="Center" Margin="0,0,14,0" Cursor="Hand"/>
+                    <Button Content="💾 Save Schedule" Click="SaveScheduleButton_Click"
+                            Style="{StaticResource PrimaryButton}" Height="28" Padding="12,0" Margin="0,0,6,0"/>
+                    <Button Content="🕒 Change History..." Click="OpenHistoryButton_Click"
+                            Height="28" Padding="12,0" Margin="0,0,6,0"/>
+                    <Button Content="Close Window" Click="CloseButton_Click" Height="28" Padding="12,0"/>
+                </StackPanel>
             </Grid>
         </Border>
 
+        <!-- ==================== ROW 2: SELECTED WEEK PROGRESSION SUMMARY RIBBON ==================== -->
+        <Border Grid.Row="2" Background="#FFFFFF" BorderBrush="#E1DFDD" BorderThickness="0,0,0,1" Padding="16,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="250"/>
+                    <ColumnDefinition Width="310"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Col 0: Selected Week Readiness -->
+                <Border Grid.Column="0" BorderBrush="#E1DFDD" BorderThickness="0,0,1,0" Padding="0,0,16,0" Margin="0,0,16,0">
+                    <StackPanel>
+                        <DockPanel>
+                            <TextBlock x:Name="BannerWeekTitle" Text="WEEK 41 PROGRESSION" FontSize="11" FontWeight="SemiBold" Foreground="#0F6CBD"/>
+                            <TextBlock x:Name="BannerWeekDelta" Text="+12% vs Wk 40" FontSize="11" FontWeight="SemiBold" Foreground="#107C10" HorizontalAlignment="Right"/>
+                        </DockPanel>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,2,0,2">
+                            <TextBlock x:Name="BannerFleetPct" Text="68%" FontSize="22" FontWeight="SemiBold" Foreground="#201F1E" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="BannerWeekDates" Text="Oct 11 – Oct 17" FontSize="12" Foreground="#605E5C" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock x:Name="BannerStoreBreakdown" Text="3 Certified • 3 In Progress • 1 Blocked" FontSize="11" Foreground="#605E5C"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Col 1: Selected Week Task Completion Bar -->
+                <Border Grid.Column="1" BorderBrush="#E1DFDD" BorderThickness="0,0,1,0" Padding="0,0,16,0" Margin="0,0,16,0">
+                    <StackPanel VerticalAlignment="Center">
+                        <DockPanel Margin="0,0,0,4">
+                            <TextBlock Text="Week Work Order Completion" FontSize="11" FontWeight="SemiBold" Foreground="#323130"/>
+                            <TextBlock x:Name="BannerTaskCountText" Text="6 / 8 Completed (75%)" FontSize="11" FontWeight="SemiBold" Foreground="#0F6CBD" HorizontalAlignment="Right"/>
+                        </DockPanel>
+                        <ProgressBar x:Name="BannerWeekTaskBar" Height="6" Minimum="0" Maximum="100" Value="75" Background="#EDEBE9" Foreground="#0F6CBD" BorderThickness="0"/>
+                        <TextBlock x:Name="BannerWeekNarrative" Text="Active TTU &amp; circuit turn-up execution across scheduled sites." FontSize="11" Foreground="#605E5C" Margin="0,4,0,0" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Col 2: Category Execution Breakdown for Selected Week -->
+                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                    <TextBlock Text="Selected Week Scheduled Work by Category" FontSize="11" FontWeight="SemiBold" Foreground="#605E5C" Margin="0,0,0,5"/>
+                    <WrapPanel Orientation="Horizontal">
+                        <Border Background="#DFF6DD" BorderBrush="#107C10" BorderThickness="1" CornerRadius="2" Padding="8,3" Margin="0,0,8,4">
+                            <TextBlock x:Name="BadgeTtuCount" Text="TTU (Test &amp; Turn-Up): 2" FontSize="11" FontWeight="SemiBold" Foreground="#107C10"/>
+                        </Border>
+                        <Border Background="#EFF6FC" BorderBrush="#0F6CBD" BorderThickness="1" CornerRadius="2" Padding="8,3" Margin="0,0,8,4">
+                            <TextBlock x:Name="BadgeCircuitCount" Text="Circuit Installs: 2" FontSize="11" FontWeight="SemiBold" Foreground="#0F6CBD"/>
+                        </Border>
+                        <Border Background="#F3F2F1" BorderBrush="#8A8886" BorderThickness="1" CornerRadius="2" Padding="8,3" Margin="0,0,8,4">
+                            <TextBlock x:Name="BadgeCablingCount" Text="Low-Voltage Cabling: 1" FontSize="11" FontWeight="SemiBold" Foreground="#323130"/>
+                        </Border>
+                        <Border Background="#FFF4CE" BorderBrush="#797775" BorderThickness="1" CornerRadius="2" Padding="8,3" Margin="0,0,8,4">
+                            <TextBlock x:Name="BadgePoleCount" Text="Power Poles: 1" FontSize="11" FontWeight="SemiBold" Foreground="#323130"/>
+                        </Border>
+                        <Border Background="#F3F2F1" BorderBrush="#C8C6C4" BorderThickness="1" CornerRadius="2" Padding="8,3" Margin="0,0,8,4">
+                            <TextBlock x:Name="BadgeSurveyCount" Text="Site Surveys: 1" FontSize="11" FontWeight="SemiBold" Foreground="#323130"/>
+                        </Border>
+                    </WrapPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ==================== ROW 3: MAIN SPLIT WORKSPACE ==================== -->
+        <Grid Grid.Row="3" Margin="14,10,14,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="410"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- LEFT / CENTER: FILTER BAR + TABBED CALENDAR -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Filter Bar -->
+                <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#E1DFDD" BorderThickness="1" Padding="10,7" Margin="0,0,0,8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+                            <TextBlock Text="Year:" FontSize="12" Foreground="#323130" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <ComboBox x:Name="YearFilterCombo" SelectionChanged="Filter_Changed" Width="105" MinHeight="32">
+                                <ComboBoxItem Content="All Years" Tag="ALL"/>
+                                <ComboBoxItem Content="FY 2025" Tag="2025"/>
+                                <ComboBoxItem Content="FY 2026" Tag="2026" IsSelected="True"/>
+                                <ComboBoxItem Content="FY 2027" Tag="2027"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+                            <TextBlock Text="Quarter:" FontSize="12" Foreground="#323130" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <ComboBox x:Name="QuarterFilterCombo" SelectionChanged="Filter_Changed" Width="115" MinHeight="32">
+                                <ComboBoxItem Content="All (Q1–Q4)" Tag="ALL"/>
+                                <ComboBoxItem Content="Q1 (Feb–Apr)" Tag="1"/>
+                                <ComboBoxItem Content="Q2 (May–Jul)" Tag="2"/>
+                                <ComboBoxItem Content="Q3 (Aug–Oct)" Tag="3" IsSelected="True"/>
+                                <ComboBoxItem Content="Q4 (Nov–Jan)" Tag="4"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+                            <TextBlock Text="Month:" FontSize="12" Foreground="#323130" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <ComboBox x:Name="MonthFilterCombo" SelectionChanged="Filter_Changed" Width="135" MinHeight="32">
+                                <ComboBoxItem Content="All Months" Tag="ALL"/>
+                                <ComboBoxItem Content="August" Tag="August"/>
+                                <ComboBoxItem Content="September" Tag="September"/>
+                                <ComboBoxItem Content="October (Active)" Tag="October" IsSelected="True"/>
+                                <ComboBoxItem Content="November" Tag="November"/>
+                                <ComboBoxItem Content="December" Tag="December"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <CheckBox x:Name="HolidaysOnlyCheckBox" Grid.Column="3" Content="Holidays Only"
+                                  Checked="Filter_Changed" Unchecked="Filter_Changed"
+                                  Foreground="#323130" FontSize="12" VerticalAlignment="Center" Margin="0,0,10,0" Cursor="Hand"/>
+
+                        <TextBox x:Name="SearchBox" Grid.Column="4" TextChanged="SearchBox_TextChanged"
+                                 MinHeight="32" ToolTip="Search by date, store #, TTU, circuit, technician, or holiday..."/>
+
+                        <TextBlock x:Name="RecordCountText" Grid.Column="5" Text="Loading..." FontSize="11.5" FontWeight="SemiBold" Foreground="#605E5C" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                    </Grid>
+                </Border>
+
+                <!-- TabControl: Daily Calendar Board vs Tabular List -->
+                <TabControl Grid.Row="1">
+                    <!-- TAB 1: DAILY CALENDAR CELLS -->
+                    <TabItem Header="Calendar Day View (Click Day to View / Add Work)">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Background="#FAF9F8" Padding="8">
+                            <ItemsControl x:Name="DayCardsItemsControl">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Width="218" MinHeight="128" Background="{Binding DayCardBackground}" BorderBrush="{Binding DayCardBorder}" BorderThickness="1"
+                                                CornerRadius="2" Padding="10,8" Margin="0,0,8,8" Cursor="Hand"
+                                                MouseLeftButtonUp="DayCard_MouseLeftButtonUp">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+
+                                                <DockPanel Grid.Row="0" Margin="0,0,0,4">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding ShortDateLabel}" FontSize="13" FontWeight="SemiBold" Foreground="#201F1E" Margin="0,0,6,0"/>
+                                                        <TextBlock Text="{Binding DayAbbrev}" FontSize="11" Foreground="#605E5C" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                    <Border Background="#F3F2F1" BorderBrush="#E1DFDD" BorderThickness="1" CornerRadius="2" Padding="5,1" HorizontalAlignment="Right">
+                                                        <TextBlock Text="{Binding WeekDisplay}" FontSize="10" FontWeight="SemiBold" Foreground="#323130"/>
+                                                    </Border>
+                                                </DockPanel>
+
+                                                <Border Grid.Row="1" Background="#FFF4CE" BorderBrush="#D2D0CE" BorderThickness="1" CornerRadius="2" Padding="5,1" Margin="0,0,0,4"
+                                                        Visibility="{Binding IsHoliday, Converter={StaticResource BoolToVis}}">
+                                                    <TextBlock Text="{Binding HolidayDisplay}" FontSize="10" FontWeight="SemiBold" Foreground="#795500" TextTrimming="CharacterEllipsis"/>
+                                                </Border>
+
+                                                <ItemsControl Grid.Row="2" ItemsSource="{Binding TopWorkItems}" Margin="0,2,0,4">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border Background="#F8F9FA" BorderBrush="#E1DFDD" BorderThickness="1" CornerRadius="2" Padding="5,2" Margin="0,0,0,3">
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <Border Grid.Column="0" Background="{Binding BadgeBgColor}" CornerRadius="2" Padding="4,1" Margin="0,0,5,0" VerticalAlignment="Center">
+                                                                        <TextBlock Text="{Binding ShortTag}" FontSize="9" FontWeight="Bold" Foreground="{Binding BadgeTextColor}"/>
+                                                                    </Border>
+                                                                    <TextBlock Grid.Column="1" Text="{Binding StoreNumber}" FontSize="10.5" FontWeight="SemiBold" Foreground="#201F1E" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                                                    <TextBlock Grid.Column="2" Text="{Binding Status}" FontSize="9.5" Foreground="{Binding StatusColor}" VerticalAlignment="Center"/>
+                                                                </Grid>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+
+                                                <DockPanel Grid.Row="3" VerticalAlignment="Bottom">
+                                                    <TextBlock Text="{Binding WorkItemCountBadge}" FontSize="10.5" FontWeight="SemiBold" Foreground="#0F6CBD"/>
+                                                    <TextBlock Text="Select Day" FontSize="10" Foreground="#605E5C" HorizontalAlignment="Right"/>
+                                                </DockPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <!-- TAB 2: NRF 4-5-4 SCHEDULE LIST -->
+                    <TabItem Header="Schedule List View (4-5-4 Fiscal Grid)">
+                        <DataGrid x:Name="CalendarDataGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                                  SelectionChanged="CalendarDataGrid_SelectionChanged" BorderThickness="0">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="DATE" Binding="{Binding DateDisplay}" Width="100" FontFamily="{StaticResource MonoFont}" FontWeight="SemiBold"/>
+                                <DataGridTextColumn Header="DAY" Binding="{Binding DayOfWeekName}" Width="95"/>
+                                <DataGridTextColumn Header="WEEK" Binding="{Binding WeekDisplay}" Width="75" FontFamily="{StaticResource MonoFont}" FontWeight="SemiBold"/>
+                                <DataGridTextColumn Header="4-5-4 PERIOD" Binding="{Binding PeriodDisplay}" Width="135"/>
+                                <DataGridTextColumn Header="TASKS" Binding="{Binding WorkItemCountBadge}" Width="75" FontWeight="SemiBold"/>
+                                <DataGridTextColumn Header="SCHEDULED WORK ORDERS (TTU, CIRCUITS, CABLING, POLES)" Binding="{Binding DailyActivitiesSummary}" Width="1.6*"/>
+                                <DataGridTextColumn Header="RETAIL HOLIDAY" Binding="{Binding HolidayDisplay}" Width="180"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                </TabControl>
+            </Grid>
+
+            <!-- ==================== RIGHT PANE: SELECTED DAY WORK ORDER INSPECTOR & EDITOR ==================== -->
+            <Border Grid.Column="2" Background="#FFFFFF" BorderBrush="#E1DFDD" BorderThickness="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 1. Selected Date Header -->
+                    <Border Grid.Row="0" Background="#F3F2F1" BorderBrush="#E1DFDD" BorderThickness="0,0,0,1" Padding="14,10">
+                        <StackPanel>
+                            <DockPanel>
+                                <TextBlock Text="SELECTED DATE SCHEDULE" FontSize="10.5" FontWeight="Bold" Foreground="#0F6CBD"/>
+                                <TextBlock x:Name="SelectedDayFiscalMeta" Text="FY2026 • Q3 • WK 41" FontSize="10.5" Foreground="#605E5C" HorizontalAlignment="Right"/>
+                            </DockPanel>
+                            <TextBlock x:Name="SelectedDayTitleText" Text="Wednesday, Oct 14, 2026" FontSize="15" FontWeight="SemiBold" Foreground="#201F1E" Margin="0,2,0,1"/>
+                            <TextBlock x:Name="SelectedDaySubText" Text="2 field activities scheduled on this date" FontSize="11.5" Foreground="#605E5C"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 2. Scheduled Work Items on Selected Date -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="12,10">
+                        <StackPanel>
+                            <Border x:Name="EmptyDayNoticeBorder" Background="#FAF9F8" BorderBrush="#E1DFDD" BorderThickness="1" Padding="14" Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock Text="No Work Orders Scheduled" FontSize="12.5" FontWeight="SemiBold" Foreground="#323130"/>
+                                    <TextBlock Text="Use the form below to schedule TTU, Circuit Install, Cabling, Power Pole, or Survey work on this date."
+                                               FontSize="11.5" Foreground="#605E5C" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <ItemsControl x:Name="SelectedDayActivitiesList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#FAF9F8" BorderBrush="#D2D0CE" BorderThickness="1" CornerRadius="2" Padding="10,8" Margin="0,0,0,8">
+                                            <StackPanel>
+                                                <DockPanel Margin="0,0,0,4">
+                                                    <Border Background="{Binding BadgeBgColor}" CornerRadius="2" Padding="6,2" Margin="0,0,8,0">
+                                                        <TextBlock Text="{Binding ActivityType}" FontSize="10.5" FontWeight="SemiBold" Foreground="{Binding BadgeTextColor}"/>
+                                                    </Border>
+                                                    <TextBlock Text="{Binding Status}" FontSize="11" FontWeight="SemiBold" Foreground="{Binding StatusColor}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                                </DockPanel>
+
+                                                <TextBlock FontSize="12.5" FontWeight="SemiBold" Foreground="#201F1E" Margin="0,0,0,2">
+                                                    <Run Text="{Binding StoreNumber}"/>
+                                                    <Run Text=" — "/>
+                                                    <Run Text="{Binding StoreName}"/>
+                                                </TextBlock>
+
+                                                <TextBlock FontSize="11" Foreground="#605E5C" Margin="0,0,0,4">
+                                                    <Run Text="Vendor/Tech: "/>
+                                                    <Run Text="{Binding TechnicianOrVendor}" Foreground="#201F1E" FontWeight="SemiBold"/>
+                                                    <Run Text="  |  Window: "/>
+                                                    <Run Text="{Binding TimeWindow}" Foreground="#201F1E"/>
+                                                </TextBlock>
+
+                                                <TextBlock Text="{Binding Notes}" FontSize="11.5" Foreground="#323130" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Button Content="Mark Completed" Tag="{Binding}" Click="MarkActivityDone_Click" Padding="7,2" FontSize="11" Margin="0,0,4,0"/>
+                                                    <Button Content="In Progress" Tag="{Binding}" Click="MarkActivityInProgress_Click" Padding="7,2" FontSize="11" Margin="0,0,4,0"/>
+                                                    <Button Content="Blocked" Tag="{Binding}" Click="MarkActivityBlocked_Click" Padding="7,2" FontSize="11" Margin="0,0,4,0"/>
+                                                    <Button Content="Delete" Tag="{Binding}" Click="DeleteActivity_Click" Padding="7,2" FontSize="11" Foreground="#B91C1C"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- 3. New Work Order Form -->
+                    <Border Grid.Row="2" Background="#F3F2F1" BorderBrush="#E1DFDD" BorderThickness="0,1,0,0" Padding="14,10">
+                        <StackPanel>
+                            <TextBlock Text="ADD WORK ORDER TO SELECTED DATE" FontSize="11" FontWeight="Bold" Foreground="#201F1E" Margin="0,0,0,8"/>
+
+                            <Grid Margin="0,0,0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.4*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Work Type:" FontSize="11" Foreground="#323130" Margin="0,0,0,2"/>
+                                    <ComboBox x:Name="NewActivityTypeCombo" MinHeight="32">
+                                        <ComboBoxItem Content="TTU (Test &amp; Turn-Up)" IsSelected="True"/>
+                                        <ComboBoxItem Content="Circuit Install"/>
+                                        <ComboBoxItem Content="Low-Voltage Cabling"/>
+                                        <ComboBoxItem Content="Power Pole Install"/>
+                                        <ComboBoxItem Content="Site Survey"/>
+                                        <ComboBoxItem Content="POS Staging &amp; Cutover"/>
+                                        <ComboBoxItem Content="Landlord / Permit Clearance"/>
+                                        <ComboBoxItem Content="Other"/>
+                                    </ComboBox>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Status:" FontSize="11" Foreground="#323130" Margin="0,0,0,2"/>
+                                    <ComboBox x:Name="NewActivityStatusCombo" MinHeight="32">
+                                        <ComboBoxItem Content="Scheduled" IsSelected="True"/>
+                                        <ComboBoxItem Content="In Progress"/>
+                                        <ComboBoxItem Content="Completed"/>
+                                        <ComboBoxItem Content="Blocked"/>
+                                    </ComboBox>
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Margin="0,0,0,6">
+                                <TextBlock Text="Store:" FontSize="11" Foreground="#323130" Margin="0,0,0,2"/>
+                                <ComboBox x:Name="NewActivityStoreCombo" MinHeight="32"/>
+                            </StackPanel>
+
+                            <Grid Margin="0,0,0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Technician / Carrier:" FontSize="11" Foreground="#323130" Margin="0,0,0,2"/>
+                                    <TextBox x:Name="NewActivityVendorBox" Text="Bell / Field Tech" MinHeight="32"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Time Window:" FontSize="11" Foreground="#323130" Margin="0,0,0,2"/>
+                                    <ComboBox x:Name="NewActivityWindowCombo" MinHeight="32">
+                                        <ComboBoxItem Content="08:00 - 12:00" IsSelected="True"/>
+                                        <ComboBoxItem Content="09:00 - 17:00"/>
+                                        <ComboBoxItem Content="13:00 - 17:00"/>
+                                        <ComboBoxItem Content="22:00 - 02:00 (After-Hours)"/>
+                                        <ComboBoxItem Content="All Day"/>
+                                    </ComboBox>
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Margin="0,0,0,8">
+                                <TextBlock Text="Scope / Notes:" FontSize="11" Foreground="#323130" Margin="0,0,0,2"/>
+                                <TextBox x:Name="NewActivityNotesBox" MinHeight="56" TextWrapping="Wrap" AcceptsReturn="True" VerticalContentAlignment="Top"/>
+                            </StackPanel>
+
+                            <Button Content="Add Work Order to Selected Date" Click="AddActivityButton_Click"
+                                    Style="{StaticResource PrimaryButton}" MinHeight="32" HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ==================== ROW 4: MICROSOFT STATUS BAR ==================== -->
+        <Border Grid.Row="4" Background="#0078D4" Padding="14,0">
+            <DockPanel>
+                <TextBlock x:Name="FooterStatusText" Text="Ready — NRF 4-5-4 Calendar Synchronized" FontSize="11" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                <TextBlock Text="YM Inc. Store Rollout Schedule" FontSize="11" Foreground="#EBF3FC" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            </DockPanel>
+        </Border>
     </Grid>
 </Window>

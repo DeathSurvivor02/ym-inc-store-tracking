@@ -48,6 +48,7 @@ namespace YMInc.StoreDeploymentApp.Controls
         {
             ClipToBounds = true;
             Cursor = Cursors.Hand;
+            Services.ThemeService.ThemeChanged += (_, _) => InvalidateVisual();
         }
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
@@ -66,7 +67,6 @@ namespace YMInc.StoreDeploymentApp.Controls
                 }
             }
 
-            // Clicked outside slice (or in center): clear filter
             SelectedSlice = null;
             SliceClicked?.Invoke(this, null);
             InvalidateVisual();
@@ -81,8 +81,9 @@ namespace YMInc.StoreDeploymentApp.Controls
             double height = ActualHeight;
             if (width <= 0 || height <= 0) return;
 
+            bool isDark = Services.ThemeService.IsDarkTheme;
             Point center = new(width / 2, height / 2);
-            double outerRadius = Math.Min(width, height) / 2 - 12;
+            double outerRadius = Math.Min(width, height) / 2 - 6;
             double innerRadius = outerRadius * 0.72;
 
             if (Report == null || Report.Slices.Count == 0 || !Report.Slices.Any(s => s.Percentage > 0))
@@ -91,13 +92,13 @@ namespace YMInc.StoreDeploymentApp.Controls
                 var inner = new EllipseGeometry(center, innerRadius, innerRadius);
                 var emptyRing = new CombinedGeometry(GeometryCombineMode.Exclude, outer, inner);
                 emptyRing.Freeze();
-                var placeholderBrush = new SolidColorBrush(Color.FromArgb(40, 148, 163, 184));
+                var placeholderBrush = new SolidColorBrush(isDark ? Color.FromRgb(62, 62, 66) : Color.FromRgb(229, 231, 235));
                 placeholderBrush.Freeze();
                 dc.DrawGeometry(placeholderBrush, null, emptyRing);
                 return;
             }
 
-            double startAngle = -90; // Start at top
+            double startAngle = -90;
 
             foreach (var slice in Report.Slices)
             {
@@ -111,14 +112,16 @@ namespace YMInc.StoreDeploymentApp.Controls
                 brush.Freeze();
 
                 bool isSelected = SelectedSlice == slice.Name;
-                var pen = new Pen(isSelected ? Brushes.White : new SolidColorBrush(Color.FromArgb(180, 15, 23, 42)), isSelected ? 3.5 : 2);
+                var borderBrush = isSelected
+                    ? (isDark ? Brushes.White : new SolidColorBrush(Color.FromRgb(17, 24, 39)))
+                    : (isDark ? new SolidColorBrush(Color.FromRgb(37, 37, 38)) : Brushes.White);
+                var pen = new Pen(borderBrush, isSelected ? 2.5 : 2.0);
                 pen.Freeze();
 
                 dc.DrawGeometry(brush, pen, geom);
                 startAngle += sweepAngle;
             }
 
-            // Draw center text
             var typeface = new Typeface(new FontFamily("Segoe UI"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal);
 
             var pctText = new FormattedText(
@@ -126,23 +129,23 @@ namespace YMInc.StoreDeploymentApp.Controls
                 CultureInfo.CurrentCulture,
                 FlowDirection.LeftToRight,
                 typeface,
-                28,
-                Brushes.White,
+                20,
+                new SolidColorBrush(isDark ? Color.FromRgb(243, 242, 241) : Color.FromRgb(17, 24, 39)),
                 VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
-            dc.DrawText(pctText, new Point(center.X - pctText.Width / 2, center.Y - pctText.Height / 2 - 8));
+            dc.DrawText(pctText, new Point(center.X - pctText.Width / 2, center.Y - pctText.Height / 2 - 6));
 
             var subTypeface = new Typeface(new FontFamily("Segoe UI"), FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal);
             var subText = new FormattedText(
-                "TARGET",
+                $"WK {Report.FiscalWeek}",
                 CultureInfo.CurrentCulture,
                 FlowDirection.LeftToRight,
                 subTypeface,
-                10,
-                new SolidColorBrush(Color.FromRgb(148, 163, 184)),
+                9.5,
+                new SolidColorBrush(isDark ? Color.FromRgb(180, 180, 184) : Color.FromRgb(107, 114, 128)),
                 VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
-            dc.DrawText(subText, new Point(center.X - subText.Width / 2, center.Y + 12));
+            dc.DrawText(subText, new Point(center.X - subText.Width / 2, center.Y + 9));
         }
 
         private static Geometry CreateDonutSliceGeometry(Point center, double innerRadius, double outerRadius, double startAngleDeg, double sweepAngleDeg)

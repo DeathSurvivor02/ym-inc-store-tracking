@@ -1,0 +1,636 @@
+<Window x:Class="YMInc.StoreDeploymentApp.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:YMInc.StoreDeploymentApp.Controls"
+        Title="YM Inc. Store Rollout Manager — Standalone Dummy Project (Isolated DB)"
+        Height="920" Width="1560"
+        MinHeight="740" MinWidth="1200"
+        WindowStartupLocation="CenterScreen"
+        Background="#F3F4F6"
+        Foreground="#111827">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Row 0: System Title Strip -->
+            <RowDefinition Height="Auto"/> <!-- Row 1: Standard Application Toolbar -->
+            <RowDefinition Height="*"/>    <!-- Row 2: Main Workspace -->
+            <RowDefinition Height="26"/>   <!-- Row 3: Bottom Status Bar -->
+        </Grid.RowDefinitions>
+
+        <!-- ==================== ROW 0: MICROSOFT 365 APPLICATION HEADER BAR ==================== -->
+        <Border Grid.Row="0" Background="#0F6CBD" Padding="14,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="24" Height="24" Background="#0C5596" BorderBrush="#62ABF5" BorderThickness="1" CornerRadius="2" Margin="0,0,10,0">
+                        <TextBlock Text="YM" Foreground="#FFFFFF" FontFamily="{StaticResource MonoFont}" FontWeight="Bold" FontSize="11"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="YM Inc. Store Rollout Manager (Standalone Dummy Project)" FontSize="13.5" FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBlock Text="|" Foreground="#7FBEF2" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBlock x:Name="PageHeaderTitle" Text="Home — Dummy Project Rollout Summary" FontSize="12.5" Foreground="#EBF3FC" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Right: Active Environment Badge + Operator Info -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border x:Name="TopWorkspaceBadge" Background="#FFF4CE" BorderBrush="#D97706" BorderThickness="1" CornerRadius="2" Padding="8,2" Margin="0,0,10,0">
+                        <TextBlock x:Name="TopWorkspaceBadgeText" Text="STANDALONE DUMMY DB (ISOLATED)" FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#795500"/>
+                    </Border>
+
+                    <Border x:Name="WorkspaceModePill" Background="#FFFFFF" BorderBrush="#D2D0CE" BorderThickness="1" CornerRadius="2" Padding="7,2" Margin="0,0,12,0">
+                        <TextBlock x:Name="WorkspaceModePillText" Text="DUMMY DB" FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#0F6CBD"/>
+                    </Border>
+
+                    <TextBlock Text="Operator:" FontSize="11.5" Foreground="#EBF3FC" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBlock x:Name="CurrentUserNameText" Text="Jordan Vance" FontSize="11.5" FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <TextBlock x:Name="CurrentUserRoleBadge" Text="(PM)" FontSize="11" FontWeight="SemiBold" Foreground="#EBF3FC" VerticalAlignment="Center" Margin="0,0,12,0"/>
+
+                    <Button x:Name="ThemeToggleButton" Content="🌙 Dark Theme" Click="ThemeToggleButton_Click" Padding="9,2" FontSize="11" Height="24" Margin="0,0,8,0"
+                            ToolTip="Switch between Microsoft Light and Dark Theme"/>
+                    <Button Content="Switch Operator / Sign Out" Click="SignOutButton_Click" Padding="8,2" FontSize="11" Height="24"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ==================== ROW 1: MICROSOFT RIBBON COMMAND TOOLBAR ==================== -->
+        <Border Grid.Row="1" Background="#F3F2F1" BorderBrush="#E1DFDD" BorderThickness="0,0,0,1" Padding="12,6">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/> <!-- View Switcher -->
+                    <ColumnDefinition Width="*"/>    <!-- Week Progression Selector -->
+                    <ColumnDefinition Width="Auto"/> <!-- Module Actions -->
+                </Grid.ColumnDefinitions>
+
+                <!-- 1. View Switcher -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="VIEW:" FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#6B7280" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <Button x:Name="NavHomeButton" Content="Home — Project Summary" Click="NavHomeButton_Click"
+                            Height="28" Padding="12,0" Margin="0,0,4,0"/>
+                    <Button x:Name="NavStoresButton" Content="Store Directory &amp; Specs" Click="NavStoresButton_Click"
+                            Height="28" Padding="12,0"/>
+                    <Rectangle Width="1" Height="20" Fill="#D1D5DB" Margin="12,0"/>
+                </StackPanel>
+
+                <!-- 2. Fiscal Week Progression Selector -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="FISCAL WEEK:" FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#6B7280" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <Button Content="◄" Click="PrevWeekButton_Click" Height="26" Width="26" Padding="0" Margin="0,0,2,0" ToolTip="Previous Fiscal Week"/>
+                    <Button x:Name="Wk38Button" Content="WK 38" Tag="38" Click="WeekQuickButton_Click" Height="26" Padding="8,0" Margin="0,0,2,0" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
+                    <Button x:Name="Wk39Button" Content="WK 39" Tag="39" Click="WeekQuickButton_Click" Height="26" Padding="8,0" Margin="0,0,2,0" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
+                    <Button x:Name="Wk40Button" Content="WK 40" Tag="40" Click="WeekQuickButton_Click" Height="26" Padding="8,0" Margin="0,0,2,0" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
+                    <Button x:Name="Wk41Button" Content="WK 41" Tag="41" Click="WeekQuickButton_Click" Height="26" Padding="8,0" Margin="0,0,2,0" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
+                    <Button x:Name="Wk42Button" Content="WK 42" Tag="42" Click="WeekQuickButton_Click" Height="26" Padding="8,0" Margin="0,0,2,0" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
+                    <Button x:Name="Wk43Button" Content="WK 43" Tag="43" Click="WeekQuickButton_Click" Height="26" Padding="8,0" Margin="0,0,2,0" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
+                    <Button Content="►" Click="NextWeekButton_Click" Height="26" Width="26" Padding="0" ToolTip="Next Fiscal Week"/>
+                </StackPanel>
+
+                <!-- 3. Save Controls, Change History & Module Launchers -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="SaveAllButton" Content="💾 Save All Changes" Click="SaveAllChangesButton_Click"
+                            Style="{StaticResource PrimaryButton}" Height="28" Padding="12,0" Margin="0,0,6,0"
+                            ToolTip="Commit all table edits, store specs, and schedules to dummy_project_db.json (Ctrl+S)"/>
+                    <Button x:Name="HistoryToolbarButton" Content="🕒 Change History" Click="OpenHistoryButton_Click"
+                            Height="28" Padding="10,0" Margin="0,0,8,0" FontWeight="SemiBold"
+                            ToolTip="Open chronological audit log of what you have edited and saved"/>
+                    <Rectangle Width="1" Height="20" Fill="#D1D5DB" Margin="0,0,8,0"/>
+                    <Button Content="Daily Schedule &amp; Calendar..." Click="FiscalCalendarButton_Click"
+                            Height="28" Padding="11,0" Margin="0,0,6,0"/>
+                    <Button Content="Landlord Compliance..." Click="MallRulesButton_Click"
+                            Height="28" Padding="10,0" Margin="0,0,6,0"/>
+                    <Button x:Name="ImportRosterButton" Content="Verify Dummy DB..." Click="ImportRosterButton_Click"
+                            Height="28" Padding="10,0" Margin="0,0,6,0"/>
+                    <Button x:Name="ResetDummyDbButton" Content="Reset Dummy Data" Click="ResetDummyDbButton_Click"
+                            Height="28" Padding="10,0" Margin="0,0,6,0" ToolTip="Reset dummy_project_db.json back to default 8 synthetic stores and 30+ calendar tasks"/>
+                    <Button Content="Refresh" Click="ReconnectButton_Click"
+                            Height="28" Padding="10,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ==================== ROW 2: MAIN WORKSPACE AREA ==================== -->
+        <Grid Grid.Row="2" Margin="12,10,12,10">
+
+            <!-- ========================================================================= -->
+            <!-- VIEW 1: HOME — PROJECT ROLLOUT SUMMARY                                    -->
+            <!-- ========================================================================= -->
+            <Grid x:Name="HomeDashboardView" Visibility="Visible">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <!-- Row 0: 4 Structured Summary Panels -->
+                    <RowDefinition Height="Auto"/> <!-- Row 1: Weekly Progress & Daily Schedule Split -->
+                    <RowDefinition Height="*"/>    <!-- Row 2: Store Rollout Status DataGrid -->
+                </Grid.RowDefinitions>
+
+                <!-- ROW 0: 4 STRUCTURED SUMMARY PANELS -->
+                <Grid Grid.Row="0" Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Panel 1: Selected Week Readiness -->
+                    <Border Grid.Column="0" Background="#FFFFFF" BorderBrush="#D1D5DB" BorderThickness="1,3,1,1" Padding="14,10">
+                        <StackPanel>
+                            <DockPanel>
+                                <TextBlock x:Name="KpiWeekLabel" Text="WEEK 41 READINESS" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#4B5563"/>
+                                <TextBlock x:Name="KpiDeltaBadge" Text="+12% vs Wk 40" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#15803D" HorizontalAlignment="Right"/>
+                            </DockPanel>
+                            <TextBlock x:Name="KpiOverallPctText" Text="68%" FontSize="24" FontWeight="Bold" Foreground="#111827" Margin="0,4,0,2"/>
+                            <TextBlock x:Name="KpiWeekDateRangeText" Text="NRF Week 41 (Oct 11 – Oct 17)" FontSize="11.5" Foreground="#6B7280"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Panel 2: Selected Week Field Work Execution -->
+                    <Border Grid.Column="2" Background="#FFFFFF" BorderBrush="#D1D5DB" BorderThickness="1,3,1,1" Padding="14,10">
+                        <StackPanel>
+                            <DockPanel>
+                                <TextBlock Text="WEEK FIELD WORK EXECUTION" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#4B5563"/>
+                                <TextBlock x:Name="KpiTaskExecPctBadge" Text="75% Done" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#0F6CBD" HorizontalAlignment="Right"/>
+                            </DockPanel>
+                            <TextBlock x:Name="KpiWeekTasksText" Text="6 / 8 Tasks" FontSize="24" FontWeight="Bold" Foreground="#111827" Margin="0,4,0,2"/>
+                            <TextBlock x:Name="KpiWeekCategoryBreakdownText" Text="TTU: 2 | Circuits: 2 | Cabling: 1 | Poles: 1" FontSize="11" Foreground="#6B7280" TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Panel 3: Store Fleet Status -->
+                    <Border Grid.Column="4" Background="#FFFFFF" BorderBrush="#D1D5DB" BorderThickness="1,3,1,1" Padding="14,10">
+                        <StackPanel>
+                            <DockPanel>
+                                <TextBlock Text="STORE FLEET STATUS" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#4B5563"/>
+                                <TextBlock x:Name="KpiActiveFleetBadge" Text="8 Total Fleet" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#374151" HorizontalAlignment="Right"/>
+                            </DockPanel>
+                            <TextBlock x:Name="KpiCertifiedStoresText" Text="3 Certified" FontSize="24" FontWeight="Bold" Foreground="#15803D" Margin="0,4,0,2"/>
+                            <TextBlock x:Name="KpiInProgressStoresText" Text="3 In Progress • 1 Pending" FontSize="11.5" Foreground="#6B7280"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Panel 4: Escalations & Blockers -->
+                    <Border Grid.Column="6" Background="#FFFFFF" BorderBrush="#D1D5DB" BorderThickness="1,3,1,1" Padding="14,10">
+                        <StackPanel>
+                            <DockPanel>
+                                <TextBlock Text="EXCEPTIONS &amp; BLOCKERS" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#4B5563"/>
+                                <TextBlock Text="PRIORITY" FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#B91C1C" HorizontalAlignment="Right"/>
+                            </DockPanel>
+                            <TextBlock x:Name="KpiBlockedStoresText" Text="1 Blocked" FontSize="24" FontWeight="Bold" Foreground="#B91C1C" Margin="0,4,0,2"/>
+                            <TextBlock x:Name="KpiBlockedSubText" Text="Requires landlord / circuit escalation" FontSize="11.5" Foreground="#6B7280" TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- ROW 1: MIDDLE WORKSPACE SPLIT (LEFT: MULTI-WEEK PROGRESSION & MILESTONES | RIGHT: SELECTED WEEK DAILY SCHEDULE TABLE) -->
+                <Grid Grid.Row="1" Height="310" Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.25*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="1.05*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- LEFT PANEL: WEEKLY PROGRESSION & MILESTONE TRACKER -->
+                    <Border Grid.Column="0" Background="#FFFFFF" BorderBrush="#D1D5DB" BorderThickness="1">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Section Header -->
+                            <Border Grid.Row="0" Background="#F8FAFC" BorderBrush="#D1D5DB" BorderThickness="0,0,0,1" Padding="12,7">
+                                <DockPanel>
+                                    <TextBlock Text="WEEKLY ROLLOUT PROGRESSION &amp; INFRASTRUCTURE MILESTONES" FontFamily="{StaticResource MonoFont}" FontSize="11" FontWeight="Bold" Foreground="#1F2937" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="DonutWeekBadgeText" Text="FISCAL WEEK 41" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#0F6CBD" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </DockPanel>
+                            </Border>
+
+                            <!-- Content Grid: Donut + Multi-Week Bars + Milestones -->
+                            <Grid Grid.Row="1" Margin="14,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="155"/>
+                                    <ColumnDefinition Width="1.15*"/>
+                                    <ColumnDefinition Width="1.1*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Col 0: Donut + Legend -->
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,12,0">
+                                    <controls:DonutChartControl x:Name="DonutChart" Width="118" Height="118" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+
+                                    <Grid Margin="0,2,0,2">
+                                        <StackPanel Orientation="Horizontal"><Rectangle Width="8" Height="8" Fill="#15803D" Margin="0,0,6,0"/><TextBlock Text="Certified" FontSize="11" Foreground="#374151"/></StackPanel>
+                                        <TextBlock x:Name="CompletedCountText" Text="0" FontFamily="{StaticResource MonoFont}" FontSize="11" FontWeight="Bold" Foreground="#111827" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,2">
+                                        <StackPanel Orientation="Horizontal"><Rectangle Width="8" Height="8" Fill="#0F6CBD" Margin="0,0,6,0"/><TextBlock Text="In Progress" FontSize="11" Foreground="#374151"/></StackPanel>
+                                        <TextBlock x:Name="InProgressCountText" Text="0" FontFamily="{StaticResource MonoFont}" FontSize="11" FontWeight="Bold" Foreground="#111827" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,2">
+                                        <StackPanel Orientation="Horizontal"><Rectangle Width="8" Height="8" Fill="#D97706" Margin="0,0,6,0"/><TextBlock Text="Pending" FontSize="11" Foreground="#374151"/></StackPanel>
+                                        <TextBlock x:Name="PendingCountText" Text="0" FontFamily="{StaticResource MonoFont}" FontSize="11" FontWeight="Bold" Foreground="#111827" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <Grid Margin="0,2,0,0">
+                                        <StackPanel Orientation="Horizontal"><Rectangle Width="8" Height="8" Fill="#DC2626" Margin="0,0,6,0"/><TextBlock Text="Blocked" FontSize="11" Foreground="#374151"/></StackPanel>
+                                        <TextBlock x:Name="BlockedCountText" Text="0" FontFamily="{StaticResource MonoFont}" FontSize="11" FontWeight="Bold" Foreground="#111827" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                </StackPanel>
+
+                                <!-- Col 1: Week-by-Week Progression Bars (Click any week to inspect) -->
+                                <Border Grid.Column="1" BorderBrush="#E5E7EB" BorderThickness="1,0,1,0" Padding="12,0" Margin="0,0,12,0">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Text="WEEK-OVER-WEEK PROGRESSION (CLICK WEEK)" FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#4B5563" Margin="0,0,0,6"/>
+
+                                        <ItemsControl x:Name="WeekTrendItemsControl" Grid.Row="1" VerticalAlignment="Bottom">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <UniformGrid Rows="1"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Button Click="TrendWeekBar_Click" Cursor="Hand" Background="Transparent" BorderThickness="0" Padding="2,0">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="Transparent" Padding="2,0">
+                                                                    <ContentPresenter/>
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center">
+                                                            <TextBlock Text="{Binding ProgressPct, StringFormat={}{0}%}" FontFamily="{StaticResource MonoFont}" FontSize="9.5" FontWeight="Bold"
+                                                                       Foreground="{Binding LabelColor}" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                                                            <Border Width="22" Height="{Binding BarHeightPx}" Background="{Binding BarFillBrush}"
+                                                                    BorderBrush="{Binding BarBorderBrush}" BorderThickness="1" CornerRadius="1" HorizontalAlignment="Center"/>
+                                                            <TextBlock Text="{Binding WeekLabel}" FontFamily="{StaticResource MonoFont}" FontSize="9.5" FontWeight="Bold"
+                                                                       Foreground="{Binding LabelColor}" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                                                            <TextBlock Text="{Binding TaskRatioDisplay}" FontFamily="{StaticResource MonoFont}" FontSize="8.5"
+                                                                       Foreground="#6B7280" HorizontalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Col 2: 5 Infrastructure Milestones -->
+                                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                    <TextBlock Text="STAGE COMPLETION METRICS" FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#4B5563" Margin="0,0,0,8"/>
+
+                                    <StackPanel Margin="0,0,0,8">
+                                        <DockPanel Margin="0,0,0,2">
+                                            <TextBlock Text="1. Site Surveys" FontSize="11.5" Foreground="#1F2937"/>
+                                            <TextBlock x:Name="Milestone1Text" Text="0/0" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#374151" HorizontalAlignment="Right"/>
+                                        </DockPanel>
+                                        <ProgressBar x:Name="Milestone1Bar" Height="6" Minimum="0" Maximum="100" Value="80" Background="#E5E7EB" Foreground="#0F6CBD" BorderThickness="0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Margin="0,0,0,8">
+                                        <DockPanel Margin="0,0,0,2">
+                                            <TextBlock Text="2. Landlord Permits" FontSize="11.5" Foreground="#1F2937"/>
+                                            <TextBlock x:Name="Milestone2Text" Text="0/0" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#374151" HorizontalAlignment="Right"/>
+                                        </DockPanel>
+                                        <ProgressBar x:Name="Milestone2Bar" Height="6" Minimum="0" Maximum="100" Value="70" Background="#E5E7EB" Foreground="#0F6CBD" BorderThickness="0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Margin="0,0,0,8">
+                                        <DockPanel Margin="0,0,0,2">
+                                            <TextBlock Text="3. Power Poles" FontSize="11.5" Foreground="#1F2937"/>
+                                            <TextBlock x:Name="Milestone3Text" Text="0/0" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#374151" HorizontalAlignment="Right"/>
+                                        </DockPanel>
+                                        <ProgressBar x:Name="Milestone3Bar" Height="6" Minimum="0" Maximum="100" Value="60" Background="#E5E7EB" Foreground="#0F6CBD" BorderThickness="0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Margin="0,0,0,8">
+                                        <DockPanel Margin="0,0,0,2">
+                                            <TextBlock Text="4. Low-Voltage Cabling" FontSize="11.5" Foreground="#1F2937"/>
+                                            <TextBlock x:Name="Milestone4Text" Text="0/0" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#374151" HorizontalAlignment="Right"/>
+                                        </DockPanel>
+                                        <ProgressBar x:Name="Milestone4Bar" Height="6" Minimum="0" Maximum="100" Value="50" Background="#E5E7EB" Foreground="#15803D" BorderThickness="0"/>
+                                    </StackPanel>
+
+                                    <StackPanel>
+                                        <DockPanel Margin="0,0,0,2">
+                                            <TextBlock Text="5. Circuits &amp; TTU" FontSize="11.5" Foreground="#1F2937"/>
+                                            <TextBlock x:Name="Milestone5Text" Text="0/0" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#374151" HorizontalAlignment="Right"/>
+                                        </DockPanel>
+                                        <ProgressBar x:Name="Milestone5Bar" Height="6" Minimum="0" Maximum="100" Value="45" Background="#E5E7EB" Foreground="#D97706" BorderThickness="0"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <!-- RIGHT PANEL: SELECTED WEEK SCHEDULED FIELD WORK (STRUCTURED DATAGRID) -->
+                    <Border Grid.Column="2" Background="#FFFFFF" BorderBrush="#D1D5DB" BorderThickness="1">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0" Background="#F8FAFC" BorderBrush="#D1D5DB" BorderThickness="0,0,0,1" Padding="12,6">
+                                <DockPanel>
+                                    <TextBlock x:Name="WeekScheduleFeedHeader" Text="WEEK 41 SCHEDULED FIELD OPERATIONS" FontFamily="{StaticResource MonoFont}" FontSize="11" FontWeight="Bold" Foreground="#1F2937" VerticalAlignment="Center"/>
+                                    <Button Content="Add / Edit Daily Schedule..." Click="FiscalCalendarButton_Click"
+                                            Style="{StaticResource PrimaryButton}" Height="24" Padding="10,0" FontSize="11" HorizontalAlignment="Right"/>
+                                </DockPanel>
+                            </Border>
+
+                            <DataGrid x:Name="HomeWeekActivitiesList" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="False" BorderThickness="0"
+                                      BeginningEdit="Grid_BeginningEdit" CellEditEnding="ActivityGrid_CellEditEnding">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="DATE" Binding="{Binding DateDisplay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="95" FontFamily="{StaticResource MonoFont}"/>
+                                    <DataGridTemplateColumn Header="TYPE" Width="86" IsReadOnly="True">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{Binding BadgeBgColor}" CornerRadius="2" Padding="6,2" HorizontalAlignment="Left">
+                                                    <TextBlock Text="{Binding ShortTag}" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="{Binding BadgeTextColor}"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="STORE" Binding="{Binding StoreNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="70" FontFamily="{StaticResource MonoFont}" FontWeight="Bold"/>
+                                    <DataGridTextColumn Header="LOCATION" Binding="{Binding StoreName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="135"/>
+                                    <DataGridTextColumn Header="VENDOR / TECH" Binding="{Binding TechnicianOrVendor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="125"/>
+                                    <DataGridTextColumn Header="STATUS" Binding="{Binding Status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="105" FontFamily="{StaticResource MonoFont}" FontWeight="Bold"/>
+                                    <DataGridTextColumn Header="SCOPE / NOTES" Binding="{Binding Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- ROW 2: STORE ROLLOUT STATUS TABLE -->
+                <Border Grid.Row="2" Background="#FFFFFF" BorderBrush="#D1D5DB" BorderThickness="1">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0" Background="#F8FAFC" BorderBrush="#D1D5DB" BorderThickness="0,0,0,1" Padding="12,6">
+                            <DockPanel>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="PROJECT STORE ROLLOUT ROSTER (DOUBLE-CLICK ANY CELL TO EDIT INLINE, OR CLICK 'SPECS...' FOR FULL RECORD)" FontFamily="{StaticResource MonoFont}" FontSize="11" FontWeight="Bold" Foreground="#1F2937"/>
+                                    <TextBlock x:Name="ActiveProjectTitleText" Text="" FontSize="11" Foreground="#6B7280" Margin="12,0,0,0"/>
+                                    <TextBlock x:Name="ActiveProjectSubText" Text="" Visibility="Collapsed"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                    <TextBlock x:Name="LastSaveStatusText" Text="✓ All Changes Saved" FontFamily="{StaticResource MonoFont}" FontSize="11" FontWeight="SemiBold" Foreground="#15803D" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <Button Content="💾 Save Roster Edits" Click="SaveAllChangesButton_Click" Style="{StaticResource PrimaryButton}" Height="26" Padding="10,0" FontSize="11" Margin="0,0,6,0"/>
+                                    <Button Content="🕒 View History" Click="OpenHistoryButton_Click" Height="26" Padding="10,0" FontSize="11" Margin="0,0,6,0"/>
+                                    <Button Content="Open Full Store Directory &amp; Property Inspector ►" Click="NavStoresButton_Click"
+                                            Height="26" Padding="10,0" FontSize="11"/>
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+
+                        <DataGrid x:Name="HomeStoresPreviewGrid" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="False"
+                                  BorderThickness="0" BeginningEdit="Grid_BeginningEdit" CellEditEnding="StoreGrid_CellEditEnding">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="STORE #" Binding="{Binding StoreNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="84" FontFamily="{StaticResource MonoFont}" FontWeight="Bold"/>
+                                <DataGridTextColumn Header="BANNER" Binding="{Binding BannerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="130"/>
+                                <DataGridTextColumn Header="STORE NAME" Binding="{Binding StoreName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="175" FontWeight="SemiBold"/>
+                                <DataGridTextColumn Header="MALL / PROPERTY" Binding="{Binding MallName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="190"/>
+                                <DataGridTextColumn Header="CITY / PROV" Binding="{Binding CityState, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="135"/>
+                                <DataGridTextColumn Header="RGN" Binding="{Binding CountryFlag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="54" FontFamily="{StaticResource MonoFont}"/>
+                                <DataGridTextColumn Header="STAGE" Binding="{Binding OperationalStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="135"/>
+                                <DataGridTextColumn Header="POWER POLES" Binding="{Binding PowerPoleSummary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120" FontFamily="{StaticResource MonoFont}"/>
+                                <DataGridTextColumn Header="CABLING" Binding="{Binding CablingSummary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="140" FontFamily="{StaticResource MonoFont}"/>
+                                <DataGridTextColumn Header="CIRCUITS" Binding="{Binding CircuitSummary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="95" FontFamily="{StaticResource MonoFont}"/>
+                                <DataGridTextColumn Header="HEALTH" Binding="{Binding OverallHealth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="115" FontWeight="Bold"/>
+                                <DataGridTextColumn Header="TARGET OPEN" Binding="{Binding TargetOpenDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="115" FontFamily="{StaticResource MonoFont}"/>
+                                <DataGridTemplateColumn Header="RECORD" Width="90" IsReadOnly="True">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="Specs..." Tag="{Binding}" Click="RowOpenSpecsButton_Click" Padding="8,2" FontSize="11"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- ========================================================================= -->
+            <!-- VIEW 2: STORE DIRECTORY & SPECIFICATIONS (MASTER-DETAIL TABLE + SHEET)    -->
+            <!-- ========================================================================= -->
+            <Grid x:Name="StoreFleetExplorerView" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Filter Bar -->
+                <Border Grid.Row="0" Background="#FFFFFF" BorderBrush="#D1D5DB" BorderThickness="1" Padding="12,8" Margin="0,0,0,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
+                            <TextBlock Text="Region:" FontSize="12" Foreground="#374151" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <ComboBox x:Name="CountryFilterCombo" SelectionChanged="CountryFilterCombo_SelectionChanged" Width="115" MinHeight="32">
+                                <ComboBoxItem Content="All (US/CA)" Tag="ALL" IsSelected="True"/>
+                                <ComboBoxItem Content="US Stores" Tag="US"/>
+                                <ComboBoxItem Content="CA Stores" Tag="CA"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
+                            <TextBlock Text="Banner:" FontSize="12" Foreground="#374151" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <ComboBox x:Name="BannerFilterCombo" SelectionChanged="BannerFilterCombo_SelectionChanged" Width="165" MinHeight="32">
+                                <ComboBoxItem Content="All Banners" Tag="ALL" IsSelected="True"/>
+                                <ComboBoxItem Content="Charlotte Russe (CR)" Tag="CR"/>
+                                <ComboBoxItem Content="Urban Planet (UP)" Tag="UP"/>
+                                <ComboBoxItem Content="Bluenotes (BN)" Tag="BN"/>
+                                <ComboBoxItem Content="Sirens (SS)" Tag="SS"/>
+                                <ComboBoxItem Content="Rue21 (R21)" Tag="R21"/>
+                                <ComboBoxItem Content="Mandee (M)" Tag="M"/>
+                                <ComboBoxItem Content="West 49 (W49)" Tag="W49"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0">
+                            <TextBlock Text="Field:" FontSize="12" Foreground="#374151" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <ComboBox x:Name="SearchFieldCombo" SelectionChanged="SearchFieldCombo_SelectionChanged" Width="135" MinHeight="32">
+                                <ComboBoxItem Content="All Columns" Tag="ALL" IsSelected="True"/>
+                                <ComboBoxItem Content="Store #" Tag="STORE_NO"/>
+                                <ComboBoxItem Content="Mall Name" Tag="MALL"/>
+                                <ComboBoxItem Content="Address" Tag="ADDRESS"/>
+                                <ComboBoxItem Content="City / Prov" Tag="CITY"/>
+                                <ComboBoxItem Content="Contact / Phone" Tag="PHONE"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <TextBox x:Name="SearchBox" Grid.Column="3" TextChanged="SearchBox_TextChanged" MinHeight="32"
+                                 ToolTip="Type to filter store records..."/>
+
+                        <TextBlock x:Name="FilterActiveNotice" Grid.Column="4" Text="Filtered" FontFamily="{StaticResource MonoFont}" FontSize="11"
+                                   Foreground="#0F6CBD" VerticalAlignment="Center" Margin="10,0,0,0" Visibility="Collapsed"/>
+
+                        <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+                            <Button Content="💾 Save Changes" Click="SaveAllChangesButton_Click"
+                                    Style="{StaticResource PrimaryButton}" MinHeight="32" Padding="12,0" Margin="0,0,6,0"/>
+                            <Button Content="🕒 History" Click="OpenHistoryButton_Click"
+                                    MinHeight="32" Padding="12,0" Margin="0,0,6,0"/>
+                            <Button Content="Edit Selected Store..." Click="InspectSelectedButton_Click"
+                                    MinHeight="32" Padding="12,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Master-Detail Split: Left = DataGrid | Right = Structured Property Inspector -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="350"/>
+                    </Grid.ColumnDefinitions>
+
+                    <DataGrid x:Name="StoresDataGrid" Grid.Column="0" AutoGenerateColumns="False" IsReadOnly="False"
+                              SelectionChanged="StoresDataGrid_SelectionChanged"
+                              BeginningEdit="Grid_BeginningEdit"
+                              CellEditEnding="StoreGrid_CellEditEnding">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="STORE #" Binding="{Binding StoreNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="84" FontFamily="{StaticResource MonoFont}" FontWeight="Bold"/>
+                            <DataGridTextColumn Header="RGN" Binding="{Binding CountryFlag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="54" FontFamily="{StaticResource MonoFont}"/>
+                            <DataGridTextColumn Header="BANNER" Binding="{Binding BannerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="130"/>
+                            <DataGridTextColumn Header="STORE NAME" Binding="{Binding StoreName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="170" FontWeight="SemiBold"/>
+                            <DataGridTextColumn Header="MALL / PROPERTY" Binding="{Binding MallName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="185"/>
+                            <DataGridTextColumn Header="CITY, ST/PROV" Binding="{Binding CityState, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="130"/>
+                            <DataGridTextColumn Header="STAGE" Binding="{Binding OperationalStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="135"/>
+                            <DataGridTextColumn Header="POWER POLES" Binding="{Binding PowerPoleSummary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="115" FontFamily="{StaticResource MonoFont}"/>
+                            <DataGridTextColumn Header="CABLING" Binding="{Binding CablingSummary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="135" FontFamily="{StaticResource MonoFont}"/>
+                            <DataGridTextColumn Header="WAN CIRCUITS" Binding="{Binding CircuitSummary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="98" FontFamily="{StaticResource MonoFont}"/>
+                            <DataGridTextColumn Header="HEALTH" Binding="{Binding OverallHealth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="115" FontWeight="Bold"/>
+                            <DataGridTextColumn Header="TARGET OPEN" Binding="{Binding TargetOpenDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="115" FontFamily="{StaticResource MonoFont}"/>
+                            <DataGridTemplateColumn Header="RECORD" Width="90" IsReadOnly="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Specs..." Tag="{Binding}" Click="RowOpenSpecsButton_Click" Padding="8,2" FontSize="11"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Right Property Inspector Panel -->
+                    <Border Grid.Column="2" Background="#FFFFFF" BorderBrush="#D1D5DB" BorderThickness="1">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0" Background="#F8FAFC" BorderBrush="#D1D5DB" BorderThickness="0,0,0,1" Padding="12,8">
+                                <StackPanel>
+                                    <TextBlock Text="SELECTED STORE PROPERTY SHEET" FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#4B5563"/>
+                                    <TextBlock x:Name="InspectorStoreTitle" Text="Select a Store" FontSize="13.5" FontWeight="Bold" Foreground="#111827" Margin="0,2,0,1" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="InspectorStoreSubtitle" Text="—" FontSize="11" Foreground="#6B7280" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="12,10">
+                                <StackPanel>
+                                    <Border BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="0,5">
+                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="115"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="Mall Property:" FontSize="11.5" Foreground="#6B7280"/>
+                                            <TextBlock x:Name="InspectorMallText" Grid.Column="1" Text="—" FontSize="11.5" FontWeight="SemiBold" Foreground="#111827" TextWrapping="Wrap"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="0,5">
+                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="115"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="Street Address:" FontSize="11.5" Foreground="#6B7280"/>
+                                            <TextBlock x:Name="InspectorAddressText" Grid.Column="1" Text="—" FontSize="11.5" Foreground="#111827" TextWrapping="Wrap"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="0,5">
+                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="115"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="Delivery Window:" FontSize="11.5" Foreground="#6B7280"/>
+                                            <TextBlock x:Name="InspectorDeliveryText" Grid.Column="1" Text="—" FontFamily="{StaticResource MonoFont}" FontSize="11.5" Foreground="#111827" TextWrapping="Wrap"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="0,5">
+                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="115"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="Site Survey:" FontSize="11.5" Foreground="#6B7280"/>
+                                            <TextBlock x:Name="InspectorSurveyText" Grid.Column="1" Text="—" FontSize="11.5" FontWeight="SemiBold" Foreground="#111827"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="0,5">
+                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="115"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="Power Poles:" FontSize="11.5" Foreground="#6B7280"/>
+                                            <TextBlock x:Name="InspectorPolesText" Grid.Column="1" Text="—" FontSize="11.5" Foreground="#111827"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="0,5">
+                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="115"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="Low-Volt Cabling:" FontSize="11.5" Foreground="#6B7280"/>
+                                            <TextBlock x:Name="InspectorCablingText" Grid.Column="1" Text="—" FontSize="11.5" Foreground="#111827"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="0,5">
+                                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="115"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="Primary WAN:" FontSize="11.5" Foreground="#6B7280"/>
+                                            <TextBlock x:Name="InspectorCircuitsText" Grid.Column="1" Text="—" FontSize="11.5" FontWeight="SemiBold" Foreground="#0F6CBD"/>
+                                        </Grid>
+                                    </Border>
+
+                                    <TextBlock Text="FIELD NOTES / WEEKLY SUMMARY:" FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#4B5563" Margin="0,10,0,4"/>
+                                    <Border Background="#F9FAFB" BorderBrush="#D1D5DB" BorderThickness="1" Padding="8,6">
+                                        <TextBlock x:Name="InspectorSummaryNoteText" Text="—" FontSize="11.5" Foreground="#374151" TextWrapping="Wrap"/>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+
+                            <Border Grid.Row="2" Background="#F8FAFC" BorderBrush="#D1D5DB" BorderThickness="0,1,0,0" Padding="12,8">
+                                <Button Content="Open Store Engineering Specification..." Click="InspectSelectedButton_Click"
+                                        Style="{StaticResource PrimaryButton}" Height="28" HorizontalAlignment="Stretch"/>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <!-- ==================== ROW 3: BOTTOM WINDOWS STATUS BAR ==================== -->
+        <Border Grid.Row="3" Background="#E5E7EB" BorderBrush="#D1D5DB" BorderThickness="0,1,0,0" Padding="12,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="DB Status:" FontFamily="{StaticResource MonoFont}" FontSize="11" Foreground="#4B5563" Margin="0,0,5,0"/>
+                    <TextBlock x:Name="DbStatusText" Text="Connected" FontFamily="{StaticResource MonoFont}" FontSize="11" FontWeight="Bold" Foreground="#15803D"/>
+                    <TextBlock Text="  |  " Foreground="#9CA3AF"/>
+                </StackPanel>
+
+                <TextBlock x:Name="WeekNarrativeText" Grid.Column="2" Text="Ready" FontSize="11" Foreground="#374151" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+
+                <TextBlock Grid.Column="3" Text="NRF 4-5-4 Calendar Active  |  YM Inc. Enterprise Build 2.5" FontFamily="{StaticResource MonoFont}" FontSize="10.5" Foreground="#6B7280" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

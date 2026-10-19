@@ -9,6 +9,8 @@ namespace YMInc.StoreDeploymentApp.Views
         public RosterImportWindow()
         {
             InitializeComponent();
+            Loaded += (s, e) => Services.ThemeService.ApplyThemeToWindow(this);
+            Services.ThemeService.ThemeChanged += (s, e) => Services.ThemeService.ApplyThemeToWindow(this);
         }
 
         private void BrowseButton_Click(object sender, RoutedEventArgs e)

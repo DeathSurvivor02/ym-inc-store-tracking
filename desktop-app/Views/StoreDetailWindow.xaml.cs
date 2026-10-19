@@ -10,13 +10,66 @@ namespace YMInc.StoreDeploymentApp.Views
     public partial class StoreDetailWindow : Window
     {
         private readonly StoreDeployment _store;
+        private readonly User? _currentUser;
         private readonly DatabaseService _databaseService = new();
+        private System.Windows.Threading.DispatcherTimer? _heartbeatTimer;
 
-        public StoreDetailWindow(StoreDeployment store)
+        public StoreDetailWindow(StoreDeployment store, User? currentUser = null)
         {
             InitializeComponent();
             _store = store;
+            _currentUser = currentUser;
             PopulateStore(store);
+            Loaded += (s, e) =>
+            {
+                ThemeService.ApplyThemeToWindow(this);
+                CheckAndRegisterPresence();
+            };
+            ThemeService.ThemeChanged += (s, e) => ThemeService.ApplyThemeToWindow(this);
+            Closed += (s, e) =>
+            {
+                _heartbeatTimer?.Stop();
+                PresenceService.ReleaseEditor(_store.StoreNumber);
+            };
+        }
+
+        private void CheckAndRegisterPresence()
+        {
+            if (_currentUser != null)
+            {
+                var otherEditor = PresenceService.GetOtherActiveEditor(_store.StoreNumber);
+                if (otherEditor != null)
+                {
+                    EditorConflictBanner.Visibility = Visibility.Visible;
+                    ConflictNoticeText.Text = $"Store #{_store.StoreNumber} is currently open for editing by {otherEditor.EditorName} ({otherEditor.EditorRole}). Changes saved here may conflict.";
+                }
+                else
+                {
+                    EditorConflictBanner.Visibility = Visibility.Collapsed;
+                }
+
+                PresenceService.RegisterEditor(_store.StoreNumber, _currentUser);
+
+                _heartbeatTimer = new System.Windows.Threading.DispatcherTimer
+                {
+                    Interval = TimeSpan.FromSeconds(10)
+                };
+                _heartbeatTimer.Tick += (s, e) =>
+                {
+                    PresenceService.RefreshHeartbeat(_store.StoreNumber);
+                    var other = PresenceService.GetOtherActiveEditor(_store.StoreNumber);
+                    if (other != null)
+                    {
+                        EditorConflictBanner.Visibility = Visibility.Visible;
+                        ConflictNoticeText.Text = $"Store #{_store.StoreNumber} is currently open for editing by {other.EditorName} ({other.EditorRole}). Changes saved here may conflict.";
+                    }
+                    else
+                    {
+                        EditorConflictBanner.Visibility = Visibility.Collapsed;
+                    }
+                };
+                _heartbeatTimer.Start();
+            }
         }
 
         private void PopulateStore(StoreDeployment store)

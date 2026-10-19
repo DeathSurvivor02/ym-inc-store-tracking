@@ -102,6 +102,27 @@ namespace YMInc.StoreDeploymentApp.Services
             }
         }
 
+        public async Task<DateTime?> GetLatestStoreUpdateTimestampAsync()
+        {
+            if (!IsConnected) return null;
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+                await using var cmd = new NpgsqlCommand("SELECT MAX(updated_at) FROM stores;", conn);
+                var result = await cmd.ExecuteScalarAsync();
+                if (result != null && result is DateTime dt)
+                {
+                    return dt;
+                }
+            }
+            catch
+            {
+                // Non-fatal if offline
+            }
+            return null;
+        }
+
         public async Task<List<StoreDeployment>> LoadStoresAsync()
         {
             // If PostgreSQL is not reachable, gracefully load seed fixtures
@@ -782,6 +803,200 @@ namespace YMInc.StoreDeploymentApp.Services
             }
         }
 
+        public async Task<bool> CreateStoreAsync(StoreDeployment store)
+        {
+            if (!IsConnected)
+            {
+                int newId = SeedDataService.GetStores().Count > 0 ? SeedDataService.GetStores().Max(s => s.StoreId) + 1 : 100;
+                store.StoreId = newId;
+                SeedDataService.GetStores().Add(store);
+                LastError = null;
+                return true;
+            }
+
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+                await using var tx = await conn.BeginTransactionAsync();
+
+                // 1. Resolve banner_id
+                int bannerId = 1;
+                await using (var bCmd = new NpgsqlCommand("SELECT banner_id FROM banners WHERE banner_code = @Code OR banner_name = @Name LIMIT 1;", conn, tx))
+                {
+                    bCmd.Parameters.AddWithValue("Code", store.BannerCode ?? "CR");
+                    bCmd.Parameters.AddWithValue("Name", store.BannerName ?? "Charlotte Russe");
+                    var bRes = await bCmd.ExecuteScalarAsync();
+                    if (bRes != null && bRes is short or int)
+                    {
+                        bannerId = Convert.ToInt32(bRes);
+                    }
+                }
+
+                // 2. Resolve district_id
+                int districtId = 1;
+                await using (var dCmd = new NpgsqlCommand("SELECT district_id FROM districts LIMIT 1;", conn, tx))
+                {
+                    var dRes = await dCmd.ExecuteScalarAsync();
+                    if (dRes != null && dRes is short or int)
+                    {
+                        districtId = Convert.ToInt32(dRes);
+                    }
+                }
+
+                // 3. Resolve or insert mall_id
+                int? mallId = null;
+                if (store.Mall != null && !string.IsNullOrWhiteSpace(store.Mall.PropertyName))
+                {
+                    await using (var mCmd = new NpgsqlCommand("SELECT mall_id FROM mall_properties WHERE property_name = @Name LIMIT 1;", conn, tx))
+                    {
+                        mCmd.Parameters.AddWithValue("Name", store.Mall.PropertyName);
+                        var mRes = await mCmd.ExecuteScalarAsync();
+                        if (mRes != null && mRes is int id)
+                        {
+                            mallId = id;
+                        }
+                    }
+
+                    if (!mallId.HasValue)
+                    {
+                        const string insMallSql = @"
+                            INSERT INTO mall_properties (
+                                mall_code, property_name, landlord_company, property_type,
+                                address_line1, city, state_province, postal_code, country_code,
+                                coi_required, delivery_window, night_work_only
+                            ) VALUES (
+                                @MallCode, @PropertyName, @Landlord, 'Enclosed Regional Mall',
+                                @Address, @City, @State, @Postal, @Country,
+                                true, '06:00 - 09:30', false
+                            ) RETURNING mall_id;";
+                        await using var insMallCmd = new NpgsqlCommand(insMallSql, conn, tx);
+                        insMallCmd.Parameters.AddWithValue("MallCode", string.IsNullOrWhiteSpace(store.Mall.MallCode) ? $"M-{store.StoreNumber}" : store.Mall.MallCode);
+                        insMallCmd.Parameters.AddWithValue("PropertyName", store.Mall.PropertyName);
+                        insMallCmd.Parameters.AddWithValue("Landlord", string.IsNullOrWhiteSpace(store.Mall.LandlordCompany) ? "Cadillac Fairview / Oxford Properties" : store.Mall.LandlordCompany);
+                        insMallCmd.Parameters.AddWithValue("Address", string.IsNullOrWhiteSpace(store.Address) ? "100 Retail Way" : store.Address);
+                        insMallCmd.Parameters.AddWithValue("City", string.IsNullOrWhiteSpace(store.City) ? "Toronto" : store.City);
+                        insMallCmd.Parameters.AddWithValue("State", string.IsNullOrWhiteSpace(store.StateProvince) ? "ON" : store.StateProvince);
+                        insMallCmd.Parameters.AddWithValue("Postal", string.IsNullOrWhiteSpace(store.PostalCode) ? "M5H 2N2" : store.PostalCode);
+                        insMallCmd.Parameters.AddWithValue("Country", string.IsNullOrWhiteSpace(store.CountryCode) ? "CA" : store.CountryCode);
+                        var newMallIdRes = await insMallCmd.ExecuteScalarAsync();
+                        if (newMallIdRes != null && newMallIdRes is int nmid)
+                        {
+                            mallId = nmid;
+                        }
+                    }
+                }
+
+                // 4. Insert into stores
+                const string insStoreSql = @"
+                    INSERT INTO stores (
+                        store_number, banner_id, district_id, mall_id, store_name,
+                        project_type, operational_status, overall_health, store_status,
+                        address_line1, city, state_province, postal_code, country_code,
+                        phone_number, pos_terminal_count, opening_date, target_open_date, notes
+                    ) VALUES (
+                        @StoreNumber, @BannerId, @DistrictId, @MallId, @StoreName,
+                        @ProjectType, @OperationalStatus, @OverallHealth, 'Active',
+                        @Address, @City, @State, @Postal, @Country,
+                        @Phone, @PosTerminals, 
+                        COALESCE(CASE WHEN @TargetDate = '' THEN NULL ELSE @TargetDate::DATE END, CURRENT_DATE + INTERVAL '30 days'),
+                        CASE WHEN @TargetDate = '' THEN NULL ELSE @TargetDate::DATE END,
+                        @Notes
+                    ) RETURNING store_id;";
+
+                await using var insCmd = new NpgsqlCommand(insStoreSql, conn, tx);
+                insCmd.Parameters.AddWithValue("StoreNumber", store.StoreNumber);
+                insCmd.Parameters.AddWithValue("BannerId", bannerId);
+                insCmd.Parameters.AddWithValue("DistrictId", districtId);
+                insCmd.Parameters.AddWithValue("MallId", (object?)mallId ?? DBNull.Value);
+                insCmd.Parameters.AddWithValue("StoreName", store.StoreName);
+                insCmd.Parameters.AddWithValue("ProjectType", string.IsNullOrWhiteSpace(store.ProjectType) ? "New Store Opening" : store.ProjectType);
+                insCmd.Parameters.AddWithValue("OperationalStatus", string.IsNullOrWhiteSpace(store.OperationalStatus) ? "Planning" : store.OperationalStatus);
+                insCmd.Parameters.AddWithValue("OverallHealth", string.IsNullOrWhiteSpace(store.OverallHealth) ? "On Track" : store.OverallHealth);
+                insCmd.Parameters.AddWithValue("Address", string.IsNullOrWhiteSpace(store.Address) ? "100 Retail Blvd" : store.Address);
+                insCmd.Parameters.AddWithValue("City", string.IsNullOrWhiteSpace(store.City) ? "Toronto" : store.City);
+                insCmd.Parameters.AddWithValue("State", string.IsNullOrWhiteSpace(store.StateProvince) ? "ON" : store.StateProvince);
+                insCmd.Parameters.AddWithValue("Postal", string.IsNullOrWhiteSpace(store.PostalCode) ? "M5H 2N2" : store.PostalCode);
+                insCmd.Parameters.AddWithValue("Country", string.IsNullOrWhiteSpace(store.CountryCode) ? "CA" : store.CountryCode);
+                insCmd.Parameters.AddWithValue("Phone", (object?)store.PhoneNumber ?? DBNull.Value);
+                insCmd.Parameters.AddWithValue("PosTerminals", store.PosTerminalCount > 0 ? store.PosTerminalCount : 4);
+                insCmd.Parameters.AddWithValue("TargetDate", store.TargetOpenDate ?? string.Empty);
+                insCmd.Parameters.AddWithValue("Notes", (object?)store.TechnicalSummaryNote ?? DBNull.Value);
+
+                var newStoreIdObj = await insCmd.ExecuteScalarAsync();
+                int storeId = Convert.ToInt32(newStoreIdObj);
+                store.StoreId = storeId;
+
+                // 5. Insert child records: survey, power poles, cabling, telecom circuits
+                const string insSurveySql = @"
+                    INSERT INTO site_surveys (store_id, surveyor_name, survey_status, scheduled_date, ceiling_type, ceiling_height_feet, demarc_location, demarc_conduit_available, mdf_rack_location)
+                    VALUES (@StoreId, @Surveyor, 'Scheduled', CURRENT_DATE + INTERVAL '5 days', 'Acoustic Drop Tile', 12.0, 'Back Office', true, 'Cash Wrap');";
+                await using var sCmd = new NpgsqlCommand(insSurveySql, conn, tx);
+                sCmd.Parameters.AddWithValue("StoreId", storeId);
+                sCmd.Parameters.AddWithValue("Surveyor", string.IsNullOrWhiteSpace(store.Survey?.SurveyorName) ? "National Site Surveyors" : store.Survey.SurveyorName);
+                await sCmd.ExecuteNonQueryAsync();
+
+                const string insPoleSql = @"
+                    INSERT INTO power_poles (store_id, pole_requirement_status, total_poles_required, poles_installed, finish_color, ceiling_mount_type, cash_wrap_feed_drops)
+                    VALUES (@StoreId, @Status, @Total, @Installed, 'Anodized Aluminum', 'T-Bar Grid Clamp', 4);";
+                await using var pCmd = new NpgsqlCommand(insPoleSql, conn, tx);
+                pCmd.Parameters.AddWithValue("StoreId", storeId);
+                pCmd.Parameters.AddWithValue("Status", store.PowerPoles?.Status ?? "Survey Required");
+                pCmd.Parameters.AddWithValue("Total", store.PowerPoles?.TotalRequired > 0 ? store.PowerPoles.TotalRequired : 2);
+                pCmd.Parameters.AddWithValue("Installed", store.PowerPoles?.InstalledCount ?? 0);
+                await pCmd.ExecuteNonQueryAsync();
+
+                const string insCablingSql = @"
+                    INSERT INTO cabling_operations (store_id, operational_status, total_data_drops, pos_drops, ap_wireless_drops, fluke_test_certified, cabling_vendor)
+                    VALUES (@StoreId, @Status, @TotalDrops, @PosDrops, 4, false, @Vendor);";
+                await using var cCmd = new NpgsqlCommand(insCablingSql, conn, tx);
+                cCmd.Parameters.AddWithValue("StoreId", storeId);
+                cCmd.Parameters.AddWithValue("Status", store.Cabling?.Status ?? "Vendor Assigned");
+                cCmd.Parameters.AddWithValue("TotalDrops", store.Cabling?.TotalDataDrops > 0 ? store.Cabling.TotalDataDrops : 16);
+                cCmd.Parameters.AddWithValue("PosDrops", store.Cabling?.PosDrops > 0 ? store.Cabling.PosDrops : 4);
+                cCmd.Parameters.AddWithValue("Vendor", string.IsNullOrWhiteSpace(store.Cabling?.Vendor) ? "Black Box Network Services" : store.Cabling.Vendor);
+                await cCmd.ExecuteNonQueryAsync();
+
+                if (store.Circuits.Count > 0)
+                {
+                    foreach (var c in store.Circuits)
+                    {
+                        const string insCircSql = @"
+                            INSERT INTO telecom_circuits (store_id, circuit_role, carrier_name, service_type, order_status, bandwidth_down_mbps, bandwidth_up_mbps)
+                            VALUES (@StoreId, @Role, @Carrier, @Service, @Status, @Down, @Up);";
+                        await using var circCmd = new NpgsqlCommand(insCircSql, conn, tx);
+                        circCmd.Parameters.AddWithValue("StoreId", storeId);
+                        circCmd.Parameters.AddWithValue("Role", c.Role ?? "Primary WAN");
+                        circCmd.Parameters.AddWithValue("Carrier", string.IsNullOrWhiteSpace(c.CarrierName) ? "Bell Dedicated Fiber" : c.CarrierName);
+                        circCmd.Parameters.AddWithValue("Service", string.IsNullOrWhiteSpace(c.ServiceType) ? "DIA Fiber 100M" : c.ServiceType);
+                        circCmd.Parameters.AddWithValue("Status", string.IsNullOrWhiteSpace(c.OrderStatus) ? "Order Placed" : c.OrderStatus);
+                        circCmd.Parameters.AddWithValue("Down", c.BandwidthDownMbps > 0 ? c.BandwidthDownMbps : 100);
+                        circCmd.Parameters.AddWithValue("Up", c.BandwidthUpMbps > 0 ? c.BandwidthUpMbps : 100);
+                        await circCmd.ExecuteNonQueryAsync();
+                    }
+                }
+                else
+                {
+                    const string insCircSql = @"
+                        INSERT INTO telecom_circuits (store_id, circuit_role, carrier_name, service_type, order_status, bandwidth_down_mbps, bandwidth_up_mbps)
+                        VALUES (@StoreId, 'Primary WAN', 'Bell Canada', 'DIA Fiber 100M', 'Order Placed', 100, 100);";
+                    await using var circCmd = new NpgsqlCommand(insCircSql, conn, tx);
+                    circCmd.Parameters.AddWithValue("StoreId", storeId);
+                    await circCmd.ExecuteNonQueryAsync();
+                }
+
+                await tx.CommitAsync();
+                LastError = null;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LastError = ex.Message;
+                System.Diagnostics.Debug.WriteLine($"CreateStoreAsync error: {ex}");
+                return false;
+            }
+        }
+
         private static readonly string LiveCalendarFilePath = Path.Combine(
             AppDomain.CurrentDomain.BaseDirectory, "live_calendar_work_items.json");
 
@@ -844,6 +1059,7 @@ namespace YMInc.StoreDeploymentApp.Services
         {
             try
             {
+                _lastSelfCalendarSaveUtc = DateTime.UtcNow;
                 var opts = new JsonSerializerOptions { WriteIndented = true };
                 File.WriteAllText(LiveCalendarFilePath, JsonSerializer.Serialize(items, opts));
             }
@@ -851,6 +1067,33 @@ namespace YMInc.StoreDeploymentApp.Services
             {
                 // Ignore IO lock
             }
+        }
+
+        private static FileSystemWatcher? _calendarWatcher;
+        private static DateTime _lastSelfCalendarSaveUtc = DateTime.MinValue;
+        public static event Action? CalendarChangedExternally;
+
+        public static void StartCalendarWatcher()
+        {
+            if (_calendarWatcher != null) return;
+            try
+            {
+                string dir = Path.GetDirectoryName(LiveCalendarFilePath) ?? AppDomain.CurrentDomain.BaseDirectory;
+                string file = Path.GetFileName(LiveCalendarFilePath);
+                _calendarWatcher = new FileSystemWatcher(dir, file)
+                {
+                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName,
+                    EnableRaisingEvents = true
+                };
+                _calendarWatcher.Changed += (s, e) =>
+                {
+                    if ((DateTime.UtcNow - _lastSelfCalendarSaveUtc).TotalMilliseconds < 1500)
+                        return;
+                    System.Threading.Thread.Sleep(200);
+                    CalendarChangedExternally?.Invoke();
+                };
+            }
+            catch { }
         }
 
         public static int GetFiscalWeekForDate(DateTime date)

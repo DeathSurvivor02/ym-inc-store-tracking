@@ -172,7 +172,13 @@ namespace YMInc.StoreDeploymentApp.Services
 
             if (!isAppChromeBar)
             {
-                TransformElementBrushes(obj);
+                // TabItem template has an internal border whose triggers shouldn't be overwritten.
+                // However, elements inside DataTemplates (where TemplatedParent is ContentPresenter) MUST be themed.
+                bool isTabItemTemplatePart = obj is FrameworkElement fe && fe.TemplatedParent is TabItem;
+                if (!isTabItemTemplatePart)
+                {
+                    TransformElementBrushes(obj);
+                }
             }
 
             // Walk logical children too (for TabItems, ComboBoxItems, non-visual subtrees)
@@ -202,13 +208,16 @@ namespace YMInc.StoreDeploymentApp.Services
                 MapBrushProperty(win, Control.BackgroundProperty, MapBackgroundColor);
                 MapBrushProperty(win, Control.ForegroundProperty, MapForegroundColor);
             }
+            else if (obj is ScrollViewer sv)
+            {
+                MapBrushProperty(sv, Control.BackgroundProperty, MapBackgroundColor);
+                MapBrushProperty(sv, Control.ForegroundProperty, MapForegroundColor);
+            }
             else if (obj is DataGrid dg)
             {
                 MapBrushProperty(dg, Control.BackgroundProperty, MapBackgroundColor);
                 MapBrushProperty(dg, Control.ForegroundProperty, MapForegroundColor);
                 MapBrushProperty(dg, Control.BorderBrushProperty, MapBorderColor);
-                MapBrushProperty(dg, DataGrid.RowBackgroundProperty, MapBackgroundColor);
-                MapBrushProperty(dg, DataGrid.AlternatingRowBackgroundProperty, MapBackgroundColor);
                 MapBrushProperty(dg, DataGrid.HorizontalGridLinesBrushProperty, MapBorderColor);
                 MapBrushProperty(dg, DataGrid.VerticalGridLinesBrushProperty, MapBorderColor);
             }
@@ -225,6 +234,49 @@ namespace YMInc.StoreDeploymentApp.Services
             {
                 MapBrushProperty(tb, TextBlock.ForegroundProperty, MapForegroundColor);
                 MapBrushProperty(tb, TextBlock.BackgroundProperty, MapBackgroundColor);
+                if (tb.Inlines.Count > 0)
+                {
+                    foreach (var inline in tb.Inlines)
+                    {
+                        if (inline is System.Windows.Documents.Run run)
+                        {
+                            MapBrushProperty(run, System.Windows.Documents.TextElement.ForegroundProperty, MapForegroundColor);
+                        }
+                    }
+                }
+            }
+            else if (obj is TextBox tbInput)
+            {
+                MapBrushProperty(tbInput, Control.BackgroundProperty, MapInputBgColor);
+                MapBrushProperty(tbInput, Control.ForegroundProperty, MapForegroundColor);
+                MapBrushProperty(tbInput, Control.BorderBrushProperty, MapBorderColor);
+            }
+            else if (obj is PasswordBox pbox)
+            {
+                MapBrushProperty(pbox, Control.BackgroundProperty, MapInputBgColor);
+                MapBrushProperty(pbox, Control.ForegroundProperty, MapForegroundColor);
+                MapBrushProperty(pbox, Control.BorderBrushProperty, MapBorderColor);
+            }
+            else if (obj is ComboBox cbBox)
+            {
+                MapBrushProperty(cbBox, Control.BackgroundProperty, MapInputBgColor);
+                MapBrushProperty(cbBox, Control.ForegroundProperty, MapForegroundColor);
+                MapBrushProperty(cbBox, Control.BorderBrushProperty, MapBorderColor);
+            }
+            else if (obj is ComboBoxItem cbi)
+            {
+                MapBrushProperty(cbi, Control.BackgroundProperty, MapInputBgColor);
+                MapBrushProperty(cbi, Control.ForegroundProperty, MapForegroundColor);
+            }
+            else if (obj is Button btn)
+            {
+                // Preserve Primary Action Button styling
+                if (btn.Style != Application.Current?.Resources["PrimaryButton"])
+                {
+                    MapBrushProperty(btn, Control.BackgroundProperty, MapButtonBgColor);
+                    MapBrushProperty(btn, Control.ForegroundProperty, MapForegroundColor);
+                    MapBrushProperty(btn, Control.BorderBrushProperty, MapBorderColor);
+                }
             }
             else if (obj is Separator sep)
             {
@@ -287,37 +339,50 @@ namespace YMInc.StoreDeploymentApp.Services
 
         private static string? MapBackgroundColor(string hex) => hex switch
         {
-            "#FAF9F8" or "#F3F4F6" or "#F8FAFC" or "#F1F5F9" => "#1E1E1E",
+            "#FAF9F8" or "#F3F4F6" or "#F8FAFC" or "#F1F5F9" or "#F8F9FA" => "#1E1E1E",
             "#FFFFFF" => "#252526",
             "#F9FAFB" => "#2A2D2E",
-            "#F3F2F1" or "#EDEBE9" or "#E5E7EB" => "#2D2D30",
-            "#EFF6FC" or "#EFF6FF" or "#DBEAFE" or "#E0F2FE" => "#172B4D",
-            "#DCFCE7" or "#F0FDF4" or "#CCFBF1" => "#133A25",
-            "#FEF3C7" or "#FFFBEB" => "#3E2709",
-            "#FEE2E2" or "#FEF2F2" => "#451A1A",
+            "#F3F2F1" or "#EDEBE9" or "#E5E7EB" or "#E2E8F0" => "#2D2D30",
+            "#EFF6FC" or "#EFF6FF" or "#DBEAFE" or "#E0F2FE" or "#EBF3FC" => "#172B4D",
+            "#DCFCE7" or "#F0FDF4" or "#CCFBF1" or "#DFF6DD" => "#133A25",
+            "#FEF3C7" or "#FFFBEB" or "#FFF4CE" => "#3E2709",
+            "#FEE2E2" or "#FEF2F2" or "#FDE7E9" or "#FECACA" => "#451A1A",
             "#EDE9FE" => "#2E1A47",
             _ => null
         };
 
+        private static string? MapInputBgColor(string hex) => hex switch
+        {
+            "#FFFFFF" or "#FAF9F8" or "#F3F4F6" or "#F8FAFC" => "#1E1E1E",
+            _ => MapBackgroundColor(hex)
+        };
+
+        private static string? MapButtonBgColor(string hex) => hex switch
+        {
+            "#FFFFFF" or "#FAF9F8" or "#F8FAFC" or "#F3F4F6" or "#F3F2F1" => "#2D2D30",
+            "TRANSPARENT" => "TRANSPARENT",
+            _ => MapBackgroundColor(hex)
+        };
+
         private static string? MapBorderColor(string hex) => hex switch
         {
-            "#D1D5DB" or "#E1DFDD" or "#E5E7EB" or "#D2D0CE" or "#C8C6C4" or "#F3F4F6" => "#3E3E42",
+            "#D1D5DB" or "#E1DFDD" or "#E5E7EB" or "#D2D0CE" or "#C8C6C4" or "#F3F4F6" or "#E2E8F0" or "#8A8886" or "#797775" => "#3E3E42",
             "#C7E0F4" or "#BFDBFE" or "#93C5FD" => "#2B5278",
-            "#BBF7D0" or "#86EFAC" => "#1E5638",
-            "#FDE68A" or "#FCD34D" => "#6B4411",
-            "#FECACA" or "#FCA5A5" => "#6E2626",
+            "#BBF7D0" or "#86EFAC" or "#107C10" or "#15803D" or "#16A34A" => "#1E5638",
+            "#FDE68A" or "#FCD34D" or "#D97706" or "#795500" => "#6B4411",
+            "#FECACA" or "#FCA5A5" or "#F1707B" or "#EF4444" or "#DC2626" or "#B91C1C" or "#A4262C" => "#6E2626",
             _ => null
         };
 
         private static string? MapForegroundColor(string hex) => hex switch
         {
-            "#201F1E" or "#242424" or "#111827" or "#1F2937" or "#323130" or "#374151" => "#F3F2F1",
-            "#4B5563" or "#605E5C" or "#6B7280" or "#64748B" => "#B4B4B8",
-            "#9CA3AF" or "#8A8886" => "#8E8E93",
-            "#0F6CBD" or "#1E3A8A" or "#1E40AF" or "#1D4ED8" or "#075985" => "#60A5FA",
-            "#15803D" or "#166534" or "#107C10" or "#115E59" => "#4ADE80",
-            "#B45309" or "#92400E" or "#D97706" => "#FBBF24",
-            "#B91C1C" or "#991B1B" or "#A4262C" or "#DC2626" => "#F87171",
+            "#201F1E" or "#242424" or "#111827" or "#1F2937" or "#323130" or "#374151" or "#1E293B" => "#F3F2F1",
+            "#4B5563" or "#605E5C" or "#6B7280" or "#64748B" or "#475569" => "#CBD5E1",
+            "#9CA3AF" or "#8A8886" => "#94A3B8",
+            "#0F6CBD" or "#1E3A8A" or "#1E40AF" or "#1D4ED8" or "#075985" or "#0078D4" => "#60A5FA",
+            "#15803D" or "#166534" or "#107C10" or "#115E59" or "#16A34A" => "#4ADE80",
+            "#B45309" or "#92400E" or "#D97706" or "#795500" => "#FCD34D",
+            "#B91C1C" or "#991B1B" or "#A4262C" or "#DC2626" or "#EF4444" => "#F87171",
             "#5B21B6" => "#C4B5FD",
             _ => null
         };

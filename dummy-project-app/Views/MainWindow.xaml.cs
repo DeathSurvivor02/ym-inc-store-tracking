@@ -24,6 +24,7 @@ namespace YMInc.StoreDeploymentApp.Views
         private string _searchFieldFilter = "ALL";
         private string _searchQuery = string.Empty;
         private string _cellOriginalValue = string.Empty;
+        private bool _isInitialized = false;
 
         public MainWindow(User user)
         {
@@ -32,6 +33,7 @@ namespace YMInc.StoreDeploymentApp.Views
             ApplyUserContext();
             ApplyWorkspaceChrome();
             SetupDonutEvents();
+            _isInitialized = true;
             UpdateWeekButtonsVisualState();
             UpdateThemeButtonLabel();
             UpdateHistoryBadge();
@@ -42,8 +44,27 @@ namespace YMInc.StoreDeploymentApp.Views
                 UpdateThemeButtonLabel();
                 UpdateNavigationHeader();
                 UpdateWeekButtonsVisualState();
+                LoadWeeklyProgressReport();
+                Dispatcher.BeginInvoke(new Action(() => ThemeService.ApplyThemeToWindow(this)), System.Windows.Threading.DispatcherPriority.Loaded);
             };
             Loaded += MainWindow_Loaded;
+
+            DummyProjectService.StartFileWatcher();
+            DummyProjectService.DatabaseChangedExternally += OnExternalDatabaseChanged;
+            Closed += (_, _) => DummyProjectService.DatabaseChangedExternally -= OnExternalDatabaseChanged;
+        }
+
+        private void OnExternalDatabaseChanged()
+        {
+            Dispatcher.BeginInvoke(new Action(async () =>
+            {
+                await LoadStoresDataAsync();
+                if (LastSaveStatusText != null)
+                {
+                    LastSaveStatusText.Text = $"⚡ Auto-synced from another instance at {DateTime.Now:HH:mm:ss}";
+                    LastSaveStatusText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#15803D"));
+                }
+            }));
         }
 
         private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -91,13 +112,17 @@ namespace YMInc.StoreDeploymentApp.Views
 
         private void ApplyUserContext()
         {
-            CurrentUserNameText.Text = _currentUser.FullName;
-            CurrentUserRoleBadge.Text = $"({_currentUser.RoleDisplayName})";
+            if (_currentUser == null) return;
+            if (CurrentUserNameText != null) CurrentUserNameText.Text = _currentUser.FullName;
+            if (CurrentUserRoleBadge != null) CurrentUserRoleBadge.Text = $"({_currentUser.RoleDisplayName})";
 
-            ImportRosterButton.IsEnabled = _currentUser.CanImportRoster;
-            if (!_currentUser.CanImportRoster)
+            if (ImportRosterButton != null)
             {
-                ImportRosterButton.ToolTip = "Roster import requires PM or PA role.";
+                ImportRosterButton.IsEnabled = _currentUser.CanImportRoster;
+                if (!_currentUser.CanImportRoster)
+                {
+                    ImportRosterButton.ToolTip = "Roster import requires PM or PA role.";
+                }
             }
         }
 
@@ -137,22 +162,21 @@ namespace YMInc.StoreDeploymentApp.Views
         private void UpdateNavigationHeader()
         {
             bool dark = ThemeService.IsDarkTheme;
-            var inactiveBg = new SolidColorBrush((Color)ColorConverter.ConvertFromString(dark ? "#2D2D30" : "#FFFFFF"));
-            var inactiveFg = new SolidColorBrush((Color)ColorConverter.ConvertFromString(dark ? "#F3F2F1" : "#374151"));
-            var inactiveBorder = new SolidColorBrush((Color)ColorConverter.ConvertFromString(dark ? "#3E3E42" : "#D1D5DB"));
+            var activeBg = new SolidColorBrush((Color)ColorConverter.ConvertFromString(dark ? "#0F6CBD" : "#FFFFFF"));
+            var activeFg = new SolidColorBrush((Color)ColorConverter.ConvertFromString(dark ? "#FFFFFF" : "#1E293B"));
+            var inactiveBg = Brushes.Transparent;
+            var inactiveFg = new SolidColorBrush((Color)ColorConverter.ConvertFromString(dark ? "#94A3B8" : "#64748B"));
 
             if (_isShowingHome)
             {
                 PageHeaderTitle.Text = "Home — Project Summary (Standalone Dummy DB)";
 
-                NavHomeButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0F6CBD"));
-                NavHomeButton.Foreground = Brushes.White;
-                NavHomeButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0C4A82"));
+                NavHomeButton.Background = activeBg;
+                NavHomeButton.Foreground = activeFg;
                 NavHomeButton.FontWeight = FontWeights.SemiBold;
 
                 NavStoresButton.Background = inactiveBg;
                 NavStoresButton.Foreground = inactiveFg;
-                NavStoresButton.BorderBrush = inactiveBorder;
                 NavStoresButton.FontWeight = FontWeights.Normal;
 
                 HomeDashboardView.Visibility = Visibility.Visible;
@@ -162,14 +186,12 @@ namespace YMInc.StoreDeploymentApp.Views
             {
                 PageHeaderTitle.Text = "Store Directory & Specifications (Standalone Dummy DB)";
 
-                NavStoresButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0F6CBD"));
-                NavStoresButton.Foreground = Brushes.White;
-                NavStoresButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0C4A82"));
+                NavStoresButton.Background = activeBg;
+                NavStoresButton.Foreground = activeFg;
                 NavStoresButton.FontWeight = FontWeights.SemiBold;
 
                 NavHomeButton.Background = inactiveBg;
                 NavHomeButton.Foreground = inactiveFg;
-                NavHomeButton.BorderBrush = inactiveBorder;
                 NavHomeButton.FontWeight = FontWeights.Normal;
 
                 HomeDashboardView.Visibility = Visibility.Collapsed;
@@ -199,21 +221,28 @@ namespace YMInc.StoreDeploymentApp.Views
         private async System.Threading.Tasks.Task LoadStoresDataAsync()
         {
             ApplyWorkspaceChrome();
-            DbStatusText.Text = "Connecting to PostgreSQL 16...";
+            DbStatusText.Text = "Loading standalone sandbox database...";
 
             _allStores = await _databaseService.LoadStoresAsync();
             _allWorkItems = await _databaseService.LoadCalendarWorkItemsAsync(_allStores);
 
             DbStatusText.Text = _databaseService.StatusMessage;
-            DbStatusText.Foreground = Brushes.White;
-
             LoadWeeklyProgressReport();
             ApplyFilters();
+
+            if (HomeStoresPreviewGrid != null && HomeStoresPreviewGrid.SelectedItem == null && HomeStoresPreviewGrid.Items.Count > 0)
+            {
+                HomeStoresPreviewGrid.SelectedIndex = 0;
+            }
         }
 
         private void LoadWeeklyProgressReport()
         {
+            if (!_isInitialized || DonutChart == null || WeekNarrativeText == null || KpiWeekLabel == null) return;
+
             var report = DatabaseService.GetWeeklyReportFromFleet(_currentWeek, _allStores, _allWorkItems);
+            if (report == null) return;
+
             DonutChart.Report = report;
 
             WeekNarrativeText.Text = report.WeekNarrative;
@@ -378,42 +407,54 @@ namespace YMInc.StoreDeploymentApp.Views
 
         private void UpdateWeekButtonsVisualState()
         {
-            bool dark = ThemeService.IsDarkTheme;
-            var inactiveBg = new SolidColorBrush((Color)ColorConverter.ConvertFromString(dark ? "#2D2D30" : "#FFFFFF"));
-            var inactiveFg = new SolidColorBrush((Color)ColorConverter.ConvertFromString(dark ? "#F3F2F1" : "#374151"));
-            var inactiveBorder = new SolidColorBrush((Color)ColorConverter.ConvertFromString(dark ? "#3E3E42" : "#D1D5DB"));
-
-            var weekButtons = new Dictionary<int, Button>
+            if (FiscalWeekComboBox != null)
             {
-                { 38, Wk38Button },
-                { 39, Wk39Button },
-                { 40, Wk40Button },
-                { 41, Wk41Button },
-                { 42, Wk42Button },
-                { 43, Wk43Button }
-            };
-
-            foreach (var kvp in weekButtons)
-            {
-                bool active = kvp.Key == _currentWeek;
-                kvp.Value.Background = active
-                    ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0F6CBD"))
-                    : inactiveBg;
-                kvp.Value.Foreground = active
-                    ? Brushes.White
-                    : inactiveFg;
-                kvp.Value.BorderBrush = active
-                    ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0C4A82"))
-                    : inactiveBorder;
-                kvp.Value.FontWeight = active ? FontWeights.Bold : FontWeights.Normal;
+                foreach (var item in FiscalWeekComboBox.Items)
+                {
+                    if (item is ComboBoxItem cbi && cbi.Tag?.ToString() == _currentWeek.ToString())
+                    {
+                        if (!cbi.IsSelected)
+                        {
+                            FiscalWeekComboBox.SelectedItem = cbi;
+                        }
+                        break;
+                    }
+                }
             }
         }
 
         private void SelectWeek(int week)
         {
-            _currentWeek = Math.Clamp(week, 36, 46);
+            _currentWeek = Math.Clamp(week, 38, 43);
             UpdateWeekButtonsVisualState();
-            LoadWeeklyProgressReport();
+            if (_isInitialized)
+            {
+                LoadWeeklyProgressReport();
+            }
+        }
+
+        public void SelectFiscalWeek(int week)
+        {
+            SelectWeek(week);
+        }
+
+        private void FiscalWeekComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!_isInitialized) return;
+            if (FiscalWeekComboBox?.SelectedItem is ComboBoxItem item && int.TryParse(item.Tag?.ToString(), out int week))
+            {
+                SelectWeek(week);
+            }
+        }
+
+        private void ToolsMenuButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.ContextMenu != null)
+            {
+                btn.ContextMenu.PlacementTarget = btn;
+                btn.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                btn.ContextMenu.IsOpen = true;
+            }
         }
 
         private void PrevWeekButton_Click(object sender, RoutedEventArgs e)
@@ -476,6 +517,69 @@ namespace YMInc.StoreDeploymentApp.Views
             }
         }
 
+        private void HomeStoresPreviewGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (HomeStoresPreviewGrid?.SelectedItem is StoreDeployment store)
+            {
+                if (HomeEmptyStoreBanner != null) HomeEmptyStoreBanner.Visibility = Visibility.Collapsed;
+                if (HomeSelectedStoreBanner != null) HomeSelectedStoreBanner.Visibility = Visibility.Visible;
+
+                if (HomeSelectedStoreNumberBadge != null) HomeSelectedStoreNumberBadge.Text = $"STORE #{store.StoreNumber}";
+                if (HomeSelectedStoreBannerBadge != null) HomeSelectedStoreBannerBadge.Text = $"{store.BannerName} ({store.BannerCode})";
+                if (HomeSelectedStoreNameText != null) HomeSelectedStoreNameText.Text = store.StoreName;
+                if (HomeSelectedStoreLocationText != null) HomeSelectedStoreLocationText.Text = $"📍 {store.City}, {store.StateProvince} ({store.CountryCode}) • {store.MallName}";
+                if (HomeSelectedStoreTargetDateText != null) HomeSelectedStoreTargetDateText.Text = $"Target Open: {store.TargetOpenDate}";
+
+                if (HomeSelectedStoreStageText != null) HomeSelectedStoreStageText.Text = store.OperationalStatus;
+                if (HomeSelectedStoreHealthText != null) HomeSelectedStoreHealthText.Text = store.OverallHealth;
+                if (HomeSelectedStoreCircuitsText != null) HomeSelectedStoreCircuitsText.Text = store.CircuitSummary;
+                if (HomeSelectedStoreCablingText != null) HomeSelectedStoreCablingText.Text = store.CablingSummary;
+                if (HomeSelectedStorePolesText != null) HomeSelectedStorePolesText.Text = store.PowerPoleSummary;
+
+                if (DbStatusText != null)
+                {
+                    DbStatusText.Text = $"Selected Store #{store.StoreNumber} ({store.StoreName}) — Stage: {store.OperationalStatus} | Health: {store.OverallHealth}";
+                }
+
+                if (StoresDataGrid != null && StoresDataGrid.SelectedItem != store)
+                {
+                    StoresDataGrid.SelectedItem = store;
+                }
+            }
+            else
+            {
+                if (HomeEmptyStoreBanner != null) HomeEmptyStoreBanner.Visibility = Visibility.Visible;
+                if (HomeSelectedStoreBanner != null) HomeSelectedStoreBanner.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void HomeSelectedStoreOpenSpecs_Click(object sender, RoutedEventArgs e)
+        {
+            if (HomeStoresPreviewGrid?.SelectedItem is StoreDeployment store)
+            {
+                OpenStoreDetailDialog(store);
+            }
+            else
+            {
+                MessageBox.Show("Please select a store to view specifications.", "Select Store", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void HomeSelectedStoreViewInDirectory_Click(object sender, RoutedEventArgs e)
+        {
+            if (HomeStoresPreviewGrid?.SelectedItem is StoreDeployment store)
+            {
+                NavStoresButton_Click(this, new RoutedEventArgs());
+                StoresDataGrid.SelectedItem = store;
+                StoresDataGrid.ScrollIntoView(store);
+            }
+        }
+
+        private void HomeSelectedStoreMallRules_Click(object sender, RoutedEventArgs e)
+        {
+            MallRulesButton_Click(this, new RoutedEventArgs());
+        }
+
         private void StoresDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (StoresDataGrid?.SelectedItem is StoreDeployment store)
@@ -492,6 +596,16 @@ namespace YMInc.StoreDeploymentApp.Views
                 InspectorSummaryNoteText.Text = string.IsNullOrWhiteSpace(store.TechnicalSummaryNote)
                     ? "No field summary recorded."
                     : store.TechnicalSummaryNote;
+
+                if (DbStatusText != null)
+                {
+                    DbStatusText.Text = $"Selected Store #{store.StoreNumber} ({store.StoreName}) — Stage: {store.OperationalStatus} | Health: {store.OverallHealth}";
+                }
+
+                if (HomeStoresPreviewGrid != null && HomeStoresPreviewGrid.SelectedItem != store)
+                {
+                    HomeStoresPreviewGrid.SelectedItem = store;
+                }
             }
         }
 
@@ -658,7 +772,7 @@ namespace YMInc.StoreDeploymentApp.Views
 
         private async void OpenStoreDetailDialog(StoreDeployment selectedStore)
         {
-            var detailWindow = new StoreDetailWindow(selectedStore) { Owner = this };
+            var detailWindow = new StoreDetailWindow(selectedStore, _currentUser) { Owner = this };
             detailWindow.ShowDialog();
             _allWorkItems = await _databaseService.LoadCalendarWorkItemsAsync(_allStores);
             LoadWeeklyProgressReport();
@@ -708,6 +822,39 @@ namespace YMInc.StoreDeploymentApp.Views
             if (importWindow.DidImport)
             {
                 await LoadStoresDataAsync();
+            }
+        }
+
+        private async void AddNewStoreButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var addStoreWin = new AddStoreWindow(_databaseService, isDummyMode: true) { Owner = this };
+                bool? result = addStoreWin.ShowDialog();
+                if (result == true && addStoreWin.CreatedStore != null)
+                {
+                    var created = addStoreWin.CreatedStore;
+                    await LoadStoresDataAsync();
+
+                    // Automatically select the newly created store in both views
+                    var found = _allStores.FirstOrDefault(s => s.StoreNumber == created.StoreNumber) ?? created;
+                    if (HomeStoresPreviewGrid != null)
+                    {
+                        HomeStoresPreviewGrid.SelectedItem = found;
+                        HomeStoresPreviewGrid.ScrollIntoView(found);
+                    }
+                    if (StoresDataGrid != null)
+                    {
+                        StoresDataGrid.SelectedItem = found;
+                        StoresDataGrid.ScrollIntoView(found);
+                    }
+
+                    DbStatusText.Text = $"✓ Successfully added new Store #{created.StoreNumber} ({created.StoreName}) to dummy fleet.";
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to open Add Store dialog: {ex.Message}", "Add Store Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

@@ -48,6 +48,17 @@ namespace YMInc.StoreDeploymentApp.Services
             return Task.FromResult(DummyProjectService.SaveStore(store));
         }
 
+        public Task<bool> CreateStoreAsync(StoreDeployment store)
+        {
+            LastError = null;
+            bool ok = DummyProjectService.CreateStore(store);
+            if (!ok)
+            {
+                LastError = $"Store #{store.StoreNumber} already exists in dummy project state.";
+            }
+            return Task.FromResult(ok);
+        }
+
         public Task<List<CalendarWorkItem>> LoadCalendarWorkItemsAsync(List<StoreDeployment>? fleetStores = null)
         {
             DummyProjectService.LoadOrInitialize();

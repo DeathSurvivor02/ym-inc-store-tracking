@@ -10,6 +10,12 @@ namespace YMInc.StoreDeploymentApp.Views
         {
             InitializeComponent();
             UpdateThemeButtonLabel();
+            Loaded += (s, e) => ThemeService.ApplyThemeToWindow(this);
+            ThemeService.ThemeChanged += (s, e) =>
+            {
+                UpdateThemeButtonLabel();
+                ThemeService.ApplyThemeToWindow(this);
+            };
         }
 
         private void ThemeToggleButton_Click(object sender, RoutedEventArgs e)

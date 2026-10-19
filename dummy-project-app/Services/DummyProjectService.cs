@@ -71,6 +71,7 @@ namespace YMInc.StoreDeploymentApp.Services
             if (_state == null) return;
             try
             {
+                _lastSelfSaveTimeUtc = DateTime.UtcNow;
                 _state.LastUpdatedUtc = DateTime.UtcNow;
                 var opts = new JsonSerializerOptions { WriteIndented = true };
                 File.WriteAllText(DbFilePath, JsonSerializer.Serialize(_state, opts));
@@ -78,6 +79,75 @@ namespace YMInc.StoreDeploymentApp.Services
             catch
             {
                 // Ignore IO lock errors
+            }
+        }
+
+        private static FileSystemWatcher? _fileWatcher;
+        private static DateTime _lastSelfSaveTimeUtc = DateTime.MinValue;
+        public static event Action? DatabaseChangedExternally;
+
+        public static void StartFileWatcher()
+        {
+            if (_fileWatcher != null) return;
+            try
+            {
+                string dir = Path.GetDirectoryName(DbFilePath) ?? AppDomain.CurrentDomain.BaseDirectory;
+                string fileName = Path.GetFileName(DbFilePath);
+                _fileWatcher = new FileSystemWatcher(dir, fileName)
+                {
+                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName,
+                    EnableRaisingEvents = true
+                };
+                _fileWatcher.Changed += OnFileChanged;
+                _fileWatcher.Created += OnFileChanged;
+            }
+            catch
+            {
+                // Non-fatal if OS restricts FileSystemWatcher
+            }
+        }
+
+        private static void OnFileChanged(object sender, FileSystemEventArgs e)
+        {
+            // If the write originated from this instance within the last 1500ms, ignore
+            if ((DateTime.UtcNow - _lastSelfSaveTimeUtc).TotalMilliseconds < 1500)
+                return;
+
+            // Brief pause to allow the saving process to release any file locks
+            System.Threading.Thread.Sleep(200);
+
+            try
+            {
+                if (File.Exists(DbFilePath))
+                {
+                    string json = File.ReadAllText(DbFilePath);
+                    var loaded = JsonSerializer.Deserialize<DummyDatabaseState>(json);
+                    if (loaded != null && loaded.Stores.Count > 0)
+                    {
+                        _state = loaded;
+                        RelinkStoreMalls(_state);
+                        DatabaseChangedExternally?.Invoke();
+                    }
+                }
+            }
+            catch
+            {
+                try
+                {
+                    System.Threading.Thread.Sleep(300);
+                    if (File.Exists(DbFilePath))
+                    {
+                        string json = File.ReadAllText(DbFilePath);
+                        var loaded = JsonSerializer.Deserialize<DummyDatabaseState>(json);
+                        if (loaded != null && loaded.Stores.Count > 0)
+                        {
+                            _state = loaded;
+                            RelinkStoreMalls(_state);
+                            DatabaseChangedExternally?.Invoke();
+                        }
+                    }
+                }
+                catch { }
             }
         }
 
@@ -101,9 +171,66 @@ namespace YMInc.StoreDeploymentApp.Services
         public static List<CalendarWorkItem> GetWorkItems() =>
             State.WorkItems.OrderBy(w => w.ActivityDate).ThenBy(w => w.TimeWindow).ToList();
 
+        public static bool CreateStore(StoreDeployment store)
+        {
+            var state = State;
+            if (state == null) return false;
+
+            if (state.Stores.Any(s => s.StoreNumber.Equals(store.StoreNumber, StringComparison.OrdinalIgnoreCase)))
+            {
+                return false;
+            }
+
+            int nextId = state.Stores.Count > 0 ? state.Stores.Max(s => s.StoreId) + 1 : 901;
+            store.StoreId = nextId;
+
+            if (store.Mall != null)
+            {
+                var existingMall = state.Malls.FirstOrDefault(m =>
+                    m.PropertyName.Equals(store.Mall.PropertyName, StringComparison.OrdinalIgnoreCase));
+                if (existingMall != null)
+                {
+                    store.Mall = existingMall;
+                }
+                else
+                {
+                    store.Mall.MallId = state.Malls.Count > 0 ? state.Malls.Max(m => m.MallId) + 1 : 100;
+                    if (string.IsNullOrWhiteSpace(store.Mall.MallCode))
+                        store.Mall.MallCode = $"MALL-{store.StoreNumber}";
+                    state.Malls.Add(store.Mall);
+                }
+            }
+
+            state.Stores.Add(store);
+
+            string wiId = $"SBX-{store.StoreNumber}-01";
+            state.WorkItems.Add(new CalendarWorkItem
+            {
+                WorkItemId = wiId,
+                ActivityDate = DateTime.Now.AddDays(5),
+                FiscalYear = GetFiscalYearForDate(DateTime.Now.AddDays(5)),
+                FiscalWeek = GetFiscalWeekForDate(DateTime.Now.AddDays(5)),
+                ActivityType = "Site Survey",
+                Title = $"Physical Infrastructure & Low-Volt Survey — Store #{store.StoreNumber}",
+                StoreNumber = store.StoreNumber,
+                StoreName = store.StoreName,
+                BannerCode = store.BannerCode,
+                Status = "Scheduled",
+                AssignedTo = "National Site Surveyors",
+                TimeWindow = "09:00 - 12:00",
+                Notes = $"New store onboarding for {store.StoreName} ({store.BannerName})."
+            });
+
+            SaveState();
+            return true;
+        }
+
         public static bool SaveStore(StoreDeployment updated)
         {
-            var existing = State.Stores.FirstOrDefault(s => s.StoreId == updated.StoreId || s.StoreNumber == updated.StoreNumber);
+            var existing = State.Stores.FirstOrDefault(s =>
+                s.StoreId == updated.StoreId ||
+                s.StoreNumber.Equals(updated.StoreNumber, StringComparison.OrdinalIgnoreCase));
+
             if (existing != null)
             {
                 int idx = State.Stores.IndexOf(existing);
@@ -111,10 +238,15 @@ namespace YMInc.StoreDeploymentApp.Services
             }
             else
             {
-                if (updated.StoreId == 0)
-                    updated.StoreId = State.Stores.Count > 0 ? State.Stores.Max(s => s.StoreId) + 1 : 901;
                 State.Stores.Add(updated);
             }
+
+            if (updated.Mall != null)
+            {
+                SaveMall(updated.Mall);
+            }
+
+            RelinkStoreMalls(State);
             SaveState();
             return true;
         }

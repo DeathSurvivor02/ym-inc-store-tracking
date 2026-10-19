@@ -13,6 +13,7 @@ namespace YMInc.StoreDeploymentApp.Models
         public string City { get; set; } = string.Empty;
         public string StateProvince { get; set; } = string.Empty;
         public string CountryCode { get; set; } = "CA";
+        public string PostalCode { get; set; } = string.Empty;
         public bool CoiRequired { get; set; } = true;
         public decimal MinGeneralLiabilityCad { get; set; } = 5000000m;
         public string DeliveryWindow { get; set; } = "06:00 - 09:30";

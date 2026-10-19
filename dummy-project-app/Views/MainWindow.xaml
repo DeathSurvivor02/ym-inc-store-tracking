@@ -57,57 +57,81 @@
             </Grid>
         </Border>
 
-        <!-- ==================== ROW 1: MICROSOFT RIBBON COMMAND TOOLBAR ==================== -->
-        <Border Grid.Row="1" Background="#F3F2F1" BorderBrush="#E1DFDD" BorderThickness="0,0,0,1" Padding="12,6">
+        <!-- ==================== ROW 1: SIMPLIFIED EXECUTIVE COMMAND TOOLBAR ==================== -->
+        <Border Grid.Row="1" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1" Padding="14,6">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/> <!-- View Switcher -->
-                    <ColumnDefinition Width="*"/>    <!-- Week Progression Selector -->
-                    <ColumnDefinition Width="Auto"/> <!-- Module Actions -->
+                    <ColumnDefinition Width="Auto"/> <!-- Zone 1: Unified Navigation Tabs -->
+                    <ColumnDefinition Width="*"/>    <!-- Zone 2: Centered Fiscal Week Selector -->
+                    <ColumnDefinition Width="Auto"/> <!-- Zone 3: Actions & Tools Menu -->
                 </Grid.ColumnDefinitions>
 
-                <!-- 1. View Switcher -->
+                <!-- ZONE 1: UNIFIED NAVIGATION SEGMENTED TABS -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="VIEW:" FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#6B7280" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <Button x:Name="NavHomeButton" Content="Home — Project Summary" Click="NavHomeButton_Click"
-                            Height="28" Padding="12,0" Margin="0,0,4,0"/>
-                    <Button x:Name="NavStoresButton" Content="Store Directory &amp; Specs" Click="NavStoresButton_Click"
-                            Height="28" Padding="12,0"/>
-                    <Rectangle Width="1" Height="20" Fill="#D1D5DB" Margin="12,0"/>
+                    <Border Background="#E2E8F0" CornerRadius="6" Padding="2">
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="NavHomeButton" Content="📊 Overview" Click="NavHomeButton_Click"
+                                    Height="28" Padding="12,0" FontWeight="SemiBold" BorderThickness="0"
+                                    Background="White" Foreground="#1E293B" Cursor="Hand"/>
+                            <Button x:Name="NavStoresButton" Content="🏬 Store Directory" Click="NavStoresButton_Click"
+                                    Height="28" Padding="12,0" FontWeight="Normal" BorderThickness="0"
+                                    Background="Transparent" Foreground="#64748B" Cursor="Hand" Margin="2,0,0,0"/>
+                            <Button x:Name="NavCalendarButton" Content="📅 4-5-4 Calendar" Click="FiscalCalendarButton_Click"
+                                    Height="28" Padding="12,0" FontWeight="Normal" BorderThickness="0"
+                                    Background="Transparent" Foreground="#64748B" Cursor="Hand" Margin="2,0,0,0"/>
+                            <Button x:Name="NavComplianceButton" Content="📋 Landlord Compliance" Click="MallRulesButton_Click"
+                                    Height="28" Padding="12,0" FontWeight="Normal" BorderThickness="0"
+                                    Background="Transparent" Foreground="#64748B" Cursor="Hand" Margin="2,0,0,0"/>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
 
-                <!-- 2. Fiscal Week Progression Selector -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="FISCAL WEEK:" FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#6B7280" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <Button Content="◄" Click="PrevWeekButton_Click" Height="26" Width="26" Padding="0" Margin="0,0,2,0" ToolTip="Previous Fiscal Week"/>
-                    <Button x:Name="Wk38Button" Content="WK 38" Tag="38" Click="WeekQuickButton_Click" Height="26" Padding="8,0" Margin="0,0,2,0" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
-                    <Button x:Name="Wk39Button" Content="WK 39" Tag="39" Click="WeekQuickButton_Click" Height="26" Padding="8,0" Margin="0,0,2,0" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
-                    <Button x:Name="Wk40Button" Content="WK 40" Tag="40" Click="WeekQuickButton_Click" Height="26" Padding="8,0" Margin="0,0,2,0" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
-                    <Button x:Name="Wk41Button" Content="WK 41" Tag="41" Click="WeekQuickButton_Click" Height="26" Padding="8,0" Margin="0,0,2,0" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
-                    <Button x:Name="Wk42Button" Content="WK 42" Tag="42" Click="WeekQuickButton_Click" Height="26" Padding="8,0" Margin="0,0,2,0" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
-                    <Button x:Name="Wk43Button" Content="WK 43" Tag="43" Click="WeekQuickButton_Click" Height="26" Padding="8,0" Margin="0,0,2,0" FontFamily="{StaticResource MonoFont}" FontSize="11"/>
-                    <Button Content="►" Click="NextWeekButton_Click" Height="26" Width="26" Padding="0" ToolTip="Next Fiscal Week"/>
+                <!-- ZONE 2: COMPACT FISCAL WEEK SELECTOR -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="FISCAL WEEK:" FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" 
+                               Foreground="#64748B" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <Button Content="◀" Click="PrevWeekButton_Click" Height="26" Width="26" Padding="0" Margin="0,0,2,0" ToolTip="Previous Fiscal Week"/>
+                    <ComboBox x:Name="FiscalWeekComboBox" Width="170" Height="26" VerticalContentAlignment="Center" 
+                              FontFamily="{StaticResource MonoFont}" FontSize="11" SelectionChanged="FiscalWeekComboBox_SelectionChanged">
+                        <ComboBoxItem Content="WK 38 (Oct 13 - Oct 19)" Tag="38"/>
+                        <ComboBoxItem Content="WK 39 (Oct 20 - Oct 26)" Tag="39"/>
+                        <ComboBoxItem Content="WK 40 (Oct 27 - Nov 02)" Tag="40"/>
+                        <ComboBoxItem Content="WK 41 (Nov 03 - Nov 09)" Tag="41"/>
+                        <ComboBoxItem Content="WK 42 (Nov 10 - Nov 16)" Tag="42"/>
+                        <ComboBoxItem Content="WK 43 (Nov 17 - Nov 23)" Tag="43"/>
+                    </ComboBox>
+                    <Button Content="▶" Click="NextWeekButton_Click" Height="26" Width="26" Padding="0" Margin="2,0,0,0" ToolTip="Next Fiscal Week"/>
                 </StackPanel>
 
-                <!-- 3. Save Controls, Change History & Module Launchers -->
+                <!-- ZONE 3: ACTIONS & CONTEXT MENU -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button x:Name="SaveAllButton" Content="💾 Save All Changes" Click="SaveAllChangesButton_Click"
+                    <!-- Primary Save Action -->
+                    <Button x:Name="SaveAllButton" Content="💾 Save Changes" Click="SaveAllChangesButton_Click"
                             Style="{StaticResource PrimaryButton}" Height="28" Padding="12,0" Margin="0,0,6,0"
-                            ToolTip="Commit all table edits, store specs, and schedules to dummy_project_db.json (Ctrl+S)"/>
-                    <Button x:Name="HistoryToolbarButton" Content="🕒 Change History" Click="OpenHistoryButton_Click"
-                            Height="28" Padding="10,0" Margin="0,0,8,0" FontWeight="SemiBold"
-                            ToolTip="Open chronological audit log of what you have edited and saved"/>
-                    <Rectangle Width="1" Height="20" Fill="#D1D5DB" Margin="0,0,8,0"/>
-                    <Button Content="Daily Schedule &amp; Calendar..." Click="FiscalCalendarButton_Click"
-                            Height="28" Padding="11,0" Margin="0,0,6,0"/>
-                    <Button Content="Landlord Compliance..." Click="MallRulesButton_Click"
-                            Height="28" Padding="10,0" Margin="0,0,6,0"/>
-                    <Button x:Name="ImportRosterButton" Content="Verify Dummy DB..." Click="ImportRosterButton_Click"
-                            Height="28" Padding="10,0" Margin="0,0,6,0"/>
-                    <Button x:Name="ResetDummyDbButton" Content="Reset Dummy Data" Click="ResetDummyDbButton_Click"
-                            Height="28" Padding="10,0" Margin="0,0,6,0" ToolTip="Reset dummy_project_db.json back to default 8 synthetic stores and 30+ calendar tasks"/>
-                    <Button Content="Refresh" Click="ReconnectButton_Click"
-                            Height="28" Padding="10,0"/>
+                            ToolTip="Commit all pending edits to dummy_project_db.json (Ctrl+S)"/>
+
+                    <!-- Change History Audit -->
+                    <Button x:Name="HistoryToolbarButton" Content="🕒 History" Click="OpenHistoryButton_Click"
+                            Height="28" Padding="10,0" Margin="0,0,6,0" FontWeight="SemiBold"
+                            ToolTip="Open chronological audit log of edited records"/>
+
+                    <!-- Refresh -->
+                    <Button Content="🔄" Click="ReconnectButton_Click" Height="28" Width="28" Padding="0" Margin="0,0,6,0"
+                            ToolTip="Refresh Fleet State"/>
+
+                    <!-- Sandbox / Developer Dropdown Menu Button -->
+                    <Button x:Name="ToolsMenuButton" Content="⚙️ Tools ▾" Click="ToolsMenuButton_Click"
+                            Height="28" Padding="8,0" Margin="0" ToolTip="Sandbox tools and database utilities">
+                        <Button.ContextMenu>
+                            <ContextMenu x:Name="ToolsContextMenu">
+                                <MenuItem Header="➕ Add New Store Deployment..." Click="AddNewStoreButton_Click"/>
+                                <Separator/>
+                                <MenuItem x:Name="ImportRosterButton" Header="🔍 Verify Dummy DB..." Click="ImportRosterButton_Click"/>
+                                <Separator/>
+                                <MenuItem x:Name="ResetDummyDbButton" Header="⚠️ Reset Dummy DB to Defaults..." Click="ResetDummyDbButton_Click" Foreground="#DC2626"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
@@ -297,7 +321,7 @@
 
                                     <StackPanel Margin="0,0,0,8">
                                         <DockPanel Margin="0,0,0,2">
-                                            <TextBlock Text="2. Landlord Permits" FontSize="11.5" Foreground="#1F2937"/>
+                                            <TextBlock Text="2. Wiremold Power Poles" FontSize="11.5" Foreground="#1F2937"/>
                                             <TextBlock x:Name="Milestone2Text" Text="0/0" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#374151" HorizontalAlignment="Right"/>
                                         </DockPanel>
                                         <ProgressBar x:Name="Milestone2Bar" Height="6" Minimum="0" Maximum="100" Value="70" Background="#E5E7EB" Foreground="#0F6CBD" BorderThickness="0"/>
@@ -305,7 +329,7 @@
 
                                     <StackPanel Margin="0,0,0,8">
                                         <DockPanel Margin="0,0,0,2">
-                                            <TextBlock Text="3. Power Poles" FontSize="11.5" Foreground="#1F2937"/>
+                                            <TextBlock Text="3. Cat6 Plenum Cabling" FontSize="11.5" Foreground="#1F2937"/>
                                             <TextBlock x:Name="Milestone3Text" Text="0/0" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#374151" HorizontalAlignment="Right"/>
                                         </DockPanel>
                                         <ProgressBar x:Name="Milestone3Bar" Height="6" Minimum="0" Maximum="100" Value="60" Background="#E5E7EB" Foreground="#0F6CBD" BorderThickness="0"/>
@@ -313,7 +337,7 @@
 
                                     <StackPanel Margin="0,0,0,8">
                                         <DockPanel Margin="0,0,0,2">
-                                            <TextBlock Text="4. Low-Voltage Cabling" FontSize="11.5" Foreground="#1F2937"/>
+                                            <TextBlock Text="4. Dual-WAN Telecom" FontSize="11.5" Foreground="#1F2937"/>
                                             <TextBlock x:Name="Milestone4Text" Text="0/0" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#374151" HorizontalAlignment="Right"/>
                                         </DockPanel>
                                         <ProgressBar x:Name="Milestone4Bar" Height="6" Minimum="0" Maximum="100" Value="50" Background="#E5E7EB" Foreground="#15803D" BorderThickness="0"/>
@@ -321,7 +345,7 @@
 
                                     <StackPanel>
                                         <DockPanel Margin="0,0,0,2">
-                                            <TextBlock Text="5. Circuits &amp; TTU" FontSize="11.5" Foreground="#1F2937"/>
+                                            <TextBlock Text="5. POS Commissioning &amp; QA" FontSize="11.5" Foreground="#1F2937"/>
                                             <TextBlock x:Name="Milestone5Text" Text="0/0" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#374151" HorizontalAlignment="Right"/>
                                         </DockPanel>
                                         <ProgressBar x:Name="Milestone5Bar" Height="6" Minimum="0" Maximum="100" Value="45" Background="#E5E7EB" Foreground="#D97706" BorderThickness="0"/>
@@ -377,49 +401,155 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
                         <Border Grid.Row="0" Background="#F8FAFC" BorderBrush="#D1D5DB" BorderThickness="0,0,0,1" Padding="12,6">
-                            <DockPanel>
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="PROJECT STORE ROLLOUT ROSTER (DOUBLE-CLICK ANY CELL TO EDIT INLINE, OR CLICK 'SPECS...' FOR FULL RECORD)" FontFamily="{StaticResource MonoFont}" FontSize="11" FontWeight="Bold" Foreground="#1F2937"/>
-                                    <TextBlock x:Name="ActiveProjectTitleText" Text="" FontSize="11" Foreground="#6B7280" Margin="12,0,0,0"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
+                                    <TextBlock Text="STORE ROLLOUT ROSTER" FontFamily="{StaticResource MonoFont}" FontSize="11" FontWeight="Bold" Foreground="#1F2937" VerticalAlignment="Center"
+                                               ToolTip="Hover to preview, click to inspect, double-click for specs"/>
+                                    <TextBlock x:Name="ActiveProjectTitleText" Text="" FontSize="11" Foreground="#6B7280" Margin="8,0,0,0" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
                                     <TextBlock x:Name="ActiveProjectSubText" Text="" Visibility="Collapsed"/>
                                 </StackPanel>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                                     <TextBlock x:Name="LastSaveStatusText" Text="✓ All Changes Saved" FontFamily="{StaticResource MonoFont}" FontSize="11" FontWeight="SemiBold" Foreground="#15803D" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <Button Content="💾 Save Roster Edits" Click="SaveAllChangesButton_Click" Style="{StaticResource PrimaryButton}" Height="26" Padding="10,0" FontSize="11" Margin="0,0,6,0"/>
-                                    <Button Content="🕒 View History" Click="OpenHistoryButton_Click" Height="26" Padding="10,0" FontSize="11" Margin="0,0,6,0"/>
-                                    <Button Content="Open Full Store Directory &amp; Property Inspector ►" Click="NavStoresButton_Click"
-                                            Height="26" Padding="10,0" FontSize="11"/>
+                                    <Button Content="➕ Add New Store..." Click="AddNewStoreButton_Click" Height="26" Padding="8,0" FontSize="11" FontWeight="SemiBold" Margin="0,0,6,0" ToolTip="Register a new store into the deployment fleet"/>
+                                    <Button Content="💾 Save" Click="SaveAllChangesButton_Click" Style="{StaticResource PrimaryButton}" Height="26" Padding="8,0" FontSize="11" Margin="0,0,6,0" ToolTip="Save Roster Edits"/>
+                                    <Button Content="🕒 History" Click="OpenHistoryButton_Click" Height="26" Padding="8,0" FontSize="11" Margin="0,0,6,0" ToolTip="View History"/>
+                                    <Button Content="Store Directory ►" Click="NavStoresButton_Click" Height="26" Padding="8,0" FontSize="11" ToolTip="Open Full Store Directory &amp; Property Inspector"/>
                                 </StackPanel>
-                            </DockPanel>
+                            </Grid>
                         </Border>
 
                         <DataGrid x:Name="HomeStoresPreviewGrid" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="False"
-                                  BorderThickness="0" BeginningEdit="Grid_BeginningEdit" CellEditEnding="StoreGrid_CellEditEnding">
+                                  BorderThickness="0"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Auto"
+                                  RowStyle="{StaticResource StoreDataGridRowStyle}"
+                                  SelectionChanged="HomeStoresPreviewGrid_SelectionChanged"
+                                  MouseDoubleClick="HomeStoresPreviewGrid_MouseDoubleClick"
+                                  BeginningEdit="Grid_BeginningEdit" CellEditEnding="StoreGrid_CellEditEnding">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="STORE #" Binding="{Binding StoreNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="84" FontFamily="{StaticResource MonoFont}" FontWeight="Bold"/>
-                                <DataGridTextColumn Header="BANNER" Binding="{Binding BannerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="130"/>
-                                <DataGridTextColumn Header="STORE NAME" Binding="{Binding StoreName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="175" FontWeight="SemiBold"/>
-                                <DataGridTextColumn Header="MALL / PROPERTY" Binding="{Binding MallName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="190"/>
-                                <DataGridTextColumn Header="CITY / PROV" Binding="{Binding CityState, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="135"/>
-                                <DataGridTextColumn Header="RGN" Binding="{Binding CountryFlag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="54" FontFamily="{StaticResource MonoFont}"/>
-                                <DataGridTextColumn Header="STAGE" Binding="{Binding OperationalStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="135"/>
+                                <DataGridTextColumn Header="STORE #" Binding="{Binding StoreNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="75" FontFamily="{StaticResource MonoFont}" FontWeight="Bold"/>
+                                <DataGridTextColumn Header="BANNER" Binding="{Binding BannerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120"/>
+                                <DataGridTextColumn Header="STORE NAME" Binding="{Binding StoreName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="160" FontWeight="SemiBold"/>
+                                <DataGridTextColumn Header="MALL / PROPERTY" Binding="{Binding MallName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="180"/>
+                                <DataGridTextColumn Header="CITY / PROV" Binding="{Binding CityState, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="110"/>
+                                <DataGridTextColumn Header="RGN" Binding="{Binding CountryFlag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="48" FontFamily="{StaticResource MonoFont}"/>
+                                <DataGridTextColumn Header="STAGE" Binding="{Binding OperationalStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="160"/>
                                 <DataGridTextColumn Header="POWER POLES" Binding="{Binding PowerPoleSummary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120" FontFamily="{StaticResource MonoFont}"/>
-                                <DataGridTextColumn Header="CABLING" Binding="{Binding CablingSummary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="140" FontFamily="{StaticResource MonoFont}"/>
+                                <DataGridTextColumn Header="CABLING" Binding="{Binding CablingSummary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="170" FontFamily="{StaticResource MonoFont}"/>
                                 <DataGridTextColumn Header="CIRCUITS" Binding="{Binding CircuitSummary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="95" FontFamily="{StaticResource MonoFont}"/>
-                                <DataGridTextColumn Header="HEALTH" Binding="{Binding OverallHealth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="115" FontWeight="Bold"/>
-                                <DataGridTextColumn Header="TARGET OPEN" Binding="{Binding TargetOpenDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="115" FontFamily="{StaticResource MonoFont}"/>
-                                <DataGridTemplateColumn Header="RECORD" Width="90" IsReadOnly="True">
+                                <DataGridTextColumn Header="HEALTH" Binding="{Binding OverallHealth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="110" FontWeight="Bold"/>
+                                <DataGridTextColumn Header="TARGET OPEN" Binding="{Binding TargetOpenDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="105" FontFamily="{StaticResource MonoFont}"/>
+                                <DataGridTemplateColumn Header="RECORD" Width="75" IsReadOnly="True">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Button Content="Specs..." Tag="{Binding}" Click="RowOpenSpecsButton_Click" Padding="8,2" FontSize="11"/>
+                                            <Button Content="Specs..." Tag="{Binding}" Click="RowOpenSpecsButton_Click" Padding="6,2" FontSize="11"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
+
+                        <!-- ROW 2: SELECTED STORE QUICK INSPECTOR (ON-CLICK DOCKED PANEL) -->
+                        <Border Grid.Row="2" Background="#F8FAFC" BorderBrush="#D1D5DB" BorderThickness="0,1,0,0" Padding="14,9">
+                            <Grid>
+                                <!-- EMPTY STATE: NO STORE SELECTED -->
+                                <Border x:Name="HomeEmptyStoreBanner" Visibility="Visible" Padding="4,2">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="🏬" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="CLICK ANY STORE IN THE ROSTER TO INSPECT REAL-TIME TECHNICAL SPECIFICATIONS, WAN CIRCUITS &amp; LANDLORD RULES"
+                                                   FontFamily="{StaticResource MonoFont}" FontSize="11" FontWeight="Bold" Foreground="#6B7280" VerticalAlignment="Center"/>
+                                        <TextBlock Text="— or double-click to open full engineering record" FontSize="11" Foreground="#9CA3AF" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- ACTIVE SELECTION STATE -->
+                                <Grid x:Name="HomeSelectedStoreBanner" Visibility="Collapsed">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/> <!-- Store Tag / Banner / Name / Location -->
+                                        <ColumnDefinition Width="16"/>   <!-- Spacer -->
+                                        <ColumnDefinition Width="*"/>    <!-- Quick Specs Chips -->
+                                        <ColumnDefinition Width="Auto"/> <!-- Action Buttons -->
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Col 0: Store Identity & Location -->
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                                            <Border Background="#0F6CBD" CornerRadius="3" Padding="6,2" Margin="0,0,6,0">
+                                                <TextBlock x:Name="HomeSelectedStoreNumberBadge" Text="STORE #1024" FontFamily="{StaticResource MonoFont}" FontWeight="Bold" FontSize="10.5" Foreground="#FFFFFF"/>
+                                            </Border>
+                                            <Border Background="#E2E8F0" CornerRadius="3" Padding="6,2" Margin="0,0,6,0">
+                                                <TextBlock x:Name="HomeSelectedStoreBannerBadge" Text="Charlotte Russe" FontFamily="{StaticResource MonoFont}" FontWeight="Bold" FontSize="10.5" Foreground="#334155"/>
+                                            </Border>
+                                            <TextBlock x:Name="HomeSelectedStoreNameText" Text="Yorkdale Shopping Centre" FontSize="12.5" FontWeight="Bold" Foreground="#111827" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock x:Name="HomeSelectedStoreLocationText" Text="📍 Toronto, ON (CA) • Yorkdale Shopping Centre" FontSize="11" Foreground="#4B5563"/>
+                                            <TextBlock Text=" • " Foreground="#9CA3AF"/>
+                                            <TextBlock x:Name="HomeSelectedStoreTargetDateText" Text="Target Open: 2026-11-15" FontFamily="{StaticResource MonoFont}" FontSize="11" Foreground="#6B7280"/>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Col 2: Live Technical Specs Chips -->
+                                    <WrapPanel Grid.Column="2" VerticalAlignment="Center" Margin="10,0">
+                                        <Border Background="#FFFFFF" BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,2,8,2">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="STAGE: " FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#6B7280"/>
+                                                <TextBlock x:Name="HomeSelectedStoreStageText" Text="Ready" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#15803D"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <Border Background="#FFFFFF" BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,2,8,2">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="HEALTH: " FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#6B7280"/>
+                                                <TextBlock x:Name="HomeSelectedStoreHealthText" Text="Normal" FontSize="10.5" FontWeight="Bold" Foreground="#0F6CBD"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <Border Background="#FFFFFF" BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,2,8,2">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="CIRCUITS: " FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#6B7280"/>
+                                                <TextBlock x:Name="HomeSelectedStoreCircuitsText" Text="Bell Fiber / LTE" FontFamily="{StaticResource MonoFont}" FontSize="10.5" Foreground="#1F2937"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <Border Background="#FFFFFF" BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,2,8,2">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="CABLING: " FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#6B7280"/>
+                                                <TextBlock x:Name="HomeSelectedStoreCablingText" Text="12 drops Cat6" FontFamily="{StaticResource MonoFont}" FontSize="10.5" Foreground="#1F2937"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <Border Background="#FFFFFF" BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,2,0,2">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="POLES: " FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#6B7280"/>
+                                                <TextBlock x:Name="HomeSelectedStorePolesText" Text="4 Installed" FontFamily="{StaticResource MonoFont}" FontSize="10.5" Foreground="#1F2937"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </WrapPanel>
+
+                                    <!-- Col 3: Direct Action Shortcuts -->
+                                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Button Content="📋 Full Specs..." Click="HomeSelectedStoreOpenSpecs_Click"
+                                                Style="{StaticResource PrimaryButton}" Height="28" Padding="10,0" Margin="0,0,6,0"
+                                                ToolTip="Open complete engineering and deployment specifications for this store"/>
+                                        <Button Content="🏬 In Directory ►" Click="HomeSelectedStoreViewInDirectory_Click"
+                                                Height="28" Padding="10,0" Margin="0,0,6,0"
+                                                ToolTip="Jump to Store Directory tab with this store selected"/>
+                                        <Button Content="📜 Mall Rules..." Click="HomeSelectedStoreMallRules_Click"
+                                                Height="28" Padding="10,0"
+                                                ToolTip="Inspect landlord compliance rules for this property"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </Border>
                     </Grid>
                 </Border>
             </Grid>
@@ -461,7 +591,8 @@
                                 <ComboBoxItem Content="Charlotte Russe (CR)" Tag="CR"/>
                                 <ComboBoxItem Content="Urban Planet (UP)" Tag="UP"/>
                                 <ComboBoxItem Content="Bluenotes (BN)" Tag="BN"/>
-                                <ComboBoxItem Content="Sirens (SS)" Tag="SS"/>
+                                <ComboBoxItem Content="Suzy Shier (SS)" Tag="SS"/>
+                                <ComboBoxItem Content="Sirens (SRN)" Tag="SRN"/>
                                 <ComboBoxItem Content="Rue21 (R21)" Tag="R21"/>
                                 <ComboBoxItem Content="Mandee (M)" Tag="M"/>
                                 <ComboBoxItem Content="West 49 (W49)" Tag="W49"/>
@@ -487,6 +618,8 @@
                                    Foreground="#0F6CBD" VerticalAlignment="Center" Margin="10,0,0,0" Visibility="Collapsed"/>
 
                         <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+                            <Button Content="➕ Add New Store..." Click="AddNewStoreButton_Click"
+                                    MinHeight="32" Padding="12,0" Margin="0,0,6,0" FontWeight="SemiBold" ToolTip="Register a new store into the deployment fleet"/>
                             <Button Content="💾 Save Changes" Click="SaveAllChangesButton_Click"
                                     Style="{StaticResource PrimaryButton}" MinHeight="32" Padding="12,0" Margin="0,0,6,0"/>
                             <Button Content="🕒 History" Click="OpenHistoryButton_Click"
@@ -506,7 +639,9 @@
                     </Grid.ColumnDefinitions>
 
                     <DataGrid x:Name="StoresDataGrid" Grid.Column="0" AutoGenerateColumns="False" IsReadOnly="False"
+                              RowStyle="{StaticResource StoreDataGridRowStyle}"
                               SelectionChanged="StoresDataGrid_SelectionChanged"
+                              MouseDoubleClick="StoresDataGrid_MouseDoubleClick"
                               BeginningEdit="Grid_BeginningEdit"
                               CellEditEnding="StoreGrid_CellEditEnding">
                         <DataGrid.Columns>

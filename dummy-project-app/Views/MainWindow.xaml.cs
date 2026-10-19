@@ -407,27 +407,53 @@ namespace YMInc.StoreDeploymentApp.Views
             UpdateNavigationHeader();
         }
 
+        private void PopulateFiscalWeekComboBox()
+        {
+            if (FiscalWeekComboBox == null) return;
+            FiscalWeekComboBox.Items.Clear();
+
+            for (int w = 1; w <= 52; w++)
+            {
+                var (start, end) = DummyProjectService.GetDateRangeForFiscalWeek(w);
+                var item = new ComboBoxItem
+                {
+                    Content = $"WK {w:D2} ({start:MMM dd} – {end:MMM dd})",
+                    Tag = w.ToString(),
+                    FontFamily = (FontFamily)FindResource("MonoFont"),
+                    FontSize = 11
+                };
+                FiscalWeekComboBox.Items.Add(item);
+            }
+        }
+
         private void UpdateWeekButtonsVisualState()
         {
-            if (FiscalWeekComboBox != null)
+            if (FiscalWeekComboBox == null) return;
+            _isUpdatingWeekSelector = true;
+            try
             {
                 foreach (var item in FiscalWeekComboBox.Items)
                 {
                     if (item is ComboBoxItem cbi && cbi.Tag?.ToString() == _currentWeek.ToString())
                     {
-                        if (!cbi.IsSelected)
+                        if (FiscalWeekComboBox.SelectedItem != cbi)
                         {
                             FiscalWeekComboBox.SelectedItem = cbi;
                         }
+                        cbi.BringIntoView();
                         break;
                     }
                 }
+            }
+            finally
+            {
+                _isUpdatingWeekSelector = false;
             }
         }
 
         private void SelectWeek(int week)
         {
-            _currentWeek = Math.Clamp(week, 38, 43);
+            _currentWeek = Math.Clamp(week, 1, 52);
             UpdateWeekButtonsVisualState();
             if (_isInitialized)
             {
@@ -442,10 +468,13 @@ namespace YMInc.StoreDeploymentApp.Views
 
         private void FiscalWeekComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (!_isInitialized) return;
+            if (!_isInitialized || _isUpdatingWeekSelector) return;
             if (FiscalWeekComboBox?.SelectedItem is ComboBoxItem item && int.TryParse(item.Tag?.ToString(), out int week))
             {
-                SelectWeek(week);
+                if (week != _currentWeek)
+                {
+                    SelectWeek(week);
+                }
             }
         }
 

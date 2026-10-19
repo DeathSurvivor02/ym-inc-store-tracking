@@ -123,18 +123,13 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Left: Multi-Week Progression Bar -->
+                <!-- Left: Multi-Week Progression Selector -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="Fiscal Week:" FontSize="12" FontWeight="SemiBold" Foreground="#323130" VerticalAlignment="Center" Margin="0,0,8,0"/>
                     <Button Content="◄" Click="PrevWeekButton_Click" Width="26" Height="26" Padding="0" Margin="0,0,2,0" ToolTip="Previous Fiscal Week"/>
-                    <Button x:Name="CalWk37Btn" Content="WK 37" Tag="37" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
-                    <Button x:Name="CalWk38Btn" Content="WK 38" Tag="38" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
-                    <Button x:Name="CalWk39Btn" Content="WK 39" Tag="39" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
-                    <Button x:Name="CalWk40Btn" Content="WK 40" Tag="40" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
-                    <Button x:Name="CalWk41Btn" Content="WK 41" Tag="41" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
-                    <Button x:Name="CalWk42Btn" Content="WK 42" Tag="42" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
-                    <Button x:Name="CalWk43Btn" Content="WK 43" Tag="43" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
-                    <Button Content="►" Click="NextWeekButton_Click" Width="26" Height="26" Padding="0" ToolTip="Next Fiscal Week"/>
+                    <ComboBox x:Name="CalFiscalWeekComboBox" Width="220" Height="26" VerticalContentAlignment="Center"
+                              FontFamily="{StaticResource MonoFont}" FontSize="11" SelectionChanged="CalFiscalWeekComboBox_SelectionChanged"/>
+                    <Button Content="►" Click="NextWeekButton_Click" Width="26" Height="26" Padding="0" Margin="2,0,0,0" ToolTip="Next Fiscal Week"/>
                 </StackPanel>
 
                 <!-- Right: View Filters & Save/History Controls -->

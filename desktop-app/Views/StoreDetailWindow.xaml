@@ -5,8 +5,8 @@
         Height="820" Width="1060"
         MinHeight="720" MinWidth="920"
         WindowStartupLocation="CenterOwner"
-        Background="#FAF9F8"
-        Foreground="#201F1E">
+        Background="{DynamicResource BgCanvasBrush}"
+        Foreground="{DynamicResource TextPrimaryBrush}">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -28,8 +28,19 @@
             </DockPanel>
         </Border>
 
-        <!-- ROW 1: STORE HEADER RIBBON -->
-        <Border Grid.Row="1" Background="#FFFFFF" BorderBrush="#E1DFDD" BorderThickness="0,0,0,1" Padding="18,12">
+        <!-- ROW 1: STORE HEADER RIBBON & CONFLICT BANNER -->
+        <StackPanel Grid.Row="1">
+            <!-- CONCURRENT EDIT / PRESENCE NOTICE -->
+            <Border x:Name="EditorConflictBanner" Background="#FEF3C7" BorderBrush="#F59E0B" BorderThickness="0,0,0,1" 
+                    Padding="18,9" Visibility="Collapsed">
+                <DockPanel>
+                    <TextBlock Text="⚠️ CONCURRENT EDITING NOTICE:" FontWeight="Bold" FontSize="11.5" Foreground="#92400E" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="ConflictNoticeText" Text="This store is currently open for editing by another team member." 
+                               FontSize="11.5" Foreground="#78350F" VerticalAlignment="Center"/>
+                </DockPanel>
+            </Border>
+
+            <Border Background="{DynamicResource BgPanelBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="0,0,0,1" Padding="18,12">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -44,11 +55,11 @@
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                        <TextBlock x:Name="StoreNumberText" Text="Store #6142" FontSize="16" FontWeight="SemiBold" Foreground="#201F1E" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <Border Background="#F3F2F1" BorderBrush="#D2D0CE" BorderThickness="1" CornerRadius="2" Padding="6,1" VerticalAlignment="Center" Margin="0,0,14,0">
-                            <TextBlock x:Name="CountryFlagText" Text="US" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#323130"/>
+                        <TextBlock x:Name="StoreNumberText" Text="Store #6142" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <Border Background="{DynamicResource BgHeaderBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" CornerRadius="2" Padding="6,1" VerticalAlignment="Center" Margin="0,0,14,0">
+                            <TextBlock x:Name="CountryFlagText" Text="US" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}"/>
                         </Border>
-                        <TextBlock Text="Health:" FontSize="12" Foreground="#605E5C" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="Health:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                         <ComboBox x:Name="HealthCombo" Width="150" MinHeight="32" SelectionChanged="HealthCombo_SelectionChanged">
                             <ComboBoxItem Content="On Track" Tag="On Track"/>
                             <ComboBoxItem Content="At Risk" Tag="At Risk"/>
@@ -57,20 +68,20 @@
                         </ComboBox>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Store Name:" FontSize="12" Foreground="#605E5C" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="Store Name:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                         <TextBox x:Name="StoreNameTextBox" Width="260" MinHeight="32" Margin="0,0,14,0"/>
-                        <TextBlock Text="Property:" FontSize="12" Foreground="#605E5C" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                        <TextBlock x:Name="StoreMallText" Text="Yorkdale Shopping Centre" FontSize="12.5" FontWeight="SemiBold" Foreground="#201F1E" VerticalAlignment="Center"/>
+                        <TextBlock Text="Property:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock x:Name="StoreMallText" Text="Yorkdale Shopping Centre" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
-                        <TextBlock Text="Target Open:" FontSize="12" Foreground="#605E5C" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="Target Open:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                         <TextBox x:Name="TargetDateTextBox" Width="130" MinHeight="32" FontFamily="{StaticResource MonoFont}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <TextBlock Text="Stage:" FontSize="12" Foreground="#605E5C" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="Stage:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                         <ComboBox x:Name="OperationalStatusCombo" Width="165" MinHeight="32">
                             <ComboBoxItem Content="Grand Open"/>
                             <ComboBoxItem Content="Fixturing"/>
@@ -83,6 +94,7 @@
                 </StackPanel>
             </Grid>
         </Border>
+        </StackPanel>
 
         <!-- ROW 2: TECHNICAL SPECIFICATION TABS -->
         <TabControl Grid.Row="2" Margin="14,10,14,0">
@@ -99,13 +111,13 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Ceiling Type:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBlock Text="Ceiling Type:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                 <TextBox x:Name="SurveyCeilingTypeTextBox" MinHeight="34" Margin="0,0,0,12"/>
 
-                                <TextBlock Text="Clear Deck Height (Feet):" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBlock Text="Clear Deck Height (Feet):" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                 <TextBox x:Name="SurveyCeilingHeightTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}" Margin="0,0,0,12"/>
 
-                                <TextBlock Text="Survey Status:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBlock Text="Survey Status:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                 <ComboBox x:Name="SurveyStatusCombo" MinHeight="34" Margin="0,0,0,12">
                                     <ComboBoxItem Content="Completed &amp; Approved"/>
                                     <ComboBoxItem Content="Submitted (Review Pending)"/>
@@ -116,24 +128,24 @@
                             </StackPanel>
 
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Demarc Location:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBlock Text="Demarc Location:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                 <TextBox x:Name="SurveyDemarcLocationTextBox" MinHeight="34" Margin="0,0,0,12"/>
 
-                                <TextBlock Text="Demarc Conduit Status:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBlock Text="Demarc Conduit Status:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                 <ComboBox x:Name="SurveyConduitCombo" MinHeight="34" Margin="0,0,0,12">
                                     <ComboBoxItem Content="Clear &amp; Available (Ready)" Tag="True"/>
                                     <ComboBoxItem Content="Blocked / Missing (Requires Riser Work)" Tag="False"/>
                                     <ComboBoxItem Content="Demarc in Backroom (Direct)" Tag="True"/>
                                 </ComboBox>
 
-                                <TextBlock Text="Surveyor / Field Dispatch:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBlock Text="Surveyor / Field Dispatch:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                 <TextBox x:Name="SurveyorTextBox" MinHeight="34" Margin="0,0,0,12"/>
                             </StackPanel>
                         </Grid>
 
-                        <Border Background="#FAF9F8" BorderBrush="#E1DFDD" BorderThickness="1" CornerRadius="2" Padding="14">
+                        <Border Background="{DynamicResource BgCanvasBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" CornerRadius="2" Padding="14">
                             <StackPanel>
-                                <TextBlock Text="FIELD OBSERVATIONS &amp; INFRASTRUCTURE NOTES" FontSize="11" FontWeight="Bold" Foreground="#323130" Margin="0,0,0,10"/>
+                                <TextBlock Text="FIELD OBSERVATIONS &amp; INFRASTRUCTURE NOTES" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,10"/>
                                 <Grid Margin="0,0,0,12">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -141,15 +153,15 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Network Rack Location:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Network Rack Location:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                         <TextBox x:Name="SurveyRackLocationTextBox" MinHeight="34"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="Survey Submission Date:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Survey Submission Date:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                         <TextBox x:Name="SurveyDateTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}"/>
                                     </StackPanel>
                                 </Grid>
-                                <TextBlock Text="Facility Observations (Drop Pole, Audio, Ladder, Washrooms):" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBlock Text="Facility Observations (Drop Pole, Audio, Ladder, Washrooms):" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                 <TextBox x:Name="SurveyNotesTextBox" MinHeight="72" VerticalContentAlignment="Top" Padding="8,6" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
                             </StackPanel>
                         </Border>
@@ -170,7 +182,7 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Installation Status:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBlock Text="Installation Status:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                 <ComboBox x:Name="PowerPoleStatusCombo" MinHeight="34" Margin="0,0,0,12">
                                     <ComboBoxItem Content="Existing Pole Verified Present"/>
                                     <ComboBoxItem Content="New Drop Pole Installation Required"/>
@@ -189,27 +201,27 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Poles Installed:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Poles Installed:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                         <TextBox x:Name="PowerPoleInstalledTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="Total Required:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Total Required:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                         <TextBox x:Name="PowerPoleTotalTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}"/>
                                     </StackPanel>
                                 </Grid>
 
-                                <TextBlock Text="Finish Color:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBlock Text="Finish Color:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                 <TextBox x:Name="PowerPoleColorTextBox" MinHeight="34" Margin="0,0,0,12"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Ceiling Mount Type:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBlock Text="Ceiling Mount Type:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                 <TextBox x:Name="PowerPoleMountTextBox" MinHeight="34" Margin="0,0,0,12"/>
 
-                                <TextBlock Text="Cash Wrap Drops:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBlock Text="Cash Wrap Drops:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                 <TextBox x:Name="PowerPoleDropsTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}" Margin="0,0,0,12"/>
 
-                                <TextBlock Text="Electrical Contractor:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBlock Text="Electrical Contractor:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                 <TextBox x:Name="PowerPoleContractorTextBox" MinHeight="34" Margin="0,0,0,12"/>
                             </StackPanel>
                         </Grid>
@@ -235,7 +247,7 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Cabling Status:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBlock Text="Cabling Status:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                 <ComboBox x:Name="CablingStatusCombo" MinHeight="34" Margin="0,0,0,12">
                                     <ComboBoxItem Content="Fluke Certified &amp; Closed"/>
                                     <ComboBoxItem Content="Pathway &amp; J-Hooks Installed"/>
@@ -244,7 +256,7 @@
                                     <ComboBoxItem Content="Blocked"/>
                                 </ComboBox>
 
-                                <TextBlock Text="Total Data Drops:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBlock Text="Total Data Drops:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                 <TextBox x:Name="CablingTotalDropsTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}" Margin="0,0,0,12"/>
 
                                 <Grid>
@@ -254,27 +266,27 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="POS Drops:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBlock Text="POS Drops:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                         <TextBox x:Name="CablingPosDropsTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="AP Wireless Drops:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBlock Text="AP Wireless Drops:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                         <TextBox x:Name="CablingApDropsTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}"/>
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>
 
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Fluke Test Certification:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBlock Text="Fluke Test Certification:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                 <ComboBox x:Name="CablingFlukeCombo" MinHeight="34" Margin="0,0,0,12">
                                     <ComboBoxItem Content="Certified &amp; Passed" Tag="True"/>
                                     <ComboBoxItem Content="Pending Certification" Tag="False"/>
                                 </ComboBox>
 
-                                <TextBlock Text="Assigned Cabling Contractor:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBlock Text="Assigned Cabling Contractor:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                 <TextBox x:Name="CablingVendorTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}" Margin="0,0,0,12"/>
 
-                                <TextBlock Text="Lead Field Technician:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                <TextBlock Text="Lead Field Technician:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                 <TextBox x:Name="CablingTechTextBox" MinHeight="34" Margin="0,0,0,12"/>
                             </StackPanel>
                         </Grid>
@@ -290,7 +302,7 @@
                         <ItemsControl x:Name="CircuitsItemsControl">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="#FAF9F8" BorderBrush="#D2D0CE" BorderThickness="1" CornerRadius="2" Padding="14,12" Margin="0,0,0,10">
+                                    <Border Background="{DynamicResource BgCanvasBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" CornerRadius="2" Padding="14,12" Margin="0,0,0,10">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="180"/>
@@ -303,15 +315,15 @@
                                             </Grid.ColumnDefinitions>
                                             <StackPanel Grid.Column="0">
                                                 <TextBlock Text="{Binding Role}" FontSize="11" FontWeight="Bold" Foreground="#0F6CBD" Margin="0,0,0,4"/>
-                                                <TextBlock Text="Carrier:" FontSize="11" Foreground="#605E5C" Margin="0,0,0,2"/>
+                                                <TextBlock Text="Carrier:" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"/>
                                                 <TextBox Text="{Binding CarrierName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinHeight="32"/>
                                             </StackPanel>
                                             <StackPanel Grid.Column="2">
-                                                <TextBlock Text="Service Type &amp; Notes:" FontSize="11" Foreground="#605E5C" Margin="0,18,0,2"/>
+                                                <TextBlock Text="Service Type &amp; Notes:" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,18,0,2"/>
                                                 <TextBox Text="{Binding ServiceType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinHeight="32"/>
                                             </StackPanel>
                                             <StackPanel Grid.Column="4">
-                                                <TextBlock Text="Down / Up (Mbps):" FontSize="11" Foreground="#605E5C" Margin="0,18,0,2"/>
+                                                <TextBlock Text="Down / Up (Mbps):" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,18,0,2"/>
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="*"/>
@@ -323,7 +335,7 @@
                                                 </Grid>
                                             </StackPanel>
                                             <StackPanel Grid.Column="6">
-                                                <TextBlock Text="Order Status:" FontSize="11" Foreground="#605E5C" Margin="0,18,0,2"/>
+                                                <TextBlock Text="Order Status:" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,18,0,2"/>
                                                 <TextBox Text="{Binding OrderStatus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MinHeight="32" FontWeight="SemiBold"/>
                                             </StackPanel>
                                         </Grid>
@@ -341,12 +353,12 @@
                     <StackPanel Margin="20,16">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,12">
                             <TextBlock x:Name="MallNameHeading" Text="LANDLORD COMPLIANCE &amp; DELIVERY REQUIREMENTS" FontSize="11.5" FontWeight="Bold" Foreground="#0F6CBD" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                            <Border x:Name="MallReqStatusBadgeBorder" Background="#F3F2F1" BorderBrush="#D2D0CE" BorderThickness="1" CornerRadius="2" Padding="8,2">
-                                <TextBlock x:Name="MallReqStatusBadgeText" Text="Has Req." FontSize="10.5" FontWeight="SemiBold" Foreground="#323130"/>
+                            <Border x:Name="MallReqStatusBadgeBorder" Background="{DynamicResource BgHeaderBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" CornerRadius="2" Padding="8,2">
+                                <TextBlock x:Name="MallReqStatusBadgeText" Text="Has Req." FontSize="10.5" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondaryBrush}"/>
                             </Border>
                         </StackPanel>
 
-                        <Border Background="#FAF9F8" BorderBrush="#E1DFDD" BorderThickness="1" CornerRadius="2" Padding="14" Margin="0,0,0,12">
+                        <Border Background="{DynamicResource BgCanvasBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" CornerRadius="2" Padding="14" Margin="0,0,0,12">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -355,47 +367,47 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Landlord Contacted:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Landlord Contacted:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                     <ComboBox x:Name="MallContactedCombo" MinHeight="34" Margin="0,0,0,10">
                                         <ComboBoxItem Content="Yes — Contacted" Tag="True"/>
                                         <ComboBoxItem Content="No — Not Contacted" Tag="False"/>
                                     </ComboBox>
 
-                                    <TextBlock Text="Certificate of Insurance (COI):" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Certificate of Insurance (COI):" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                     <ComboBox x:Name="MallCoiCombo" MinHeight="34" Margin="0,0,0,10">
                                         <ComboBoxItem Content="Mandatory (COI Required)" Tag="True"/>
                                         <ComboBoxItem Content="Not Required / Exempt" Tag="False"/>
                                     </ComboBox>
 
-                                    <TextBlock Text="After Hours Work Mandate:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                    <TextBlock Text="After Hours Work Mandate:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                     <ComboBox x:Name="MallAfterHoursCombo" MinHeight="34" Margin="0,0,0,10">
                                         <ComboBoxItem Content="Mandatory Night Shift Only" Tag="True"/>
                                         <ComboBoxItem Content="Daytime Work Permitted" Tag="False"/>
                                     </ComboBox>
 
-                                    <TextBlock Text="Delivery Window:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Delivery Window:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                     <TextBox x:Name="MallDeliveryTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}" Text="06:00 - 09:30"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Landlord Management Company:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Landlord Management Company:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                     <TextBox x:Name="MallLandlordCompanyTextBox" MinHeight="34" Margin="0,0,0,10"/>
 
-                                    <TextBlock Text="Assigned Outreach Member:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Assigned Outreach Member:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                     <TextBox x:Name="MallTeamMemberTextBox" MinHeight="34" Margin="0,0,0,10"/>
 
-                                    <TextBlock Text="Minimum General Liability ($):" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Minimum General Liability ($):" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                     <TextBox x:Name="MallLiabilityTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}" Margin="0,0,0,10" Text="5000000"/>
 
-                                    <TextBlock Text="Assigned Cabling Contractor:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Assigned Cabling Contractor:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                     <TextBox x:Name="MallCablingCompanyTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
 
-                        <Border Background="#FAF9F8" BorderBrush="#E1DFDD" BorderThickness="1" CornerRadius="2" Padding="14" Margin="0,0,0,12">
+                        <Border Background="{DynamicResource BgCanvasBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" CornerRadius="2" Padding="14" Margin="0,0,0,12">
                             <StackPanel>
-                                <TextBlock Text="PROPERTY MANAGEMENT CONTACTS" FontSize="11" FontWeight="Bold" Foreground="#323130" Margin="0,0,0,8"/>
+                                <TextBlock Text="PROPERTY MANAGEMENT CONTACTS" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -403,17 +415,17 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Operations Contact Name:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Operations Contact Name:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                         <TextBox x:Name="MallContactNameTextBox" MinHeight="34" Margin="0,0,0,10"/>
 
-                                        <TextBlock Text="Operations Phone:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Operations Phone:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                         <TextBox x:Name="MallContactPhoneTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="Operations Email:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Operations Email:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                         <TextBox x:Name="MallContactEmailTextBox" MinHeight="34" Margin="0,0,0,10"/>
 
-                                        <TextBlock Text="Security Dispatch Phone:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Security Dispatch Phone:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                         <TextBox x:Name="MallSecurityPhoneTextBox" MinHeight="34" FontFamily="{StaticResource MonoFont}"/>
                                     </StackPanel>
                                 </Grid>
@@ -421,12 +433,12 @@
                         </Border>
 
                         <StackPanel Margin="0,0,0,10">
-                            <TextBlock Text="Requirements for TTU &amp; Cabling:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                            <TextBlock Text="Requirements for TTU &amp; Cabling:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                             <TextBox x:Name="MallSpecialRulesTextBox" MinHeight="64" VerticalContentAlignment="Top" Padding="8,6" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
                         </StackPanel>
 
                         <StackPanel Margin="0,0,0,12">
-                            <TextBlock Text="Intermediate Steps &amp; Outreach Log:" FontSize="12" Foreground="#323130" Margin="0,0,0,4"/>
+                            <TextBlock Text="Intermediate Steps &amp; Outreach Log:" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                             <TextBox x:Name="MallIntermediateStepsTextBox" MinHeight="60" VerticalContentAlignment="Top" Padding="8,6" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
                         </StackPanel>
 
@@ -465,7 +477,7 @@
         </TabControl>
 
         <!-- ROW 3: FOOTER ACTION BAR -->
-        <Border Grid.Row="3" Background="#F3F2F1" BorderBrush="#E1DFDD" BorderThickness="0,1,0,0" Padding="18,10" Margin="0,10,0,0">
+        <Border Grid.Row="3" Background="{DynamicResource BgHeaderBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="0,1,0,0" Padding="18,10" Margin="0,10,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

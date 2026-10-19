@@ -34,16 +34,26 @@ namespace YMInc.StoreDeploymentApp.Views
             ApplyWorkspaceBadge();
             UpdateWeekButtonsVisualState();
             UpdateThemeButtonLabel();
+            ThemeService.ThemeChanged += OnThemeChanged;
+            Closed += (s, e) => ThemeService.ThemeChanged -= OnThemeChanged;
             Loaded += FiscalCalendarWindow_Loaded;
+        }
+
+        private void OnThemeChanged(object? sender, EventArgs e)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                UpdateThemeButtonLabel();
+                UpdateWeekButtonsVisualState();
+                UpdateSelectedWeekProgressionBanner();
+                ApplyFilters(_selectedDay?.DateDisplay);
+                ThemeService.ApplyThemeToWindow(this);
+            }));
         }
 
         private void ThemeToggleButton_Click(object sender, RoutedEventArgs e)
         {
             ThemeService.ToggleTheme();
-            UpdateThemeButtonLabel();
-            UpdateWeekButtonsVisualState();
-            ApplyFilters(_selectedDay?.DateDisplay);
-            Dispatcher.BeginInvoke(new Action(() => ThemeService.ApplyThemeToWindow(this)), System.Windows.Threading.DispatcherPriority.Loaded);
         }
 
         private void UpdateThemeButtonLabel()
@@ -64,6 +74,7 @@ namespace YMInc.StoreDeploymentApp.Views
 
         private async void FiscalCalendarWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            ThemeService.ApplyThemeToWindow(this);
             await ReloadAllCalendarDataAsync();
         }
 
@@ -77,6 +88,7 @@ namespace YMInc.StoreDeploymentApp.Views
             PopulateStoreCombo();
             UpdateSelectedWeekProgressionBanner();
             ApplyFilters(preserveSelectedDateIso);
+            Dispatcher.BeginInvoke(new Action(() => ThemeService.ApplyThemeToWindow(this)), System.Windows.Threading.DispatcherPriority.Loaded);
         }
 
         private void PopulateStoreCombo()
@@ -315,6 +327,8 @@ namespace YMInc.StoreDeploymentApp.Views
             {
                 SetSelectedDay(dayToSelect);
             }
+
+            Dispatcher.BeginInvoke(new Action(() => ThemeService.ApplyThemeToWindow(this)), System.Windows.Threading.DispatcherPriority.Loaded);
         }
 
         private void SetSelectedDay(FiscalCalendarDay day)

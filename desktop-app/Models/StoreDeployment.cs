@@ -12,6 +12,7 @@ namespace YMInc.StoreDeploymentApp.Models
         public string PropertyType { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
         public string StateProvince { get; set; } = string.Empty;
+        public string PostalCode { get; set; } = string.Empty;
         public string CountryCode { get; set; } = "CA";
         public bool CoiRequired { get; set; } = true;
         public decimal MinGeneralLiabilityCad { get; set; } = 5000000m;

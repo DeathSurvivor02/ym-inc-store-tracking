@@ -26,12 +26,24 @@ namespace YMInc.StoreDeploymentApp.Views
             AuditHistoryService.HistoryChanged += OnHistoryChanged;
             Closed += (s, e) => AuditHistoryService.HistoryChanged -= OnHistoryChanged;
 
+            ThemeService.ThemeChanged += OnThemeChanged;
+            Closed += (s, e) => ThemeService.ThemeChanged -= OnThemeChanged;
+
             Loaded += (s, e) =>
             {
                 ThemeService.ApplyThemeToWindow(this);
                 UpdateThemeButtonLabel();
                 LoadHistory();
             };
+        }
+
+        private void OnThemeChanged(object? sender, EventArgs e)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                UpdateThemeButtonLabel();
+                ThemeService.ApplyThemeToWindow(this);
+            }));
         }
 
         private void OnHistoryChanged()

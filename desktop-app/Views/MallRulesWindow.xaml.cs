@@ -20,7 +20,12 @@ namespace YMInc.StoreDeploymentApp.Views
         public MallRulesWindow()
         {
             InitializeComponent();
-            Loaded += async (s, e) => await LoadMallsAsync();
+            Loaded += async (s, e) =>
+            {
+                ThemeService.ApplyThemeToWindow(this);
+                await LoadMallsAsync();
+            };
+            ThemeService.ThemeChanged += (s, e) => ThemeService.ApplyThemeToWindow(this);
         }
 
         private async System.Threading.Tasks.Task LoadMallsAsync()

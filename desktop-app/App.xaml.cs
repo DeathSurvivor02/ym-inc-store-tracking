@@ -17,7 +17,8 @@ public partial class App : Application
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
         Services.ThemeService.Initialize();
 
-        if (e.Args.Length > 0 && e.Args[0] == "--verify-ui")
+        string cmdLine = Environment.CommandLine;
+        if ((e.Args.Length > 0 && e.Args[0] == "--verify-ui") || cmdLine.Contains("--verify-ui"))
         {
             var (_, _, user) = Services.AuthService.Login("pm", "pm123");
             var loginWin = new Views.LoginWindow();

@@ -1,0 +1,166 @@
+<Window x:Class="YMInc.StoreDeploymentApp.Views.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SiteLine — Sandbox Rollout Manager (Standalone Edition)"
+        Height="640" Width="940" MinHeight="580" MinWidth="880"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResizeWithGrip"
+        Background="#FAF9F8"
+        Foreground="#201F1E">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="38"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="26"/>
+        </Grid.RowDefinitions>
+
+        <!-- ROW 0: APPLICATION BAR (SANDBOX STANDALONE) -->
+        <Border Grid.Row="0" Background="#92400E" Padding="16,0">
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="22" Height="22" Background="#FEF3C7" CornerRadius="3" Margin="0,0,10,0">
+                        <TextBlock Text="SL" FontSize="10.5" FontWeight="Bold" Foreground="#92400E" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="SiteLine — Retail Rollout &amp; Infrastructure Suite (Sandbox)" FontSize="12.5" FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Border Background="#FEF3C7" CornerRadius="3" Padding="7,2" Margin="0,0,12,0">
+                        <TextBlock Text="PORTABLE STANDALONE • 200 STORES" FontSize="9.5" FontWeight="Bold" Foreground="#92400E"/>
+                    </Border>
+                    <Button x:Name="ThemeToggleButton" Content="🌙 Dark Theme" Click="ThemeToggleButton_Click"
+                            Height="24" Padding="9,0" FontSize="11" Margin="0,0,12,0"
+                            ToolTip="Switch between Microsoft Light and Dark Theme"/>
+                    <TextBlock Text="v2.6.0 Standalone" FontSize="11" Foreground="#FEF3C7" VerticalAlignment="Center"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ROW 1: MAIN WORKSPACE -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="340"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- LEFT PANE: SYSTEM OVERVIEW & HERO BRANDING -->
+            <Border Grid.Column="0" Background="#F3F2F1" BorderBrush="#E1DFDD" BorderThickness="0,0,1,0" Padding="22,20">
+                <DockPanel LastChildFill="True">
+                    <!-- Enterprise Status Badge docked safely to bottom -->
+                    <Border DockPanel.Dock="Bottom" Background="#FEF3C7" BorderBrush="#FCD34D" BorderThickness="1" CornerRadius="4" Padding="12,10" Margin="0,14,0,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Ellipse Width="8" Height="8" Fill="#D97706" Margin="0,0,10,0"/>
+                            <StackPanel>
+                                <TextBlock Text="Standalone Sandbox Active" FontSize="11.5" FontWeight="SemiBold" Foreground="#92400E"/>
+                                <TextBlock Text="Isolated 200-Store DB (Portable / Flash Drive Ready)" FontSize="10.5" Foreground="#78350F" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" BorderThickness="0" Background="Transparent">
+                        <StackPanel>
+                            <!-- BRAND HERO BANNER IMAGE (SiteLine Retail Suite) -->
+                            <Border CornerRadius="8" Margin="0,0,0,14" Background="#0F172A" ClipToBounds="True" BorderBrush="#CBD5E1" BorderThickness="1">
+                                <Grid>
+                                    <Image Source="/Assets/brand_hero.jpg" Stretch="UniformToFill" Height="130" HorizontalAlignment="Center"/>
+                                    <Border Background="#990F172A" VerticalAlignment="Bottom" Padding="10,6">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <Ellipse Width="6" Height="6" Fill="#F59E0B" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="SANDBOX ROLLOUT SUITE • 200 STORES" FontSize="10" FontWeight="Bold" Foreground="#FDE68A"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <TextBlock Text="SANDBOX SIMULATION SUITE" FontSize="10" FontWeight="Bold" Foreground="#D97706" Margin="0,0,0,6"/>
+                            <TextBlock Text="North American Store Infrastructure &amp; IT Rollout" FontSize="16" FontWeight="SemiBold" Foreground="#201F1E" TextWrapping="Wrap" LineHeight="22"/>
+                            <TextBlock Text="Track 200 synthetic stores, low-voltage cabling, Wiremold 25DTP-4 power poles, dual-WAN telecom circuits, and NRF 4-5-4 fiscal calendar schedules."
+                                       FontSize="11.5" Foreground="#605E5C" TextWrapping="Wrap" LineHeight="17" Margin="0,8,0,0"/>
+
+                            <Separator Background="#E1DFDD" Margin="0,12"/>
+
+                            <TextBlock Text="SYSTEM MODULES" FontSize="10" FontWeight="Bold" Foreground="#605E5C" Margin="0,0,0,8"/>
+
+                            <Border Background="#FFFFFF" BorderBrush="#E1DFDD" BorderThickness="1" CornerRadius="3" Padding="10,8" Margin="0,0,0,6">
+                                <StackPanel>
+                                    <TextBlock Text="1. Store Directory &amp; Specifications" FontSize="11.5" FontWeight="SemiBold" Foreground="#201F1E"/>
+                                    <TextBlock Text="200 stores: Charlotte Russe, rue21, Urban Planet, Bluenotes, Mandee" FontSize="10.5" Foreground="#605E5C" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Background="#FFFFFF" BorderBrush="#E1DFDD" BorderThickness="1" CornerRadius="3" Padding="10,8" Margin="0,0,0,6">
+                                <StackPanel>
+                                    <TextBlock Text="2. NRF 4-5-4 Fiscal Calendar" FontSize="11.5" FontWeight="SemiBold" Foreground="#201F1E"/>
+                                    <TextBlock Text="Daily TTU, circuit install, and multi-week progression" FontSize="10.5" Foreground="#605E5C" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Background="#FFFFFF" BorderBrush="#E1DFDD" BorderThickness="1" CornerRadius="3" Padding="10,8">
+                                <StackPanel>
+                                    <TextBlock Text="3. Landlord Compliance Registry" FontSize="11.5" FontWeight="SemiBold" Foreground="#201F1E"/>
+                                    <TextBlock Text="159 malls, COI rules, after-hours mandates, and property contacts" FontSize="10.5" Foreground="#605E5C" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <!-- RIGHT PANE: MICROSOFT SIGN-IN CARD -->
+            <Grid Grid.Column="1" Background="#FFFFFF">
+                <StackPanel VerticalAlignment="Center" Width="380" HorizontalAlignment="Center">
+                    <!-- Brand Icon Badge -->
+                    <Border Width="46" Height="46" CornerRadius="10" Background="#0F172A" BorderBrush="#D97706" BorderThickness="1.5" Margin="0,0,0,12" HorizontalAlignment="Left" ClipToBounds="True">
+                        <Image Source="/Assets/launchgrid_logo.jpg" Stretch="UniformToFill"/>
+                    </Border>
+
+                    <TextBlock Text="Sign in" FontSize="22" FontWeight="SemiBold" Foreground="#201F1E"/>
+                    <TextBlock Text="Enter your corporate credentials to open the sandbox workspace."
+                               FontSize="12" Foreground="#605E5C" Margin="0,4,0,20"/>
+
+                    <!-- Username -->
+                    <TextBlock Text="Username" FontSize="12" FontWeight="SemiBold" Foreground="#323130" Margin="0,0,0,4"/>
+                    <TextBox x:Name="UsernameTextBox" Text="pm" Height="32" FontSize="13" VerticalContentAlignment="Center" Margin="0,0,0,14"/>
+
+                    <!-- Password -->
+                    <TextBlock Text="Password" FontSize="12" FontWeight="SemiBold" Foreground="#323130" Margin="0,0,0,4"/>
+                    <PasswordBox x:Name="PasswordBox" Password="pm123" Height="32" FontSize="13" VerticalContentAlignment="Center" Margin="0,0,0,14"/>
+
+                    <!-- Error Banner -->
+                    <Border x:Name="ErrorBanner" Background="#FDE7E9" BorderBrush="#F1707B" BorderThickness="1" CornerRadius="2" Padding="10,7" Margin="0,0,0,12" Visibility="Collapsed">
+                        <TextBlock x:Name="ErrorText" Text="Invalid username or password." Foreground="#A4262C" FontSize="11.5" TextWrapping="Wrap"/>
+                    </Border>
+
+                    <!-- Sign In Button -->
+                    <Button x:Name="SignInButton" Content="Sign in" Click="SignInButton_Click" IsDefault="True"
+                            Height="34" Background="#D97706" Foreground="#FFFFFF" FontWeight="SemiBold" FontSize="13"
+                            BorderThickness="0" Cursor="Hand" Margin="0,0,0,18"/>
+
+                    <Separator Background="#EDEBE9" Margin="0,0,0,14"/>
+
+                    <!-- Quick Demo Logins -->
+                    <TextBlock Text="Quick Sign-in (Demo Accounts):" FontSize="11" Foreground="#605E5C" Margin="0,0,0,8"/>
+                    <UniformGrid Columns="3" Margin="0,0,0,0">
+                        <Button Content="PM (Marcus)" Click="QuickLoginPM_Click" Height="26" Margin="0,0,4,0" FontSize="11"/>
+                        <Button Content="PA (Claire)" Click="QuickLoginPA_Click" Height="26" Margin="2,0,2,0" FontSize="11"/>
+                        <Button Content="Tech (Terry)" Click="QuickLoginTech_Click" Height="26" Margin="4,0,0,0" FontSize="11"/>
+                    </UniformGrid>
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <!-- ROW 2: BOTTOM STATUS BAR -->
+        <Border Grid.Row="2" Background="#F3F2F1" BorderBrush="#EDEBE9" BorderThickness="0,1,0,0" Padding="16,0">
+            <DockPanel LastChildFill="False">
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                    <TextBlock Text="YM Inc. Infrastructure Management Suite" FontSize="11" Foreground="#605E5C"/>
+                    <TextBlock Text=" • " FontSize="11" Foreground="#A19F9D"/>
+                    <TextBlock Text="Standalone Portable Sandbox Edition (USB Flash Drive Ready)" FontSize="11" Foreground="#D97706" FontWeight="SemiBold"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
+                    <TextBlock Text="Isolated Local Database (dummy_project_db.json)" FontSize="10.5" Foreground="#605E5C"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

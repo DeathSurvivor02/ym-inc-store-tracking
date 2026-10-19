@@ -76,3 +76,5 @@ obj/
 
 .neon
 scratch/
+*.zip
+Standalone-FlashDrive-*/

@@ -91,15 +91,8 @@
                     <TextBlock Text="FISCAL WEEK:" FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" 
                                Foreground="#64748B" VerticalAlignment="Center" Margin="0,0,8,0"/>
                     <Button Content="◀" Click="PrevWeekButton_Click" Height="26" Width="26" Padding="0" Margin="0,0,2,0" ToolTip="Previous Fiscal Week"/>
-                    <ComboBox x:Name="FiscalWeekComboBox" Width="170" Height="26" VerticalContentAlignment="Center" 
-                              FontFamily="{StaticResource MonoFont}" FontSize="11" SelectionChanged="FiscalWeekComboBox_SelectionChanged">
-                        <ComboBoxItem Content="WK 38 (Oct 13 - Oct 19)" Tag="38"/>
-                        <ComboBoxItem Content="WK 39 (Oct 20 - Oct 26)" Tag="39"/>
-                        <ComboBoxItem Content="WK 40 (Oct 27 - Nov 02)" Tag="40"/>
-                        <ComboBoxItem Content="WK 41 (Nov 03 - Nov 09)" Tag="41"/>
-                        <ComboBoxItem Content="WK 42 (Nov 10 - Nov 16)" Tag="42"/>
-                        <ComboBoxItem Content="WK 43 (Nov 17 - Nov 23)" Tag="43"/>
-                    </ComboBox>
+                    <ComboBox x:Name="FiscalWeekComboBox" Width="220" Height="26" VerticalContentAlignment="Center" 
+                              FontFamily="{StaticResource MonoFont}" FontSize="11" SelectionChanged="FiscalWeekComboBox_SelectionChanged"/>
                     <Button Content="▶" Click="NextWeekButton_Click" Height="26" Width="26" Padding="0" Margin="2,0,0,0" ToolTip="Next Fiscal Week"/>
                 </StackPanel>
 

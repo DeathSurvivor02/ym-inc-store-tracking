@@ -26,12 +26,14 @@ namespace YMInc.StoreDeploymentApp.Views
         private bool _focusSelectedWeekOnly = false;
         private bool _onlyActiveDays = false;
         private string _searchQuery = string.Empty;
+        private bool _isUpdatingWeekSelector = false;
 
         public FiscalCalendarWindow(int initialFiscalWeek = 41)
         {
             InitializeComponent();
-            _selectedFiscalWeek = Math.Clamp(initialFiscalWeek, 36, 46);
+            _selectedFiscalWeek = Math.Clamp(initialFiscalWeek, 1, 52);
             ApplyWorkspaceBadge();
+            PopulateFiscalWeekComboBox();
             UpdateWeekButtonsVisualState();
             UpdateThemeButtonLabel();
             ThemeService.ThemeChanged += OnThemeChanged;
@@ -119,37 +121,47 @@ namespace YMInc.StoreDeploymentApp.Views
             }
         }
 
+        private void PopulateFiscalWeekComboBox()
+        {
+            if (CalFiscalWeekComboBox == null) return;
+            CalFiscalWeekComboBox.Items.Clear();
+
+            for (int w = 1; w <= 52; w++)
+            {
+                var (start, end) = DatabaseService.GetDateRangeForFiscalWeek(w);
+                var item = new ComboBoxItem
+                {
+                    Content = $"WK {w:D2} ({start:MMM dd} – {end:MMM dd})",
+                    Tag = w.ToString(),
+                    FontFamily = (FontFamily)FindResource("MonoFont"),
+                    FontSize = 11
+                };
+                CalFiscalWeekComboBox.Items.Add(item);
+            }
+        }
+
         private void UpdateWeekButtonsVisualState()
         {
-            bool dark = ThemeService.IsDarkTheme;
-            var inactiveBg = new SolidColorBrush((Color)ColorConverter.ConvertFromString(dark ? "#2D2D30" : "#FFFFFF"));
-            var inactiveFg = new SolidColorBrush((Color)ColorConverter.ConvertFromString(dark ? "#F3F2F1" : "#323130"));
-            var inactiveBorder = new SolidColorBrush((Color)ColorConverter.ConvertFromString(dark ? "#3E3E42" : "#D1D5DB"));
-
-            var buttons = new Dictionary<int, Button>
+            if (CalFiscalWeekComboBox == null) return;
+            _isUpdatingWeekSelector = true;
+            try
             {
-                { 37, CalWk37Btn },
-                { 38, CalWk38Btn },
-                { 39, CalWk39Btn },
-                { 40, CalWk40Btn },
-                { 41, CalWk41Btn },
-                { 42, CalWk42Btn },
-                { 43, CalWk43Btn }
-            };
-
-            foreach (var kvp in buttons)
+                foreach (var item in CalFiscalWeekComboBox.Items)
+                {
+                    if (item is ComboBoxItem cbi && cbi.Tag?.ToString() == _selectedFiscalWeek.ToString())
+                    {
+                        if (CalFiscalWeekComboBox.SelectedItem != cbi)
+                        {
+                            CalFiscalWeekComboBox.SelectedItem = cbi;
+                        }
+                        cbi.BringIntoView();
+                        break;
+                    }
+                }
+            }
+            finally
             {
-                bool active = kvp.Key == _selectedFiscalWeek;
-                kvp.Value.Background = active
-                    ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0F6CBD"))
-                    : inactiveBg;
-                kvp.Value.Foreground = active
-                    ? Brushes.White
-                    : inactiveFg;
-                kvp.Value.BorderBrush = active
-                    ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0C4A82"))
-                    : inactiveBorder;
-                kvp.Value.FontWeight = active ? FontWeights.SemiBold : FontWeights.Normal;
+                _isUpdatingWeekSelector = false;
             }
         }
 
@@ -182,7 +194,7 @@ namespace YMInc.StoreDeploymentApp.Views
 
         private void SelectFiscalWeek(int week)
         {
-            _selectedFiscalWeek = Math.Clamp(week, 36, 46);
+            _selectedFiscalWeek = Math.Clamp(week, 1, 52);
             UpdateWeekButtonsVisualState();
             UpdateSelectedWeekProgressionBanner();
 
@@ -203,6 +215,18 @@ namespace YMInc.StoreDeploymentApp.Views
             }
 
             ApplyFilters(firstDayOfWeek?.DateDisplay);
+        }
+
+        private void CalFiscalWeekComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!IsLoaded || _isUpdatingWeekSelector) return;
+            if (CalFiscalWeekComboBox?.SelectedItem is ComboBoxItem item && int.TryParse(item.Tag?.ToString(), out int week))
+            {
+                if (week != _selectedFiscalWeek)
+                {
+                    SelectFiscalWeek(week);
+                }
+            }
         }
 
         private void PrevWeekButton_Click(object sender, RoutedEventArgs e)
@@ -352,7 +376,7 @@ namespace YMInc.StoreDeploymentApp.Views
             SelectedDayActivitiesList.ItemsSource = null;
             SelectedDayActivitiesList.ItemsSource = day.WorkItems;
 
-            if (day.FiscalYear == 2026 && day.FiscalWeek >= 36 && day.FiscalWeek <= 46 && _selectedFiscalWeek != day.FiscalWeek)
+            if (day.FiscalYear == 2026 && _selectedFiscalWeek != day.FiscalWeek)
             {
                 _selectedFiscalWeek = day.FiscalWeek;
                 UpdateWeekButtonsVisualState();

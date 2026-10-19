@@ -153,8 +153,10 @@ namespace YMInc.StoreDeploymentApp.Models
         public string StatusColor => StatusBadgeFg;
     }
 
-    public class FiscalCalendarDay
+    public class FiscalCalendarDay : System.ComponentModel.INotifyPropertyChanged
     {
+        private bool _isSelected = false;
+
         public DateTime CalendarDate { get; set; }
         public int FiscalYear { get; set; }
         public int FiscalQuarter { get; set; }
@@ -164,7 +166,28 @@ namespace YMInc.StoreDeploymentApp.Models
         public bool IsHoliday { get; set; }
         public string? HolidayName { get; set; }
         public bool IsCurrentMonth { get; set; } = true;
-        public bool IsSelected { get; set; } = false;
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected != value)
+                {
+                    _isSelected = value;
+                    OnPropertyChanged(nameof(IsSelected));
+                    OnPropertyChanged(nameof(DayCardBackground));
+                    OnPropertyChanged(nameof(DayCardBorder));
+                    OnPropertyChanged(nameof(DayCardBorderThickness));
+                    OnPropertyChanged(nameof(CardSelectedVisibility));
+                }
+            }
+        }
+
+        public bool IsToday => CalendarDate.Date == DateTime.Today;
+        public string TodayBadgeVisibility => IsToday ? "Visible" : "Collapsed";
+        public string CardSelectedVisibility => IsSelected ? "Visible" : "Collapsed";
+        public string RetailDayBadge => $"D{DayOfFiscalWeek}";
 
         public List<CalendarWorkItem> WorkItems { get; set; } = new();
 
@@ -194,11 +217,21 @@ namespace YMInc.StoreDeploymentApp.Models
         public string WorkItemCountBadge => ActivityCountBadge;
 
         public string DayCardBackground => Services.ThemeService.IsDarkTheme
-            ? (HasWorkItems ? "#252526" : "#1E1E1E")
-            : (HasWorkItems ? "#FFFFFF" : "#F9FAFB");
+            ? (IsSelected ? "#1E3A5F" : (HasWorkItems ? "#252526" : "#1E1E1E"))
+            : (IsSelected ? "#EFF6FF" : (HasWorkItems ? "#FFFFFF" : "#F9FAFB"));
+
         public string DayCardBorder => Services.ThemeService.IsDarkTheme
-            ? (HasWorkItems ? "#3B82F6" : (IsHoliday ? "#D97706" : "#3E3E42"))
-            : (HasWorkItems ? "#0F6CBD" : (IsHoliday ? "#D97706" : "#D1D5DB"));
+            ? (IsSelected ? "#60A5FA" : (HasWorkItems ? "#3B82F6" : (IsHoliday ? "#D97706" : "#3E3E42")))
+            : (IsSelected ? "#0F6CBD" : (HasWorkItems ? "#0F6CBD" : (IsHoliday ? "#D97706" : "#D1D5DB")));
+
+        public double DayCardBorderThickness => IsSelected ? 2.0 : 1.2;
+
+        public string DayToolTipSummary =>
+            $"{DayOfWeekName}, {CalendarDate:MMMM dd, yyyy}\n" +
+            $"NRF 4-5-4 Calendar: FY{FiscalYear} Period {FiscalMonth} (WK {FiscalWeek}, Day {DayOfFiscalWeek})\n" +
+            (IsHoliday ? $"Retail Holiday: {HolidayName}\n" : "") +
+            $"Work Orders: {WorkItems.Count} scheduled ({CompletedActivitiesCount} completed)\n" +
+            (IsSelected ? "● Currently active selection in right inspector" : "💡 Click to select & view field details");
 
         public string DailyActivitiesSummary
         {
@@ -220,5 +253,18 @@ namespace YMInc.StoreDeploymentApp.Models
         public List<CalendarWorkItem> TopWorkItems => WorkItems.Take(3).ToList();
         public bool HasMoreItems => WorkItems.Count > 3;
         public string MoreItemsText => WorkItems.Count > 3 ? $"+{WorkItems.Count - 3} more" : "";
+
+        public void NotifyThemeOrStateChanged()
+        {
+            OnPropertyChanged(nameof(DayCardBackground));
+            OnPropertyChanged(nameof(DayCardBorder));
+            OnPropertyChanged(nameof(DayCardBorderThickness));
+            OnPropertyChanged(nameof(HolidayStatusColor));
+            OnPropertyChanged(nameof(CardSelectedVisibility));
+        }
+
+        public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged(string propName) =>
+            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(propName));
     }
 }

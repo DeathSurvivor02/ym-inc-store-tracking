@@ -25,6 +25,7 @@ namespace YMInc.StoreDeploymentApp.Views
         private string _searchQuery = string.Empty;
         private string _cellOriginalValue = string.Empty;
         private bool _isInitialized = false;
+        private bool _isUpdatingWeekSelector = false;
 
         public MainWindow(User user)
         {
@@ -33,6 +34,7 @@ namespace YMInc.StoreDeploymentApp.Views
             ApplyUserContext();
             ApplyWorkspaceChrome();
             SetupDonutEvents();
+            PopulateFiscalWeekComboBox();
             _isInitialized = true;
             UpdateWeekButtonsVisualState();
             UpdateThemeButtonLabel();

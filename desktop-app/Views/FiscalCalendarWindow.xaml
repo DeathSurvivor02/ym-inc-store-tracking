@@ -10,6 +10,74 @@
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <!-- Slight Interactive Hover Elevation & Glow for Day Cards -->
+        <Style x:Key="InteractiveDayCardBorder" TargetType="Border">
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="BorderThickness" Value="{Binding DayCardBorderThickness}"/>
+            <Setter Property="BorderBrush" Value="{Binding DayCardBorder}"/>
+            <Setter Property="Background" Value="{Binding DayCardBackground}"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Margin" Value="0,0,8,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <TranslateTransform Y="0"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="4" ShadowDepth="1.5" Direction="270" Color="#000000" Opacity="0.08"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#0F6CBD"/>
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                 To="-3" Duration="0:0:0.12"/>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.BlurRadius)"
+                                                 To="10" Duration="0:0:0.12"/>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.Opacity)"
+                                                 To="0.22" Duration="0:0:0.12"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                 To="0" Duration="0:0:0.15"/>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.BlurRadius)"
+                                                 To="4" Duration="0:0:0.15"/>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.Effect).(DropShadowEffect.Opacity)"
+                                                 To="0.08" Duration="0:0:0.15"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.ExitActions>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Interactive Work Item Badge in Day Card -->
+        <Style x:Key="WorkItemCardPill" TargetType="Border">
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderLightBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BgPanelBrush}"/>
+            <Setter Property="Padding" Value="5,2"/>
+            <Setter Property="Margin" Value="0,0,0,3"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource ControlHoverBrush}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBlueBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -55,18 +123,13 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Left: Multi-Week Progression Bar -->
+                <!-- Left: Multi-Week Progression Selector -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="Fiscal Week:" FontSize="12" FontWeight="SemiBold" Foreground="#323130" VerticalAlignment="Center" Margin="0,0,8,0"/>
                     <Button Content="◄" Click="PrevWeekButton_Click" Width="26" Height="26" Padding="0" Margin="0,0,2,0" ToolTip="Previous Fiscal Week"/>
-                    <Button x:Name="CalWk37Btn" Content="WK 37" Tag="37" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
-                    <Button x:Name="CalWk38Btn" Content="WK 38" Tag="38" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
-                    <Button x:Name="CalWk39Btn" Content="WK 39" Tag="39" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
-                    <Button x:Name="CalWk40Btn" Content="WK 40" Tag="40" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
-                    <Button x:Name="CalWk41Btn" Content="WK 41" Tag="41" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
-                    <Button x:Name="CalWk42Btn" Content="WK 42" Tag="42" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
-                    <Button x:Name="CalWk43Btn" Content="WK 43" Tag="43" Click="WeekBtn_Click" Height="26" Padding="9,0" Margin="0,0,2,0" FontSize="11.5"/>
-                    <Button Content="►" Click="NextWeekButton_Click" Width="26" Height="26" Padding="0" ToolTip="Next Fiscal Week"/>
+                    <ComboBox x:Name="CalFiscalWeekComboBox" Width="220" Height="26" VerticalContentAlignment="Center"
+                              FontFamily="{StaticResource MonoFont}" FontSize="11" SelectionChanged="CalFiscalWeekComboBox_SelectionChanged"/>
+                    <Button Content="►" Click="NextWeekButton_Click" Width="26" Height="26" Padding="0" Margin="2,0,0,0" ToolTip="Next Fiscal Week"/>
                 </StackPanel>
 
                 <!-- Right: View Filters & Save/History Controls -->
@@ -221,72 +284,116 @@
                 <TabControl Grid.Row="1">
                     <!-- TAB 1: DAILY CALENDAR CELLS -->
                     <TabItem Header="Calendar Day View (Click Day to View / Add Work)">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Background="#FAF9F8" Padding="8">
-                            <ItemsControl x:Name="DayCardsItemsControl">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel Orientation="Horizontal"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Width="218" MinHeight="128" Background="{Binding DayCardBackground}" BorderBrush="{Binding DayCardBorder}" BorderThickness="1"
-                                                CornerRadius="2" Padding="10,8" Margin="0,0,8,8" Cursor="Hand"
-                                                MouseLeftButtonUp="DayCard_MouseLeftButtonUp">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="*"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                </Grid.RowDefinitions>
+                        <Grid Background="{DynamicResource BgCanvasBrush}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
 
-                                                <DockPanel Grid.Row="0" Margin="0,0,0,4">
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="{Binding ShortDateLabel}" FontSize="13" FontWeight="SemiBold" Foreground="#201F1E" Margin="0,0,6,0"/>
-                                                        <TextBlock Text="{Binding DayAbbrev}" FontSize="11" Foreground="#605E5C" VerticalAlignment="Center"/>
-                                                    </StackPanel>
-                                                    <Border Background="#F3F2F1" BorderBrush="#E1DFDD" BorderThickness="1" CornerRadius="2" Padding="5,1" HorizontalAlignment="Right">
-                                                        <TextBlock Text="{Binding WeekDisplay}" FontSize="10" FontWeight="SemiBold" Foreground="#323130"/>
-                                                    </Border>
-                                                </DockPanel>
-
-                                                <Border Grid.Row="1" Background="#FFF4CE" BorderBrush="#D2D0CE" BorderThickness="1" CornerRadius="2" Padding="5,1" Margin="0,0,0,4"
-                                                        Visibility="{Binding IsHoliday, Converter={StaticResource BoolToVis}}">
-                                                    <TextBlock Text="{Binding HolidayDisplay}" FontSize="10" FontWeight="SemiBold" Foreground="#795500" TextTrimming="CharacterEllipsis"/>
-                                                </Border>
-
-                                                <ItemsControl Grid.Row="2" ItemsSource="{Binding TopWorkItems}" Margin="0,2,0,4">
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Border Background="#F8F9FA" BorderBrush="#E1DFDD" BorderThickness="1" CornerRadius="2" Padding="5,2" Margin="0,0,0,3">
-                                                                <Grid>
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="Auto"/>
-                                                                        <ColumnDefinition Width="*"/>
-                                                                        <ColumnDefinition Width="Auto"/>
-                                                                    </Grid.ColumnDefinitions>
-                                                                    <Border Grid.Column="0" Background="{Binding BadgeBgColor}" CornerRadius="2" Padding="4,1" Margin="0,0,5,0" VerticalAlignment="Center">
-                                                                        <TextBlock Text="{Binding ShortTag}" FontSize="9" FontWeight="Bold" Foreground="{Binding BadgeTextColor}"/>
-                                                                    </Border>
-                                                                    <TextBlock Grid.Column="1" Text="{Binding StoreNumber}" FontSize="10.5" FontWeight="SemiBold" Foreground="#201F1E" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                                                                    <TextBlock Grid.Column="2" Text="{Binding Status}" FontSize="9.5" Foreground="{Binding StatusColor}" VerticalAlignment="Center"/>
-                                                                </Grid>
-                                                            </Border>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
-
-                                                <DockPanel Grid.Row="3" VerticalAlignment="Bottom">
-                                                    <TextBlock Text="{Binding WorkItemCountBadge}" FontSize="10.5" FontWeight="SemiBold" Foreground="#0F6CBD"/>
-                                                    <TextBlock Text="Select Day" FontSize="10" Foreground="#605E5C" HorizontalAlignment="Right"/>
-                                                </DockPanel>
-                                            </Grid>
+                            <!-- NRF 4-5-4 Retail Calendar Guidance Ribbon -->
+                            <Border Grid.Row="0" Background="{DynamicResource BgSubtleBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="0,0,0,1" Padding="12,6">
+                                <DockPanel>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Background="#0F6CBD" CornerRadius="3" Padding="6,2" Margin="0,0,8,0">
+                                            <TextBlock Text="NRF 4-5-4 CALENDAR" FontSize="10" FontWeight="Bold" Foreground="#FFFFFF"/>
                                         </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
+                                        <TextBlock Text="Retail Standard: Weeks run Sunday to Saturday • Periods 4-5-4 • Hover day for quick specs, click to edit"
+                                                   FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBlock Text="✨ Interactive animations active" FontSize="10.5" Foreground="#0F6CBD" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </DockPanel>
+                            </Border>
+
+                            <ScrollViewer x:Name="DayCardsScrollViewer" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="10">
+                                <ScrollViewer.RenderTransform>
+                                    <TranslateTransform x:Name="DayCardsTranslate" Y="0"/>
+                                </ScrollViewer.RenderTransform>
+                                <ItemsControl x:Name="DayCardsItemsControl">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Width="222" MinHeight="132" Style="{StaticResource InteractiveDayCardBorder}"
+                                                    ToolTip="{Binding DayToolTipSummary}"
+                                                    MouseLeftButtonUp="DayCard_MouseLeftButtonUp">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="*"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <!-- Card Header -->
+                                                    <DockPanel Grid.Row="0" Margin="0,0,0,4">
+                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding ShortDateLabel}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,5,0"/>
+                                                            <TextBlock Text="{Binding DayAbbrev}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                                            <Border Background="{DynamicResource BgSubtleBrush}" BorderBrush="{DynamicResource BorderLightBrush}" BorderThickness="1" CornerRadius="2" Padding="3,0" VerticalAlignment="Center">
+                                                                <TextBlock Text="{Binding RetailDayBadge}" FontSize="9.5" FontFamily="{StaticResource MonoFont}" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                            </Border>
+                                                        </StackPanel>
+
+                                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                                            <!-- Today Badge -->
+                                                            <Border Background="#107C10" CornerRadius="2" Padding="4,1" Margin="0,0,4,0" Visibility="{Binding TodayBadgeVisibility}">
+                                                                <TextBlock Text="TODAY" FontSize="9" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                                            </Border>
+                                                            <!-- Active Selection Badge -->
+                                                            <Border Background="#0F6CBD" CornerRadius="2" Padding="4,1" Margin="0,0,4,0" Visibility="{Binding CardSelectedVisibility}">
+                                                                <TextBlock Text="ACTIVE" FontSize="9" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                                            </Border>
+                                                            <!-- Week Badge -->
+                                                            <Border Background="{DynamicResource BgSubtleBrush}" BorderBrush="{DynamicResource BorderLightBrush}" BorderThickness="1" CornerRadius="2" Padding="5,1">
+                                                                <TextBlock Text="{Binding WeekDisplay}" FontSize="9.5" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                            </Border>
+                                                        </StackPanel>
+                                                    </DockPanel>
+
+                                                    <!-- Holiday Strip (if holiday) -->
+                                                    <Border Grid.Row="1" Background="#FEF3C7" BorderBrush="#FCD34D" BorderThickness="1" CornerRadius="2" Padding="5,2" Margin="0,0,0,4"
+                                                            Visibility="{Binding IsHoliday, Converter={StaticResource BoolToVis}}">
+                                                        <TextBlock Text="{Binding HolidayDisplay}" FontSize="10" FontWeight="SemiBold" Foreground="#B45309" TextTrimming="CharacterEllipsis"/>
+                                                    </Border>
+
+                                                    <!-- Top Scheduled Activities -->
+                                                    <ItemsControl Grid.Row="2" ItemsSource="{Binding TopWorkItems}" Margin="0,2,0,4">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border Style="{StaticResource WorkItemCardPill}"
+                                                                        ToolTip="{Binding DateDisplay, StringFormat='Work Order: {0}'}">
+                                                                    <Grid>
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="Auto"/>
+                                                                            <ColumnDefinition Width="*"/>
+                                                                            <ColumnDefinition Width="Auto"/>
+                                                                        </Grid.ColumnDefinitions>
+                                                                        <Border Grid.Column="0" Background="{Binding BadgeBgColor}" CornerRadius="2" Padding="4,1" Margin="0,0,5,0" VerticalAlignment="Center">
+                                                                            <TextBlock Text="{Binding ShortTag}" FontSize="9" FontWeight="Bold" Foreground="{Binding BadgeTextColor}"/>
+                                                                        </Border>
+                                                                        <TextBlock Grid.Column="1" Text="{Binding StoreNumber}" FontSize="10.5" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                                                        <TextBlock Grid.Column="2" Text="{Binding Status}" FontSize="9.5" Foreground="{Binding StatusColor}" VerticalAlignment="Center"/>
+                                                                    </Grid>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+
+                                                    <!-- Card Footer -->
+                                                    <DockPanel Grid.Row="3" VerticalAlignment="Bottom" Margin="0,2,0,0">
+                                                        <TextBlock Text="{Binding WorkItemCountBadge}" FontSize="10.5" FontWeight="SemiBold" Foreground="#0F6CBD"/>
+                                                        <TextBlock Text="Inspect ►" FontSize="10" Foreground="{DynamicResource TextMutedBrush}" HorizontalAlignment="Right"/>
+                                                    </DockPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
                     </TabItem>
 
                     <!-- TAB 2: NRF 4-5-4 SCHEDULE LIST -->
@@ -308,7 +415,10 @@
             </Grid>
 
             <!-- ==================== RIGHT PANE: SELECTED DAY WORK ORDER INSPECTOR & EDITOR ==================== -->
-            <Border Grid.Column="2" Background="#FFFFFF" BorderBrush="#E1DFDD" BorderThickness="1">
+            <Border x:Name="SelectedDayInspectorBorder" Grid.Column="2" Background="#FFFFFF" BorderBrush="#E1DFDD" BorderThickness="1">
+                <Border.RenderTransform>
+                    <TranslateTransform x:Name="InspectorTranslate" X="0"/>
+                </Border.RenderTransform>
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>

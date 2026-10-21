@@ -641,6 +641,66 @@ namespace YMInc.StoreDeploymentApp.Views
             MallRulesButton_Click(this, new RoutedEventArgs());
         }
 
+        private void HomeSelectedStoreCircuitsChip_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (HomeStoresPreviewGrid?.SelectedItem is StoreDeployment store)
+            {
+                OpenStoreDetailDialog(store, 3); // Tab 3: Dual Circuits
+            }
+        }
+
+        private void HomeSelectedStoreCablingChip_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (HomeStoresPreviewGrid?.SelectedItem is StoreDeployment store)
+            {
+                OpenStoreDetailDialog(store, 2); // Tab 2: Structured Cabling
+            }
+        }
+
+        private void HomeSelectedStorePolesChip_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (HomeStoresPreviewGrid?.SelectedItem is StoreDeployment store)
+            {
+                OpenStoreDetailDialog(store, 1); // Tab 1: Power Poles
+            }
+        }
+
+        private void InspectorCabling_Click(object sender, RoutedEventArgs e)
+        {
+            if (StoresDataGrid?.SelectedItem is StoreDeployment store)
+            {
+                OpenStoreDetailDialog(store, 2);
+            }
+            else
+            {
+                MessageBox.Show("Please select a store from the table to view its cabling specifications.", "Select Store", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void InspectorCircuits_Click(object sender, RoutedEventArgs e)
+        {
+            if (StoresDataGrid?.SelectedItem is StoreDeployment store)
+            {
+                OpenStoreDetailDialog(store, 3);
+            }
+            else
+            {
+                MessageBox.Show("Please select a store from the table to view its circuit specifications.", "Select Store", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void InspectorPoles_Click(object sender, RoutedEventArgs e)
+        {
+            if (StoresDataGrid?.SelectedItem is StoreDeployment store)
+            {
+                OpenStoreDetailDialog(store, 1);
+            }
+            else
+            {
+                MessageBox.Show("Please select a store from the table to view its power pole specifications.", "Select Store", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
         private void StoresDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (StoresDataGrid?.SelectedItem is StoreDeployment store)
@@ -831,9 +891,9 @@ namespace YMInc.StoreDeploymentApp.Views
             }
         }
 
-        private async void OpenStoreDetailDialog(StoreDeployment selectedStore)
+        private async void OpenStoreDetailDialog(StoreDeployment selectedStore, int initialTabIndex = 0)
         {
-            var detailWindow = new StoreDetailWindow(selectedStore, _currentUser) { Owner = this };
+            var detailWindow = new StoreDetailWindow(selectedStore, _currentUser, initialTabIndex) { Owner = this };
             detailWindow.ShowDialog();
             _allWorkItems = await _databaseService.LoadCalendarWorkItemsAsync(_allStores);
             LoadWeeklyProgressReport();

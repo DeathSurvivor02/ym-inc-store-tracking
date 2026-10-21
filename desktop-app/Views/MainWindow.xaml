@@ -98,9 +98,14 @@
 
                 <!-- ZONE 3: ACTIONS & CONTEXT MENU -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <!-- Primary Save Action -->
-                    <Button x:Name="SaveAllButton" Content="💾 Save Changes" Click="SaveAllChangesButton_Click"
+                    <!-- Quick Add Store -->
+                    <Button Content="➕ Add Store" Click="AddNewStoreButton_Click"
                             Style="{StaticResource PrimaryButton}" Height="28" Padding="12,0" Margin="0,0,6,0"
+                            ToolTip="Register a new store into the deployment fleet"/>
+
+                    <!-- Primary Save Action -->
+                    <Button x:Name="SaveAllButton" Content="💾 Save" Click="SaveAllChangesButton_Click"
+                            Height="28" Padding="12,0" Margin="0,0,6,0" FontWeight="SemiBold"
                             ToolTip="Commit all table edits, store specs, and schedules to database (Ctrl+S)"/>
 
                     <!-- Change History Audit -->
@@ -492,38 +497,41 @@
 
                                     <!-- Col 2: Live Technical Specs Chips -->
                                     <WrapPanel Grid.Column="2" VerticalAlignment="Center" Margin="10,0">
-                                        <Border Background="#FFFFFF" BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,2,8,2">
+                                        <Border Background="{DynamicResource BgPanelBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,2,8,2">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="STAGE: " FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#6B7280"/>
+                                                <TextBlock Text="STAGE: " FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextMutedBrush}"/>
                                                 <TextBlock x:Name="HomeSelectedStoreStageText" Text="Ready" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#15803D"/>
                                             </StackPanel>
                                         </Border>
 
-                                        <Border Background="#FFFFFF" BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,2,8,2">
+                                        <Border Background="{DynamicResource BgPanelBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,2,8,2">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="HEALTH: " FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#6B7280"/>
-                                                <TextBlock x:Name="HomeSelectedStoreHealthText" Text="Normal" FontSize="10.5" FontWeight="Bold" Foreground="#0F6CBD"/>
+                                                <TextBlock Text="HEALTH: " FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextMutedBrush}"/>
+                                                <TextBlock x:Name="HomeSelectedStoreHealthText" Text="Normal" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource AccentBlueBrush}"/>
                                             </StackPanel>
                                         </Border>
 
-                                        <Border Background="#FFFFFF" BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,2,8,2">
+                                        <Border Background="{DynamicResource BgPanelBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,2,8,2"
+                                                Cursor="Hand" MouseLeftButtonUp="HomeSelectedStoreCircuitsChip_Click" ToolTip="Click to inspect Dual Circuits (Tab 4)">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="CIRCUITS: " FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#6B7280"/>
-                                                <TextBlock x:Name="HomeSelectedStoreCircuitsText" Text="Bell Fiber / LTE" FontFamily="{StaticResource MonoFont}" FontSize="10.5" Foreground="#1F2937"/>
+                                                <TextBlock Text="🌐 CIRCUITS: " FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBlueBrush}"/>
+                                                <TextBlock x:Name="HomeSelectedStoreCircuitsText" Text="Bell Fiber / LTE" FontFamily="{StaticResource MonoFont}" FontSize="10.5" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             </StackPanel>
                                         </Border>
 
-                                        <Border Background="#FFFFFF" BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,2,8,2">
+                                        <Border Background="{DynamicResource BgPanelBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,2,8,2"
+                                                Cursor="Hand" MouseLeftButtonUp="HomeSelectedStoreCablingChip_Click" ToolTip="Click to inspect Structured Cabling (Tab 3)">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="CABLING: " FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#6B7280"/>
-                                                <TextBlock x:Name="HomeSelectedStoreCablingText" Text="12 drops Cat6" FontFamily="{StaticResource MonoFont}" FontSize="10.5" Foreground="#1F2937"/>
+                                                <TextBlock Text="🔌 CABLING: " FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBlueBrush}"/>
+                                                <TextBlock x:Name="HomeSelectedStoreCablingText" Text="12 drops Cat6" FontFamily="{StaticResource MonoFont}" FontSize="10.5" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             </StackPanel>
                                         </Border>
 
-                                        <Border Background="#FFFFFF" BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,2,0,2">
+                                        <Border Background="{DynamicResource BgPanelBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" CornerRadius="4" Padding="8,4" Margin="0,2,0,2"
+                                                Cursor="Hand" MouseLeftButtonUp="HomeSelectedStorePolesChip_Click" ToolTip="Click to inspect Wiremold Power Poles (Tab 2)">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="POLES: " FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#6B7280"/>
-                                                <TextBlock x:Name="HomeSelectedStorePolesText" Text="4 Installed" FontFamily="{StaticResource MonoFont}" FontSize="10.5" Foreground="#1F2937"/>
+                                                <TextBlock Text="⚡ POLES: " FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBlueBrush}"/>
+                                                <TextBlock x:Name="HomeSelectedStorePolesText" Text="4 Installed" FontFamily="{StaticResource MonoFont}" FontSize="10.5" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             </StackPanel>
                                         </Border>
                                     </WrapPanel>
@@ -563,23 +571,24 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
                             <TextBlock Text="Region:" FontSize="12" Foreground="#374151" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <ComboBox x:Name="CountryFilterCombo" SelectionChanged="CountryFilterCombo_SelectionChanged" Width="115" MinHeight="32">
+                            <ComboBox x:Name="CountryFilterCombo" SelectionChanged="CountryFilterCombo_SelectionChanged" Width="110" MinHeight="32">
                                 <ComboBoxItem Content="All (US/CA)" Tag="ALL" IsSelected="True"/>
                                 <ComboBoxItem Content="US Stores" Tag="US"/>
                                 <ComboBoxItem Content="CA Stores" Tag="CA"/>
                             </ComboBox>
                         </StackPanel>
 
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
                             <TextBlock Text="Banner:" FontSize="12" Foreground="#374151" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <ComboBox x:Name="BannerFilterCombo" SelectionChanged="BannerFilterCombo_SelectionChanged" Width="165" MinHeight="32">
+                            <ComboBox x:Name="BannerFilterCombo" SelectionChanged="BannerFilterCombo_SelectionChanged" Width="150" MinHeight="32">
                                 <ComboBoxItem Content="All Banners" Tag="ALL" IsSelected="True"/>
                                 <ComboBoxItem Content="Charlotte Russe (CR)" Tag="CR"/>
                                 <ComboBoxItem Content="Urban Planet (UP)" Tag="UP"/>
@@ -594,7 +603,7 @@
 
                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0">
                             <TextBlock Text="Field:" FontSize="12" Foreground="#374151" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <ComboBox x:Name="SearchFieldCombo" SelectionChanged="SearchFieldCombo_SelectionChanged" Width="135" MinHeight="32">
+                            <ComboBox x:Name="SearchFieldCombo" SelectionChanged="SearchFieldCombo_SelectionChanged" Width="120" MinHeight="32">
                                 <ComboBoxItem Content="All Columns" Tag="ALL" IsSelected="True"/>
                                 <ComboBoxItem Content="Store #" Tag="STORE_NO"/>
                                 <ComboBoxItem Content="Mall Name" Tag="MALL"/>
@@ -604,21 +613,23 @@
                             </ComboBox>
                         </StackPanel>
 
-                        <TextBox x:Name="SearchBox" Grid.Column="3" TextChanged="SearchBox_TextChanged" MinHeight="32"
+                        <TextBox x:Name="SearchBox" Grid.Column="3" TextChanged="SearchBox_TextChanged" Width="180" MinHeight="32"
                                  ToolTip="Type to filter store records..."/>
 
                         <TextBlock x:Name="FilterActiveNotice" Grid.Column="4" Text="Filtered" FontFamily="{StaticResource MonoFont}" FontSize="11"
-                                   Foreground="#0F6CBD" VerticalAlignment="Center" Margin="10,0,0,0" Visibility="Collapsed"/>
+                                   Foreground="{DynamicResource AccentBlueBrush}" VerticalAlignment="Center" Margin="8,0,0,0" Visibility="Collapsed"/>
 
-                        <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+                        <!-- Column 5 is flexible spacer (*) -->
+
+                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
                             <Button Content="➕ Add New Store..." Click="AddNewStoreButton_Click"
-                                    MinHeight="32" Padding="12,0" Margin="0,0,6,0" FontWeight="SemiBold" ToolTip="Register a new store into the deployment fleet"/>
+                                    Style="{StaticResource PrimaryButton}" MinHeight="32" Padding="12,0" Margin="0,0,6,0" FontWeight="SemiBold" ToolTip="Register a new store into the deployment fleet"/>
                             <Button Content="💾 Save Changes" Click="SaveAllChangesButton_Click"
-                                    Style="{StaticResource PrimaryButton}" MinHeight="32" Padding="12,0" Margin="0,0,6,0"/>
+                                    MinHeight="32" Padding="12,0" Margin="0,0,6,0" ToolTip="Commit table changes to PostgreSQL"/>
                             <Button Content="🕒 History" Click="OpenHistoryButton_Click"
-                                    MinHeight="32" Padding="12,0" Margin="0,0,6,0"/>
-                            <Button Content="Edit Selected Store..." Click="InspectSelectedButton_Click"
-                                    MinHeight="32" Padding="12,0"/>
+                                    MinHeight="32" Padding="10,0" Margin="0,0,6,0" ToolTip="View change audit trail"/>
+                            <Button Content="✏️ Edit Selected Store..." Click="InspectSelectedButton_Click"
+                                    MinHeight="32" Padding="12,0" ToolTip="Open technical specifications"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -729,9 +740,21 @@
                                 </StackPanel>
                             </ScrollViewer>
 
-                            <Border Grid.Row="2" Background="#F8FAFC" BorderBrush="#D1D5DB" BorderThickness="0,1,0,0" Padding="12,8">
-                                <Button Content="Open Store Engineering Specification..." Click="InspectSelectedButton_Click"
-                                        Style="{StaticResource PrimaryButton}" Height="28" HorizontalAlignment="Stretch"/>
+                            <Border Grid.Row="2" Background="{DynamicResource BgPanelBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="0,1,0,0" Padding="12,8">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Grid.Column="0" Content="🔌 Cabling" Click="InspectorCabling_Click" Height="26" Padding="4,0" Margin="0,0,3,0" ToolTip="Open Structured Cabling specs directly"/>
+                                        <Button Grid.Column="1" Content="🌐 Circuits" Click="InspectorCircuits_Click" Height="26" Padding="4,0" Margin="3,0,3,0" ToolTip="Open Dual Circuits specs directly"/>
+                                        <Button Grid.Column="2" Content="⚡ Poles" Click="InspectorPoles_Click" Height="26" Padding="4,0" Margin="3,0,0,0" ToolTip="Open Power Poles specs directly"/>
+                                    </Grid>
+                                    <Button Content="📋 Full Store Specifications..." Click="InspectSelectedButton_Click"
+                                            Style="{StaticResource PrimaryButton}" Height="28" HorizontalAlignment="Stretch"/>
+                                </StackPanel>
                             </Border>
                         </Grid>
                     </Border>

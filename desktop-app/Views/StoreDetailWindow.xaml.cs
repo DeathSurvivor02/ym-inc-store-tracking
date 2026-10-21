@@ -14,14 +14,22 @@ namespace YMInc.StoreDeploymentApp.Views
         private readonly DatabaseService _databaseService = new();
         private System.Windows.Threading.DispatcherTimer? _heartbeatTimer;
 
-        public StoreDetailWindow(StoreDeployment store, User? currentUser = null)
+        public StoreDetailWindow(StoreDeployment store, User? currentUser = null, int initialTabIndex = 0)
         {
             InitializeComponent();
             _store = store;
             _currentUser = currentUser;
             PopulateStore(store);
+            if (initialTabIndex >= 0 && initialTabIndex < DetailTabControl.Items.Count)
+            {
+                DetailTabControl.SelectedIndex = initialTabIndex;
+            }
             Loaded += (s, e) =>
             {
+                if (initialTabIndex >= 0 && initialTabIndex < DetailTabControl.Items.Count)
+                {
+                    DetailTabControl.SelectedIndex = initialTabIndex;
+                }
                 ThemeService.ApplyThemeToWindow(this);
                 CheckAndRegisterPresence();
             };

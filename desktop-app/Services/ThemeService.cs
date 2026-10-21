@@ -99,6 +99,9 @@ namespace YMInc.StoreDeploymentApp.Services
                 SetBrushResource(res, "BgSubtleBrush", "#2A2D2E");
                 SetBrushResource(res, "BorderLineBrush", "#3E3E42");
                 SetBrushResource(res, "BorderLightBrush", "#333337");
+                SetBrushResource(res, "AccentBlueBrush", "#60A5FA");
+                SetBrushResource(res, "AccentBlueHoverBrush", "#93C5FD");
+                SetBrushResource(res, "TabSelectedHoverBrush", "#2A4365");
                 SetBrushResource(res, "TextPrimaryBrush", "#F3F2F1");
                 SetBrushResource(res, "TextSecondaryBrush", "#CCCCCC");
                 SetBrushResource(res, "TextMutedBrush", "#9CA3AF");
@@ -124,6 +127,9 @@ namespace YMInc.StoreDeploymentApp.Services
                 SetBrushResource(res, "BgSubtleBrush", "#F9FAFB");
                 SetBrushResource(res, "BorderLineBrush", "#D1D5DB");
                 SetBrushResource(res, "BorderLightBrush", "#E5E7EB");
+                SetBrushResource(res, "AccentBlueBrush", "#0F6CBD");
+                SetBrushResource(res, "AccentBlueHoverBrush", "#115EA3");
+                SetBrushResource(res, "TabSelectedHoverBrush", "#E0EEFA");
                 SetBrushResource(res, "TextPrimaryBrush", "#111827");
                 SetBrushResource(res, "TextSecondaryBrush", "#4B5563");
                 SetBrushResource(res, "TextMutedBrush", "#6B7280");

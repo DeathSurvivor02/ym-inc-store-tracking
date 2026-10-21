@@ -97,7 +97,7 @@
         </StackPanel>
 
         <!-- ROW 2: TECHNICAL SPECIFICATION TABS -->
-        <TabControl Grid.Row="2" Margin="14,10,14,0">
+        <TabControl x:Name="DetailTabControl" Grid.Row="2" Margin="14,10,14,0">
             <!-- TAB 1: SITE SURVEY -->
             <TabItem Header="1. Site Survey">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">

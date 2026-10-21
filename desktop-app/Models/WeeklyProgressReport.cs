@@ -25,13 +25,13 @@ namespace YMInc.StoreDeploymentApp.Models
         public string WeekLabel => WeekShortLabel;
         public string DateRangeShort { get; set; } = string.Empty;
         public int CumulativeProgressPct { get; set; }
-        public int ProgressPct => CumulativeProgressPct;
+        public int ProgressPct => TasksTotalInWeek > 0 ? WeekSpecificExecutionPct : 0;
         public int WeekSpecificExecutionPct { get; set; }
         public int TasksCompletedInWeek { get; set; }
         public int TasksTotalInWeek { get; set; }
-        public string TaskRatioDisplay => $"{TasksCompletedInWeek}/{TasksTotalInWeek}";
+        public string TaskRatioDisplay => TasksTotalInWeek > 0 ? $"{TasksCompletedInWeek}/{TasksTotalInWeek}" : "—";
         public bool IsSelected { get; set; }
-        public double BarHeightPx => System.Math.Max(12, CumulativeProgressPct * 0.85);
+        public double BarHeightPx => System.Math.Max(8, ProgressPct * 0.85);
         public string BarBackground => IsSelected
             ? "#0F6CBD"
             : (Services.ThemeService.IsDarkTheme ? "#3E3E42" : "#CBD5E1");

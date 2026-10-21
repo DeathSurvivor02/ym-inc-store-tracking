@@ -31,6 +31,7 @@ namespace YMInc.StoreDeploymentApp.Views
         {
             InitializeComponent();
             _currentUser = user;
+            PresenceService.SetCurrentUser(user);
             ApplyUserContext();
             ApplyWorkspaceChrome();
             SetupDonutEvents();
@@ -61,6 +62,13 @@ namespace YMInc.StoreDeploymentApp.Views
             DatabaseService.StartCalendarWatcher();
             DatabaseService.CalendarChangedExternally += OnExternalCalendarChanged;
 
+            if (!string.IsNullOrWhiteSpace(_databaseService.UnpooledConnectionString))
+            {
+                RealtimeSyncService.Instance.Start(_databaseService.UnpooledConnectionString);
+                RealtimeSyncService.Instance.StoreChanged += OnRealtimeStoreChanged;
+                RealtimeSyncService.Instance.PresenceChanged += OnRealtimePresenceChanged;
+            }
+
             _liveSyncTimer = new System.Windows.Threading.DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(6)
@@ -72,6 +80,8 @@ namespace YMInc.StoreDeploymentApp.Views
             {
                 _liveSyncTimer?.Stop();
                 DatabaseService.CalendarChangedExternally -= OnExternalCalendarChanged;
+                RealtimeSyncService.Instance.StoreChanged -= OnRealtimeStoreChanged;
+                RealtimeSyncService.Instance.PresenceChanged -= OnRealtimePresenceChanged;
             };
         }
 
@@ -80,6 +90,7 @@ namespace YMInc.StoreDeploymentApp.Views
             if (!_isInitialized || !IsVisible) return;
             try
             {
+                await RefreshFleetPresenceAsync();
                 var latest = await _databaseService.GetLatestStoreUpdateTimestampAsync();
                 if (latest.HasValue && latest.Value > _lastKnownStoreUpdateUtc)
                 {
@@ -96,6 +107,116 @@ namespace YMInc.StoreDeploymentApp.Views
                 }
             }
             catch { }
+        }
+
+        private void OnRealtimePresenceChanged(PresenceChangeEvent evt)
+        {
+            Dispatcher.InvokeAsync(async () =>
+            {
+                if (!_isInitialized || !IsVisible) return;
+                try
+                {
+                    await RefreshFleetPresenceAsync();
+                }
+                catch { }
+            });
+        }
+
+        private async Task RefreshFleetPresenceAsync()
+        {
+            var collabs = await PresenceService.GetAllCollaboratorsAsync();
+            var map = collabs
+                .Where(c => !string.IsNullOrEmpty(c.StoreNumber))
+                .GroupBy(c => c.StoreNumber)
+                .ToDictionary(g => g.Key, g => string.Join(", ", g.Select(x => $"{x.Initials} ({x.EditorRole})")));
+
+            foreach (var store in _allStores)
+            {
+                if (map.TryGetValue(store.StoreNumber, out string? pills))
+                {
+                    store.ActiveCollaboratorPill = $"🟢 {pills}";
+                }
+                else
+                {
+                    store.ActiveCollaboratorPill = null;
+                }
+            }
+
+            if (TopCollaboratorsBadge != null && TopCollaboratorsText != null)
+            {
+                if (collabs.Count > 0)
+                {
+                    TopCollaboratorsText.Text = $"👥 Online: {string.Join(", ", collabs.Select(c => $"{c.DisplayName} ({c.EditorRole})"))}";
+                    TopCollaboratorsBadge.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    TopCollaboratorsBadge.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+        private void OnRealtimeStoreChanged(StoreChangeEvent evt)
+        {
+            Dispatcher.InvokeAsync(async () =>
+            {
+                if (!_isInitialized || !IsVisible) return;
+                try
+                {
+                    if (evt.StoreId > 0)
+                    {
+                        var updated = await _databaseService.LoadStoreByIdAsync(evt.StoreId);
+                        if (updated != null)
+                        {
+                            var existing = _allStores.FirstOrDefault(s => s.StoreId == evt.StoreId);
+                            if (existing != null)
+                            {
+                                existing.StoreName = updated.StoreName;
+                                existing.OperationalStatus = updated.OperationalStatus;
+                                existing.OverallHealth = updated.OverallHealth;
+                                existing.TargetOpenDate = updated.TargetOpenDate;
+                                existing.Cabling = updated.Cabling;
+                                existing.PowerPoles = updated.PowerPoles;
+                                existing.Circuits = updated.Circuits;
+                                existing.Survey = updated.Survey;
+                                existing.Mall = updated.Mall;
+                                existing.OnPropertyChanged(nameof(existing.StoreName));
+                                existing.OnPropertyChanged(nameof(existing.OperationalStatus));
+                                existing.OnPropertyChanged(nameof(existing.OverallHealth));
+                                existing.OnPropertyChanged(nameof(existing.TargetOpenDate));
+                                existing.OnPropertyChanged(nameof(existing.CablingSummary));
+                                existing.PowerPoleSummary = updated.PowerPoleSummary;
+                                existing.OnPropertyChanged(nameof(existing.PowerPoleSummary));
+                                existing.OnPropertyChanged(nameof(existing.CircuitSummary));
+                                existing.OnPropertyChanged(nameof(existing.MallName));
+
+                                // Refresh inspection panel if this store is currently selected
+                                if (StoresDataGrid?.SelectedItem == existing)
+                                {
+                                    StoresDataGrid_SelectionChanged(this, null!);
+                                }
+                                if (HomeStoresPreviewGrid?.SelectedItem == existing)
+                                {
+                                    HomeStoresPreviewGrid_SelectionChanged(this, null!);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        await LoadStoresDataAsync();
+                    }
+
+                    LoadWeeklyProgressReport();
+
+                    if (LastSaveStatusText != null)
+                    {
+                        LastSaveStatusText.Text = $"⚡ Live co-edit: Store #{evt.StoreId} updated ({DateTime.Now:HH:mm:ss})";
+                        LastSaveStatusText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#15803D"));
+                    }
+                }
+                catch { }
+            });
         }
 
         private void OnExternalCalendarChanged()

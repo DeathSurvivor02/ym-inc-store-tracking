@@ -1,112 +1,138 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text.Json;
+using System.Threading.Tasks;
+using System.Windows.Media;
 using YMInc.StoreDeploymentApp.Models;
 
 namespace YMInc.StoreDeploymentApp.Services
 {
     public class ActiveEditorLease
     {
+        public string SessionId { get; set; } = string.Empty;
         public string StoreNumber { get; set; } = string.Empty;
         public string EditorName { get; set; } = string.Empty;
         public string EditorRole { get; set; } = string.Empty;
-        public string MachineName { get; set; } = string.Empty;
-        public int ProcessId { get; set; }
+        public string UserInitials { get; set; } = string.Empty;
+        public string ActiveSection { get; set; } = string.Empty;
+        public string ActiveField { get; set; } = string.Empty;
         public DateTime LastHeartbeatUtc { get; set; }
+
+        public Brush AvatarBrush
+        {
+            get
+            {
+                if (EditorRole.Contains("PM", StringComparison.OrdinalIgnoreCase))
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0F6CBD"));
+                if (EditorRole.Contains("PA", StringComparison.OrdinalIgnoreCase))
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#059669"));
+                if (EditorRole.Contains("PS1", StringComparison.OrdinalIgnoreCase))
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7C3AED"));
+                if (EditorRole.Contains("PS2", StringComparison.OrdinalIgnoreCase))
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#D97706"));
+                if (EditorRole.Contains("PS3", StringComparison.OrdinalIgnoreCase))
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#DC2626"));
+                return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4F46E5"));
+            }
+        }
+
+        public string Initials => !string.IsNullOrEmpty(UserInitials) ? UserInitials : (EditorName.Length >= 2 ? EditorName[..2].ToUpper() : "U");
+        public string DisplayName => EditorName.Split(' ')[0];
+        public string SectionBadge => !string.IsNullOrEmpty(ActiveSection) && ActiveSection != "General" ? $"• {ActiveSection}" : "";
+        public string TooltipText => $"{EditorName} ({EditorRole})\nWorking in: {ActiveSection}\nLive Sync Active";
     }
 
     public static class PresenceService
     {
-        private static readonly string LockFilePath = Path.Combine(
-            AppDomain.CurrentDomain.BaseDirectory, "active_editor_leases.json");
+        public static readonly string CurrentSessionId = Guid.NewGuid().ToString("N");
+        private static readonly DatabaseService _db = new();
+        private static User? _currentUser;
+        private static string? _currentStoreNumber;
+        private static string _currentSection = "General";
+        private static string? _currentField;
 
-        private static readonly object _sync = new();
+        public static event Action? PresenceUpdated;
+
+        public static void SetCurrentUser(User? user)
+        {
+            _currentUser = user;
+        }
+
+        public static async Task EnterStoreAsync(string storeNumber, User? user, string section = "General")
+        {
+            _currentStoreNumber = storeNumber;
+            _currentSection = section;
+            if (user != null) _currentUser = user;
+
+            await HeartbeatAsync();
+        }
+
+        public static async Task UpdateSectionAsync(string storeNumber, string section, string? field = null)
+        {
+            _currentStoreNumber = storeNumber;
+            _currentSection = section;
+            _currentField = field;
+            await HeartbeatAsync();
+        }
+
+        public static async Task LeaveStoreAsync(string storeNumber)
+        {
+            _currentStoreNumber = null;
+            _currentSection = "Lobby";
+            _currentField = null;
+            await _db.RemovePresenceAsync(CurrentSessionId);
+            PresenceUpdated?.Invoke();
+        }
+
+        public static async Task HeartbeatAsync()
+        {
+            if (_currentUser == null) return;
+            string initials = !string.IsNullOrEmpty(_currentUser.Username) && _currentUser.Username.Length >= 2
+                ? _currentUser.Username[..2].ToUpperInvariant()
+                : "U";
+
+            await _db.UpdatePresenceHeartbeatAsync(
+                CurrentSessionId,
+                _currentUser.UserId,
+                _currentUser.FullName,
+                _currentUser.RoleDisplayName,
+                initials,
+                _currentStoreNumber,
+                _currentSection,
+                _currentField);
+        }
+
+        public static async Task<List<ActiveEditorLease>> GetStoreCollaboratorsAsync(string storeNumber)
+        {
+            var list = await _db.GetActiveCollaboratorsAsync(storeNumber);
+            return list.Where(l => l.SessionId != CurrentSessionId).ToList();
+        }
+
+        public static async Task<List<ActiveEditorLease>> GetAllCollaboratorsAsync()
+        {
+            var list = await _db.GetAllActiveCollaboratorsAsync();
+            return list.Where(l => l.SessionId != CurrentSessionId).ToList();
+        }
 
         public static void RegisterEditor(string storeNumber, User? user)
         {
-            if (string.IsNullOrEmpty(storeNumber) || user == null) return;
-            lock (_sync)
-            {
-                var leases = LoadLeases();
-                leases.RemoveAll(l => (DateTime.UtcNow - l.LastHeartbeatUtc).TotalSeconds > 35);
-                leases.RemoveAll(l => l.StoreNumber == storeNumber && l.ProcessId == Environment.ProcessId);
-
-                leases.Add(new ActiveEditorLease
-                {
-                    StoreNumber = storeNumber,
-                    EditorName = user.FullName,
-                    EditorRole = user.RoleDisplayName,
-                    MachineName = Environment.MachineName,
-                    ProcessId = Environment.ProcessId,
-                    LastHeartbeatUtc = DateTime.UtcNow
-                });
-                SaveLeases(leases);
-            }
+            _ = EnterStoreAsync(storeNumber, user);
         }
 
         public static void RefreshHeartbeat(string storeNumber)
         {
-            if (string.IsNullOrEmpty(storeNumber)) return;
-            lock (_sync)
-            {
-                var leases = LoadLeases();
-                var mine = leases.FirstOrDefault(l => l.StoreNumber == storeNumber && l.ProcessId == Environment.ProcessId);
-                if (mine != null)
-                {
-                    mine.LastHeartbeatUtc = DateTime.UtcNow;
-                    SaveLeases(leases);
-                }
-            }
+            _ = HeartbeatAsync();
         }
 
         public static void ReleaseEditor(string storeNumber)
         {
-            if (string.IsNullOrEmpty(storeNumber)) return;
-            lock (_sync)
-            {
-                var leases = LoadLeases();
-                leases.RemoveAll(l => l.StoreNumber == storeNumber && l.ProcessId == Environment.ProcessId);
-                SaveLeases(leases);
-            }
+            _ = LeaveStoreAsync(storeNumber);
         }
 
         public static ActiveEditorLease? GetOtherActiveEditor(string storeNumber)
         {
-            if (string.IsNullOrEmpty(storeNumber)) return null;
-            lock (_sync)
-            {
-                var leases = LoadLeases();
-                return leases.FirstOrDefault(l =>
-                    l.StoreNumber == storeNumber &&
-                    l.ProcessId != Environment.ProcessId &&
-                    (DateTime.UtcNow - l.LastHeartbeatUtc).TotalSeconds <= 30);
-            }
-        }
-
-        private static List<ActiveEditorLease> LoadLeases()
-        {
-            try
-            {
-                if (File.Exists(LockFilePath))
-                {
-                    string json = File.ReadAllText(LockFilePath);
-                    return JsonSerializer.Deserialize<List<ActiveEditorLease>>(json) ?? new();
-                }
-            }
-            catch { }
-            return new();
-        }
-
-        private static void SaveLeases(List<ActiveEditorLease> leases)
-        {
-            try
-            {
-                var opts = new JsonSerializerOptions { WriteIndented = true };
-                File.WriteAllText(LockFilePath, JsonSerializer.Serialize(leases, opts));
-            }
-            catch { }
+            var list = _db.GetActiveCollaboratorsAsync(storeNumber).GetAwaiter().GetResult();
+            return list.FirstOrDefault(l => l.SessionId != CurrentSessionId);
         }
     }
 }

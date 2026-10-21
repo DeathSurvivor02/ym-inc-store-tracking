@@ -46,7 +46,9 @@ async function run() {
       '003_analytics_and_facts.sql',
       '004_indexes.sql',
       '005_views.sql',
-      '006_app_users_auth.sql'
+      '006_app_users_auth.sql',
+      '007_realtime_sync.sql',
+      '008_collaborative_presence.sql'
     ];
 
     for (const file of migrationFiles) {

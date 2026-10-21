@@ -135,8 +135,30 @@ namespace YMInc.StoreDeploymentApp.Models
         public string? JeopardyReason { get; set; }
     }
 
-    public class StoreDeployment
+    public class StoreDeployment : System.ComponentModel.INotifyPropertyChanged
     {
+        public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+        public void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propName = null)
+        {
+            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(propName));
+        }
+
+        private string? _activeCollaboratorPill;
+        public string? ActiveCollaboratorPill
+        {
+            get => _activeCollaboratorPill;
+            set
+            {
+                if (_activeCollaboratorPill != value)
+                {
+                    _activeCollaboratorPill = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(HasCollaborator));
+                }
+            }
+        }
+        public bool HasCollaborator => !string.IsNullOrEmpty(_activeCollaboratorPill);
+
         public int StoreId { get; set; }
         public string StoreNumber { get; set; } = string.Empty;
         public string BannerCode { get; set; } = string.Empty;

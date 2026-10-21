@@ -46,6 +46,10 @@
                         <TextBlock x:Name="WorkspaceModePillText" Text="LIVE DB" FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#0F6CBD"/>
                     </Border>
 
+                    <Border x:Name="TopCollaboratorsBadge" Background="#059669" BorderBrush="#34D399" BorderThickness="1" CornerRadius="2" Padding="7,2" Margin="0,0,12,0" Visibility="Collapsed">
+                        <TextBlock x:Name="TopCollaboratorsText" Text="👥 Online: Claire (PA)" FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#FFFFFF"/>
+                    </Border>
+
                     <TextBlock Text="Operator:" FontSize="11.5" Foreground="#EBF3FC" VerticalAlignment="Center" Margin="0,0,5,0"/>
                     <TextBlock x:Name="CurrentUserNameText" Text="Jordan Vance" FontSize="11.5" FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center" Margin="0,0,6,0"/>
                     <TextBlock x:Name="CurrentUserRoleBadge" Text="(PM)" FontSize="11" FontWeight="SemiBold" Foreground="#EBF3FC" VerticalAlignment="Center" Margin="0,0,12,0"/>
@@ -434,6 +438,17 @@
                                   BeginningEdit="Grid_BeginningEdit" CellEditEnding="StoreGrid_CellEditEnding">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="STORE #" Binding="{Binding StoreNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="75" FontFamily="{StaticResource MonoFont}" FontWeight="Bold"/>
+                                <DataGridTemplateColumn Header="CO-EDIT" Width="75" IsReadOnly="True">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#EFF6FF" BorderBrush="#93C5FD" BorderThickness="1" CornerRadius="3" Padding="4,1" Margin="2,0"
+                                                    Visibility="{Binding HasCollaborator, Converter={StaticResource BoolToVis}, FallbackValue=Collapsed}"
+                                                    ToolTip="Active teammate currently co-editing this store">
+                                                <TextBlock Text="{Binding ActiveCollaboratorPill}" FontFamily="{StaticResource MonoFont}" FontSize="9" FontWeight="Bold" Foreground="#1E40AF"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                                 <DataGridTextColumn Header="BANNER" Binding="{Binding BannerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120"/>
                                 <DataGridTextColumn Header="STORE NAME" Binding="{Binding StoreName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="160" FontWeight="SemiBold"/>
                                 <DataGridTextColumn Header="MALL / PROPERTY" Binding="{Binding MallName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="180"/>
@@ -650,6 +665,17 @@
                               CellEditEnding="StoreGrid_CellEditEnding">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="STORE #" Binding="{Binding StoreNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="84" FontFamily="{StaticResource MonoFont}" FontWeight="Bold"/>
+                            <DataGridTemplateColumn Header="CO-EDIT" Width="75" IsReadOnly="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#EFF6FF" BorderBrush="#93C5FD" BorderThickness="1" CornerRadius="3" Padding="4,1" Margin="2,0"
+                                                Visibility="{Binding HasCollaborator, Converter={StaticResource BoolToVis}, FallbackValue=Collapsed}"
+                                                ToolTip="Active teammate currently co-editing this store">
+                                            <TextBlock Text="{Binding ActiveCollaboratorPill}" FontFamily="{StaticResource MonoFont}" FontSize="9" FontWeight="Bold" Foreground="#1E40AF"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTextColumn Header="RGN" Binding="{Binding CountryFlag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="52" FontFamily="{StaticResource MonoFont}"/>
                             <DataGridTextColumn Header="BANNER" Binding="{Binding BannerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="130"/>
                             <DataGridTextColumn Header="STORE NAME" Binding="{Binding StoreName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="170" FontWeight="SemiBold"/>

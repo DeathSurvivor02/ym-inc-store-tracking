@@ -30,13 +30,42 @@
 
         <!-- ROW 1: STORE HEADER RIBBON & CONFLICT BANNER -->
         <StackPanel Grid.Row="1">
-            <!-- CONCURRENT EDIT / PRESENCE NOTICE -->
-            <Border x:Name="EditorConflictBanner" Background="#FEF3C7" BorderBrush="#F59E0B" BorderThickness="0,0,0,1" 
-                    Padding="18,9" Visibility="Collapsed">
-                <DockPanel>
-                    <TextBlock Text="⚠️ CONCURRENT EDITING NOTICE:" FontWeight="Bold" FontSize="11.5" Foreground="#92400E" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                    <TextBlock x:Name="ConflictNoticeText" Text="This store is currently open for editing by another team member." 
-                               FontSize="11.5" Foreground="#78350F" VerticalAlignment="Center"/>
+            <!-- LIVE GOOGLE DOCS-STYLE COLLABORATIVE PRESENCE STRIP -->
+            <Border x:Name="CollaboratorRibbon" Background="#F0FDF4" BorderBrush="#86EFAC" BorderThickness="0,0,0,1" 
+                    Padding="16,6">
+                <DockPanel LastChildFill="True">
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Background="#10B981" Width="8" Height="8" CornerRadius="4" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="LIVE CO-EDITING" FontFamily="{StaticResource MonoFont}" FontSize="10.5" FontWeight="Bold" Foreground="#047857" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock x:Name="LiveActivityNoticeText" Text="Edits sync live across all collaborators" FontSize="11" Foreground="#4B5563" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <Border Background="#DCFCE7" BorderBrush="#86EFAC" BorderThickness="1" CornerRadius="3" Padding="6,2">
+                            <TextBlock Text="⚡ PostgreSQL Realtime" FontFamily="{StaticResource MonoFont}" FontSize="10" FontWeight="Bold" Foreground="#15803D"/>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Collaborator Avatars (MV Marcus Vance, CT Claire Tremblay) -->
+                    <ItemsControl x:Name="CollaboratorAvatarsList" VerticalAlignment="Center">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{Binding AvatarBrush}" BorderBrush="#FFFFFF" BorderThickness="1.5" CornerRadius="12" Padding="7,2" Margin="0,0,6,0"
+                                        ToolTip="{Binding TooltipText}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Initials}" FontFamily="{StaticResource MonoFont}" FontWeight="Bold" FontSize="10.5" Foreground="#FFFFFF" Margin="0,0,4,0"/>
+                                        <TextBlock Text="{Binding DisplayName}" FontSize="11" FontWeight="SemiBold" Foreground="#FFFFFF"/>
+                                        <TextBlock Text="{Binding SectionBadge}" FontSize="10" Foreground="#E0E7FF" Margin="4,0,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </DockPanel>
             </Border>
 
@@ -487,7 +516,7 @@
                 <TextBlock x:Name="SaveNotificationText" Grid.Column="0" Text="" FontSize="12" FontWeight="SemiBold" Foreground="#107C10" VerticalAlignment="Center"/>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button Content="💾 Save Store &amp; Property Changes" Click="SaveButton_Click"
+                    <Button Content="💾 Save Now (Autosave Active)" Click="SaveButton_Click"
                             Style="{StaticResource PrimaryButton}" Padding="14,0" MinHeight="32" Margin="0,0,8,0"/>
                     <Button Content="🕒 Change History..." Click="ViewHistoryButton_Click"
                             Padding="12,0" MinHeight="32" Margin="0,0,8,0"/>

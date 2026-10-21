@@ -152,6 +152,8 @@ CREATE TABLE IF NOT EXISTS weekly_store_inventory (
     CONSTRAINT uq_store_cat_week UNIQUE (store_id, category_id, fiscal_year, fiscal_week)
 );
 
+ALTER TABLE weekly_store_inventory ADD COLUMN IF NOT EXISTS category_id SMALLINT REFERENCES merchandise_categories(category_id) ON UPDATE CASCADE;
+
 -- ----------------------------------------------------------------------------
 -- 7. Audit & Pipeline Execution Telemetry
 -- ----------------------------------------------------------------------------

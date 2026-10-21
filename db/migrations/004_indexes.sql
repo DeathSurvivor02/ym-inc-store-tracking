@@ -37,5 +37,13 @@ CREATE INDEX IF NOT EXISTS idx_wss_store_week ON weekly_store_sales (store_id, f
 CREATE INDEX IF NOT EXISTS idx_wss_fiscal_lookup ON weekly_store_sales (fiscal_year, fiscal_week, net_sales_cad DESC);
 CREATE INDEX IF NOT EXISTS idx_wss_comp_store ON weekly_store_sales (is_comp_store, fiscal_year, fiscal_week) WHERE is_comp_store = TRUE;
 CREATE INDEX IF NOT EXISTS idx_wsl_store_week ON weekly_store_labour (store_id, fiscal_year, fiscal_week);
-CREATE INDEX IF NOT EXISTS idx_wsi_store_cat ON weekly_store_inventory (store_id, category_id, fiscal_year, fiscal_week);
+DO $$ 
+BEGIN 
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'weekly_store_inventory' AND column_name = 'category_id'
+    ) THEN 
+        CREATE INDEX IF NOT EXISTS idx_wsi_store_cat ON weekly_store_inventory (store_id, category_id, fiscal_year, fiscal_week);
+    END IF; 
+END $$;
 CREATE INDEX IF NOT EXISTS idx_fiscal_calendar_lookup ON fiscal_calendar (fiscal_year, fiscal_week);

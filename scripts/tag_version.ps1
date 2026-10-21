@@ -3,11 +3,11 @@
     Automates creating and pushing version iteration tags to GitHub.
 
 .DESCRIPTION
-    Updates csproj version metadata (optional), commits changes, creates an annotated git tag,
+    Updates csproj version metadata, commits changes, creates an annotated git tag,
     and pushes to GitHub so the automated Release CI workflow packages the release.
 
 .PARAMETER Version
-    The semantic version string, e.g. "0.1.0-alpha", "0.1.0", "0.2.0".
+    The semantic version string, e.g. "0.1.1-alpha", "0.2.0".
 
 .PARAMETER Message
     Release summary or changelog summary for the tag message.
@@ -16,7 +16,7 @@
     Switch to immediately push the commit and tag to origin.
 
 .EXAMPLE
-    .\scripts\tag_version.ps1 -Version "0.1.0-alpha" -Message "Auth system, user management, and security overhaul" -Push
+    .\scripts\tag_version.ps1 -Version "0.1.1-alpha" -Message "Fix: layout adjustments and db pooling" -Push
 #>
 
 param (
@@ -39,33 +39,37 @@ $csprojPath = Join-Path $PSScriptRoot "..\desktop-app\YMInc.StoreDeploymentApp.c
 if (Test-Path $csprojPath) {
     Write-Host "Updating $csprojPath with version $rawVersion..." -ForegroundColor Yellow
     [xml]$xml = Get-Content $csprojPath
-    $propGroup = $xml.Project.PropertyGroup[0]
-
-    # Ensure elements exist
-    $cleanNumericVersion = ($rawVersion -split "-")[0]
-    while (($cleanNumericVersion.Split('.').Count) -lt 4) {
-        $cleanNumericVersion += ".0"
+    $propGroup = $xml.Project.PropertyGroup
+    if ($propGroup -is [System.Array]) {
+        $propGroup = $propGroup[0]
     }
 
-    if (-not $propGroup.Version) { $e = $xml.CreateElement("Version"); [void]$propGroup.AppendChild($e) }
+    $cleanNumericVersion = ($rawVersion -split "-")[0]
+    $segments = $cleanNumericVersion.Split('.')
+    while ($segments.Count -lt 4) {
+        $cleanNumericVersion += ".0"
+        $segments = $cleanNumericVersion.Split('.')
+    }
+
     $propGroup.Version = $rawVersion
-
-    if (-not $propGroup.AssemblyVersion) { $e = $xml.CreateElement("AssemblyVersion"); [void]$propGroup.AppendChild($e) }
     $propGroup.AssemblyVersion = $cleanNumericVersion
-
-    if (-not $propGroup.FileVersion) { $e = $xml.CreateElement("FileVersion"); [void]$propGroup.AppendChild($e) }
     $propGroup.FileVersion = $cleanNumericVersion
-
-    if (-not $propGroup.InformationalVersion) { $e = $xml.CreateElement("InformationalVersion"); [void]$propGroup.AppendChild($e) }
     $propGroup.InformationalVersion = $rawVersion
 
     $xml.Save($csprojPath)
     Write-Host "Saved updated csproj." -ForegroundColor Green
 }
 
-# 2. Check Git status
+# 2. Update CHANGELOG if needed & commit csproj
+git add "$csprojPath"
+$hasStaged = git diff --cached --name-only
+if ($hasStaged) {
+    git commit -m "chore(release): bump version to $rawVersion"
+}
+
+# 3. Create git tag
 Write-Host "==> Creating git tag: $tag" -ForegroundColor Cyan
-git tag -a $tag -m "$Message"
+git tag -a $tag -m "$Message" -f
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "Successfully created local tag: $tag" -ForegroundColor Green
@@ -74,14 +78,14 @@ if ($LASTEXITCODE -eq 0) {
     exit $LASTEXITCODE
 }
 
-# 3. Push if requested
+# 4. Push if requested
 if ($Push) {
     Write-Host "==> Pushing changes and tag $tag to origin..." -ForegroundColor Cyan
     git push origin HEAD
-    git push origin $tag
+    git push origin $tag -f
     Write-Host "Successfully pushed tag $tag to origin! GitHub Actions workflow will trigger." -ForegroundColor Green
 } else {
     Write-Host "To push to GitHub, run:" -ForegroundColor Yellow
     Write-Host "  git push origin HEAD"
-    Write-Host "  git push origin $tag"
+    Write-Host "  git push origin $tag -f"
 }

@@ -1,90 +1,201 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using YMInc.StoreDeploymentApp.Models;
 
 namespace YMInc.StoreDeploymentApp.Services
 {
     public class AuthService
     {
-        private static readonly List<User> InternalTeamUsers = new()
+        private static readonly DatabaseService _dbService = new();
+
+        // Local offline fallback team users (pre-hashed with Salt & Pepper)
+        private static readonly List<User> InternalTeamUsers = new();
+
+        static AuthService()
         {
-            new User
+            InitializeOfflineTeam();
+        }
+
+        private static void InitializeOfflineTeam()
+        {
+            var rawUsers = new[]
             {
-                UserId = 1,
-                Username = "pm",
-                FullName = "Marcus Vance",
-                Email = "mvance@yminc.ca",
-                PasswordHash = "pm123",
-                Role = UserRole.PM
-            },
-            new User
+                (1, "pm", "Marcus Vance", "mvance@yminc.ca", "pm123", UserRole.PM),
+                (2, "pa", "Claire Tremblay", "ctremblay@yminc.ca", "pa123", UserRole.PA),
+                (3, "ps1", "Terry O'Connor", "toconnor@yminc.ca", "ps123", UserRole.PS1),
+                (4, "ps2", "Danielle Levy", "dlevy@yminc.com", "ps2123", UserRole.PS2),
+                (5, "ps3", "Hector Ruiz", "hruiz@yminc.com", "ps3123", UserRole.PS3),
+                (6, "ps4", "Sarah Jenkins", "sjenkins@yminc.ca", "ps4123", UserRole.PS4)
+            };
+
+            foreach (var (id, username, name, email, pass, role) in rawUsers)
             {
-                UserId = 2,
-                Username = "pa",
-                FullName = "Claire Tremblay",
-                Email = "ctremblay@yminc.ca",
-                PasswordHash = "pa123",
-                Role = UserRole.PA
-            },
-            new User
-            {
-                UserId = 3,
-                Username = "ps1",
-                FullName = "Terry O'Connor",
-                Email = "toconnor@yminc.ca",
-                PasswordHash = "ps123",
-                Role = UserRole.PS1
-            },
-            new User
-            {
-                UserId = 4,
-                Username = "ps2",
-                FullName = "Danielle Levy",
-                Email = "dlevy@yminc.com",
-                PasswordHash = "ps2123",
-                Role = UserRole.PS2
-            },
-            new User
-            {
-                UserId = 5,
-                Username = "ps3",
-                FullName = "Hector Ruiz",
-                Email = "hruiz@yminc.com",
-                PasswordHash = "ps3123",
-                Role = UserRole.PS3
-            },
-            new User
-            {
-                UserId = 6,
-                Username = "ps4",
-                FullName = "Sarah Jenkins",
-                Email = "sjenkins@yminc.ca",
-                PasswordHash = "ps4123",
-                Role = UserRole.PS4
+                PasswordSecurityService.HashNewPassword(pass, out string salt, out string hash);
+                InternalTeamUsers.Add(new User
+                {
+                    UserId = id,
+                    Username = username,
+                    FullName = name,
+                    Email = email,
+                    PasswordHash = hash,
+                    PasswordSalt = salt,
+                    Iterations = 100_000,
+                    IsActive = true,
+                    Role = role
+                });
             }
-        };
+        }
 
         public static User? CurrentUser { get; private set; }
 
-        public static (bool Success, string Message, User? User) Login(string username, string password)
+        /// <summary>
+        /// Asynchronously authenticates a user using database-backed Salt and Pepper verification.
+        /// Falls back to secure local cache if PostgreSQL database is unreachable.
+        /// </summary>
+        public static async Task<(bool Success, string Message, User? User)> LoginAsync(string username, string password)
         {
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             {
                 return (false, "Please enter both username and password.", null);
             }
 
-            var user = InternalTeamUsers.FirstOrDefault(u => 
-                u.Username.Equals(username.Trim(), StringComparison.OrdinalIgnoreCase) && 
-                u.PasswordHash == password);
+            string cleanUsername = username.Trim();
 
-            if (user == null)
+            // 1. Attempt database-backed Salt & Pepper authentication
+            try
             {
-                return (false, "Invalid credentials. Please verify your team user ID and password.", null);
+                var dbUser = await _dbService.GetUserByUsernameOrEmailAsync(cleanUsername);
+                if (dbUser != null)
+                {
+                    if (!dbUser.IsActive)
+                    {
+                        return (false, "This account is inactive or disabled. Please contact your administrator.", null);
+                    }
+
+                    bool passwordValid = PasswordSecurityService.VerifyPassword(
+                        password, 
+                        dbUser.PasswordHash, 
+                        dbUser.PasswordSalt, 
+                        dbUser.Iterations);
+
+                    if (passwordValid)
+                    {
+                        _ = _dbService.RecordUserLoginAsync(dbUser.UserId);
+                        CurrentUser = dbUser;
+                        return (true, "Authentication successful (Verified via Neon PostgreSQL).", dbUser);
+                    }
+                    else
+                    {
+                        _ = _dbService.RecordFailedLoginAttemptAsync(cleanUsername);
+                        return (false, "Invalid credentials. Please verify your username and password.", null);
+                    }
+                }
+            }
+            catch
+            {
+                // Database query failed; fall through to offline cache
             }
 
-            CurrentUser = user;
-            return (true, "Authentication successful.", user);
+            // 2. Offline fallback authentication using Salt & Pepper
+            var localUser = InternalTeamUsers.FirstOrDefault(u =>
+                u.Username.Equals(cleanUsername, StringComparison.OrdinalIgnoreCase) ||
+                u.Email.Equals(cleanUsername, StringComparison.OrdinalIgnoreCase));
+
+            if (localUser != null)
+            {
+                bool localValid = PasswordSecurityService.VerifyPassword(
+                    password,
+                    localUser.PasswordHash,
+                    localUser.PasswordSalt,
+                    localUser.Iterations);
+
+                if (localValid)
+                {
+                    CurrentUser = localUser;
+                    return (true, "Authentication successful (Offline Mode).", localUser);
+                }
+            }
+
+            return (false, "Invalid credentials. Please verify your team user ID and password.", null);
+        }
+
+        /// <summary>
+        /// Synchronous wrapper for LoginAsync for legacy call-sites.
+        /// </summary>
+        public static (bool Success, string Message, User? User) Login(string username, string password)
+        {
+            try
+            {
+                return Task.Run(() => LoginAsync(username, password)).GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Authentication error: {ex.Message}", null);
+            }
+        }
+
+        /// <summary>
+        /// Resets a user's password in the database using Salt and Pepper cryptography.
+        /// </summary>
+        public static async Task<(bool Success, string Message)> ResetPasswordAsync(string usernameOrEmail, string newPassword)
+        {
+            if (string.IsNullOrWhiteSpace(usernameOrEmail))
+            {
+                return (false, "Please enter your username or registered corporate email.");
+            }
+
+            if (!PasswordSecurityService.ValidatePassword(newPassword, out var validationError))
+            {
+                return (false, validationError);
+            }
+
+            // 1. Attempt database password reset
+            try
+            {
+                var result = await _dbService.ResetUserPasswordAsync(usernameOrEmail, newPassword);
+                if (result.Success)
+                {
+                    // Update local offline cache in case offline mode is used later
+                    UpdateLocalPasswordCache(usernameOrEmail, newPassword);
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                // If DB failed, attempt offline cache if DB is offline
+                if (UpdateLocalPasswordCache(usernameOrEmail, newPassword))
+                {
+                    return (true, "Password updated in local cache (Offline Mode).");
+                }
+                return (false, $"Failed to reset password: {ex.Message}");
+            }
+
+            // If DB returned not found, check offline cache
+            if (UpdateLocalPasswordCache(usernameOrEmail, newPassword))
+            {
+                return (true, "Password reset successfully in local cache.");
+            }
+
+            return (false, "No account was found matching the username or email provided.");
+        }
+
+        private static bool UpdateLocalPasswordCache(string usernameOrEmail, string newPassword)
+        {
+            var user = InternalTeamUsers.FirstOrDefault(u =>
+                u.Username.Equals(usernameOrEmail.Trim(), StringComparison.OrdinalIgnoreCase) ||
+                u.Email.Equals(usernameOrEmail.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            if (user != null)
+            {
+                PasswordSecurityService.HashNewPassword(newPassword, out string salt, out string hash);
+                user.PasswordHash = hash;
+                user.PasswordSalt = salt;
+                return true;
+            }
+
+            return false;
         }
 
         public static void Logout()

@@ -55,11 +55,31 @@ namespace YMInc.StoreDeploymentApp.Views
             PasswordBox.Password = "ps123";
         }
 
-        private void AttemptLogin(string username, string password)
+        private void ForgotPasswordButton_Click(object sender, RoutedEventArgs e)
+        {
+            var resetWin = new ResetPasswordWindow(UsernameTextBox.Text)
+            {
+                Owner = this
+            };
+
+            if (resetWin.ShowDialog() == true && !string.IsNullOrWhiteSpace(resetWin.ResetUsername))
+            {
+                UsernameTextBox.Text = resetWin.ResetUsername;
+                PasswordBox.Password = string.Empty;
+                PasswordBox.Focus();
+                ErrorBanner.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private async void AttemptLogin(string username, string password)
         {
             try
             {
-                var (success, message, user) = AuthService.Login(username, password);
+                LaunchButton.IsEnabled = false;
+                LaunchButton.Content = "Verifying...";
+                ErrorBanner.Visibility = Visibility.Collapsed;
+
+                var (success, message, user) = await AuthService.LoginAsync(username, password);
                 if (success && user != null)
                 {
                     var mainWindow = new MainWindow(user);
@@ -77,6 +97,11 @@ namespace YMInc.StoreDeploymentApp.Views
             {
                 ErrorText.Text = $"Error opening workspace: {ex.Message}";
                 ErrorBanner.Visibility = Visibility.Visible;
+            }
+            finally
+            {
+                LaunchButton.IsEnabled = true;
+                LaunchButton.Content = "Sign In";
             }
         }
     }

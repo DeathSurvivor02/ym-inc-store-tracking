@@ -21,7 +21,8 @@ $migrations = @(
     "db/migrations/002_stores_and_lifecycle.sql",
     "db/migrations/003_analytics_and_facts.sql",
     "db/migrations/004_indexes.sql",
-    "db/migrations/005_views.sql"
+    "db/migrations/005_views.sql",
+    "db/migrations/006_app_users_auth.sql"
 )
 
 foreach ($migration in $migrations) {

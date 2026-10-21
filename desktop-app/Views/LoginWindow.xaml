@@ -101,8 +101,13 @@
                     <TextBlock Text="Username" FontSize="12" FontWeight="SemiBold" Foreground="#323130" Margin="0,0,0,4"/>
                     <TextBox x:Name="UsernameTextBox" Text="pm" Height="32" FontSize="13" VerticalContentAlignment="Center" Margin="0,0,0,14"/>
 
-                    <!-- Password -->
-                    <TextBlock Text="Password" FontSize="12" FontWeight="SemiBold" Foreground="#323130" Margin="0,0,0,4"/>
+                    <!-- Password Header with Reset Link -->
+                    <DockPanel Margin="0,0,0,4">
+                        <TextBlock Text="Password" FontSize="12" FontWeight="SemiBold" Foreground="#323130" VerticalAlignment="Center"/>
+                        <Button Content="Forgot or Reset Password?" Click="ForgotPasswordButton_Click"
+                                Background="Transparent" BorderThickness="0" Foreground="#0F6CBD"
+                                Cursor="Hand" HorizontalAlignment="Right" FontSize="11" Padding="0"/>
+                    </DockPanel>
                     <PasswordBox x:Name="PasswordBox" Password="pm123" Height="32" FontSize="13" VerticalContentAlignment="Center" Margin="0,0,0,14"/>
 
                     <!-- Error Banner -->
@@ -114,6 +119,10 @@
                     <Button x:Name="LaunchButton" Content="Sign In" Click="SignInButton_Click"
                             IsDefault="True" Style="{StaticResource PrimaryButton}"
                             Height="34" FontSize="13"/>
+
+                    <!-- Reset Password Secondary Button -->
+                    <Button x:Name="ResetPasswordButton" Content="🔑 Reset Password with Salt &amp; Pepper..." Click="ForgotPasswordButton_Click"
+                            Height="30" FontSize="11.5" Margin="0,8,0,0" ToolTip="Reset your password using cryptographic Salt and Pepper"/>
 
                     <!-- Quick Role Switcher -->
                     <Border BorderBrush="#E1DFDD" BorderThickness="0,1,0,0" Margin="0,22,0,0" Padding="0,14,0,0">

@@ -962,13 +962,13 @@ namespace YMInc.StoreDeploymentApp.Services
                     foreach (var c in store.Circuits)
                     {
                         const string insCircSql = @"
-                            INSERT INTO telecom_circuits (store_id, circuit_role, carrier_name, service_type, order_status, bandwidth_down_mbps, bandwidth_up_mbps)
+                            INSERT INTO circuit_details (store_id, circuit_role, carrier_name, service_type, order_status, bandwidth_down_mbps, bandwidth_up_mbps)
                             VALUES (@StoreId, @Role, @Carrier, @Service, @Status, @Down, @Up);";
                         await using var circCmd = new NpgsqlCommand(insCircSql, conn, tx);
                         circCmd.Parameters.AddWithValue("StoreId", storeId);
                         circCmd.Parameters.AddWithValue("Role", c.Role ?? "Primary WAN");
-                        circCmd.Parameters.AddWithValue("Carrier", string.IsNullOrWhiteSpace(c.CarrierName) ? "Bell Dedicated Fiber" : c.CarrierName);
-                        circCmd.Parameters.AddWithValue("Service", string.IsNullOrWhiteSpace(c.ServiceType) ? "DIA Fiber 100M" : c.ServiceType);
+                        circCmd.Parameters.AddWithValue("Carrier", string.IsNullOrWhiteSpace(c.CarrierName) ? "Bell Canada" : c.CarrierName);
+                        circCmd.Parameters.AddWithValue("Service", string.IsNullOrWhiteSpace(c.ServiceType) ? "Commercial Fiber DIA" : c.ServiceType);
                         circCmd.Parameters.AddWithValue("Status", string.IsNullOrWhiteSpace(c.OrderStatus) ? "Order Placed" : c.OrderStatus);
                         circCmd.Parameters.AddWithValue("Down", c.BandwidthDownMbps > 0 ? c.BandwidthDownMbps : 100);
                         circCmd.Parameters.AddWithValue("Up", c.BandwidthUpMbps > 0 ? c.BandwidthUpMbps : 100);
@@ -978,8 +978,8 @@ namespace YMInc.StoreDeploymentApp.Services
                 else
                 {
                     const string insCircSql = @"
-                        INSERT INTO telecom_circuits (store_id, circuit_role, carrier_name, service_type, order_status, bandwidth_down_mbps, bandwidth_up_mbps)
-                        VALUES (@StoreId, 'Primary WAN', 'Bell Canada', 'DIA Fiber 100M', 'Order Placed', 100, 100);";
+                        INSERT INTO circuit_details (store_id, circuit_role, carrier_name, service_type, order_status, bandwidth_down_mbps, bandwidth_up_mbps)
+                        VALUES (@StoreId, 'Primary WAN', 'Bell Canada', 'Commercial Fiber DIA', 'Order Placed', 100, 100);";
                     await using var circCmd = new NpgsqlCommand(insCircSql, conn, tx);
                     circCmd.Parameters.AddWithValue("StoreId", storeId);
                     await circCmd.ExecuteNonQueryAsync();
@@ -1471,5 +1471,174 @@ namespace YMInc.StoreDeploymentApp.Services
                 _ => 1.15
             };
         }
+
+        #region Authentication & Security (Salt and Pepper)
+
+        public async Task<User?> GetUserByUsernameOrEmailAsync(string usernameOrEmail)
+        {
+            if (string.IsNullOrWhiteSpace(usernameOrEmail))
+                return null;
+
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                const string sql = @"
+                    SELECT user_id, username, email, full_name, role, password_hash, password_salt, iterations, is_active
+                    FROM app_users
+                    WHERE LOWER(username) = LOWER(@id) OR LOWER(email) = LOWER(@id)
+                    LIMIT 1;";
+
+                await using var cmd = new NpgsqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("id", usernameOrEmail.Trim());
+
+                await using var reader = await cmd.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    var roleStr = reader.GetString(4);
+                    if (!Enum.TryParse<UserRole>(roleStr, true, out var role))
+                    {
+                        role = UserRole.PM;
+                    }
+
+                    return new User
+                    {
+                        UserId = reader.GetInt32(0),
+                        Username = reader.GetString(1),
+                        Email = reader.GetString(2),
+                        FullName = reader.GetString(3),
+                        Role = role,
+                        PasswordHash = reader.GetString(5),
+                        PasswordSalt = reader.GetString(6),
+                        Iterations = reader.GetInt32(7),
+                        IsActive = reader.GetBoolean(8)
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                LastError = $"Failed to fetch user: {ex.Message}";
+            }
+            return null;
+        }
+
+        public async Task<bool> RecordUserLoginAsync(int userId)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                const string sql = @"
+                    UPDATE app_users 
+                    SET last_login_at = CURRENT_TIMESTAMP, failed_attempts = 0, updated_at = CURRENT_TIMESTAMP
+                    WHERE user_id = @userId;";
+
+                await using var cmd = new NpgsqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("userId", userId);
+                return await cmd.ExecuteNonQueryAsync() > 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> RecordFailedLoginAttemptAsync(string usernameOrEmail)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                const string sql = @"
+                    UPDATE app_users 
+                    SET failed_attempts = failed_attempts + 1, updated_at = CURRENT_TIMESTAMP
+                    WHERE LOWER(username) = LOWER(@id) OR LOWER(email) = LOWER(@id);";
+
+                await using var cmd = new NpgsqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("id", usernameOrEmail.Trim());
+                return await cmd.ExecuteNonQueryAsync() > 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<(bool Success, string Message)> ResetUserPasswordAsync(string usernameOrEmail, string newPassword)
+        {
+            if (string.IsNullOrWhiteSpace(usernameOrEmail))
+                return (false, "Username or email is required.");
+
+            if (!PasswordSecurityService.ValidatePassword(newPassword, out var failureReason))
+                return (false, failureReason);
+
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                // First verify user exists
+                const string checkSql = @"
+                    SELECT user_id, is_active FROM app_users 
+                    WHERE LOWER(username) = LOWER(@id) OR LOWER(email) = LOWER(@id)
+                    LIMIT 1;";
+
+                int userId = 0;
+                bool isActive = false;
+                await using (var checkCmd = new NpgsqlCommand(checkSql, conn))
+                {
+                    checkCmd.Parameters.AddWithValue("id", usernameOrEmail.Trim());
+                    await using var reader = await checkCmd.ExecuteReaderAsync();
+                    if (await reader.ReadAsync())
+                    {
+                        userId = reader.GetInt32(0);
+                        isActive = reader.GetBoolean(1);
+                    }
+                }
+
+                if (userId == 0)
+                    return (false, "No active user account found matching the provided identity.");
+
+                if (!isActive)
+                    return (false, "This user account is currently deactivated. Contact an administrator.");
+
+                // Generate new salt and hash with Pepper
+                PasswordSecurityService.HashNewPassword(newPassword, out string saltBase64, out string hashBase64);
+
+                const string updateSql = @"
+                    UPDATE app_users
+                    SET password_hash = @hash,
+                        password_salt = @salt,
+                        iterations = 100000,
+                        password_changed_at = CURRENT_TIMESTAMP,
+                        failed_attempts = 0,
+                        locked_until = NULL,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE user_id = @userId;";
+
+                await using (var updateCmd = new NpgsqlCommand(updateSql, conn))
+                {
+                    updateCmd.Parameters.AddWithValue("hash", hashBase64);
+                    updateCmd.Parameters.AddWithValue("salt", saltBase64);
+                    updateCmd.Parameters.AddWithValue("userId", userId);
+                    int rows = await updateCmd.ExecuteNonQueryAsync();
+                    if (rows > 0)
+                    {
+                        return (true, "Password has been securely reset. You can now sign in with your new credentials.");
+                    }
+                }
+
+                return (false, "Could not update password in the database.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Database error while resetting password: {ex.Message}");
+            }
+        }
+
+        #endregion
     }
 }

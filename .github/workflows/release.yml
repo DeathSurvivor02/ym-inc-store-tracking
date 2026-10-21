@@ -1,0 +1,73 @@
+name: Build & Release Desktop App
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build & Publish Release
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Extract Tag or Version
+        id: get_version
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF -like "refs/tags/*") {
+            $tag = $env:GITHUB_REF -replace "refs/tags/", ""
+            $cleanVersion = $tag.TrimStart("v")
+          } else {
+            $tag = "v0.1.0-alpha"
+            $cleanVersion = "0.1.0-alpha"
+          }
+          Write-Host "Releasing version: $cleanVersion (Tag: $tag)"
+          echo "VERSION=$cleanVersion" >> $env:GITHUB_ENV
+          echo "TAG=$tag" >> $env:GITHUB_ENV
+
+      - name: Restore Dependencies
+        run: dotnet restore desktop-app/YMInc.StoreDeploymentApp.csproj
+
+      - name: Build and Publish Self-Contained Desktop App
+        shell: pwsh
+        run: |
+          dotnet publish desktop-app/YMInc.StoreDeploymentApp.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:Version=$env:VERSION `
+            -o ./dist/YMInc.StoreDeploymentApp-win-x64
+
+      - name: Create Zip Archive
+        shell: pwsh
+        run: |
+          Compress-Archive -Path ./dist/YMInc.StoreDeploymentApp-win-x64/* -DestinationPath ./YMInc.StoreDeploymentApp-${{ env.TAG }}-win-x64.zip
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          tag_name: ${{ env.TAG }}
+          name: Release ${{ env.TAG }}
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: ${{ contains(env.TAG, 'alpha') || contains(env.TAG, 'beta') || contains(env.TAG, 'rc') }}
+          files: |
+            YMInc.StoreDeploymentApp-${{ env.TAG }}-win-x64.zip

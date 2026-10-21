@@ -74,7 +74,10 @@ obj/
 *.userosscache
 *.sln.docstates
 
+# Neon / Local scratch
 .neon
 scratch/
 *.zip
 Standalone-FlashDrive-*/
+.agents/teamwork/
+

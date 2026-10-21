@@ -45,7 +45,8 @@ async function run() {
       '002_stores_and_lifecycle.sql',
       '003_analytics_and_facts.sql',
       '004_indexes.sql',
-      '005_views.sql'
+      '005_views.sql',
+      '006_app_users_auth.sql'
     ];
 
     for (const file of migrationFiles) {
